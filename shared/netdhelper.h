@@ -3,11 +3,10 @@
 
 #include <net/if.h>
 
-#define MACARRSIZ 6
 #define MACSTRSIZ 19
 
-int get_ifreq(struct ifreq *req);
-int set_ifreq(struct ifreq *req);
-char *get_hwaddr(struct ifreq *req);
-
+int get_ifreq(int sd, struct ifreq *req);
+int set_ifreq(int sd, struct ifreq *req);
+char *get_strhwaddr(struct sockaddr hwa);
+int get_burnedin_mac (int sd, struct ifreq *req, struct sockaddr *hwa);
 #endif
