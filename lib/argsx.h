@@ -36,19 +36,18 @@ extern unsigned short ax_loptidx; // Long options index
 #define ARGSX_NOARG 0x00
 #define ARGSX_REQ_ARG 0x01
 
-typedef struct ax_lopt
-{
+typedef struct ax_lopt {
     char *name;
     int args;
     char opt;
-}ax_lopt;
+} ax_lopt;
 
-typedef enum ax_einfo
-{
-	short_opt,
-	long_opt
-}ax_einfo;
+typedef enum ax_einfo {
+    short_opt,
+    long_opt
+} ax_einfo;
 
 /* prototype */
-int argsx(int argc, char **argv, char *opt, ax_lopt *lopt, unsigned short lopt_size,char tr);
+int argsx(int argc, char **argv, char *opt, ax_lopt *lopt, unsigned short lopt_size, char tr);
+
 #endif
