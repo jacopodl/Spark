@@ -174,24 +174,3 @@ int show_iface(int filter_flag)
     freeifaddrs(ifa);
     return 0;
 }
-
-void rndhwaddr(struct sockaddr *mac)
-{
-/* The LSB of the MSB can not be set,
- * because those are multicast mac addr!
- */
-    FILE *urandom;
-    urandom = fopen("/dev/urandom", "r");
-    unsigned char byte;
-    for (int i = 0; i < IFHWADDRLEN; i++) {
-        fread(&byte, 1, 1, urandom);
-        switch (i) {
-            case 0:
-                mac->sa_data[i] = byte & ((char) 0xFE);
-                break;
-            default:
-                mac->sa_data[i] = byte;
-        }
-    }
-    fclose(urandom);
-}

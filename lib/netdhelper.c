@@ -8,6 +8,27 @@
 #include <linux/sockios.h>
 #include "netdhelper.h"
 
+void rndhwaddr(struct sockaddr *mac)
+{
+/* The LSB of the MSB can not be set,
+ * because those are multicast mac addr!
+ */
+    FILE *urandom;
+    urandom = fopen("/dev/urandom", "r");
+    unsigned char byte;
+    for (int i = 0; i < IFHWADDRLEN; i++) {
+        fread(&byte, 1, 1, urandom);
+        switch (i) {
+            case 0:
+                mac->sa_data[i] = byte & ((char) 0xFE);
+                break;
+            default:
+                mac->sa_data[i] = byte;
+        }
+    }
+    fclose(urandom);
+}
+
 char *get_strhwaddr(struct sockaddr hwa)
 {
     char *mac = (char *) malloc(MACSTRSIZ);
@@ -101,6 +122,5 @@ bool set_flags(int sd, char *iface_name, short flags)
     req.ifr_ifru.ifru_flags = flags;
     return ioctl(sd, SIOCSIFFLAGS, &req) >= 0;
 }
-
 
 

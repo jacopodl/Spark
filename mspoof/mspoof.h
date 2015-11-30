@@ -19,6 +19,4 @@ int make_spoof(struct options *opt);
 
 int show_iface(int filter_flag);
 
-void rndhwaddr(struct sockaddr *mac);
-
 #endif

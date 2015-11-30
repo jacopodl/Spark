@@ -6,6 +6,8 @@
 
 #define MACSTRSIZ 19
 
+void rndhwaddr(struct sockaddr *mac);
+
 char *get_strhwaddr(struct sockaddr hwa);
 
 bool get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa);
