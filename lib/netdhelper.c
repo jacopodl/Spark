@@ -8,39 +8,6 @@
 #include <linux/sockios.h>
 #include "netdhelper.h"
 
-void rndhwaddr(struct sockaddr *mac)
-{
-/* The LSB of the MSB can not be set,
- * because those are multicast mac addr!
- */
-    FILE *urandom;
-    urandom = fopen("/dev/urandom", "r");
-    unsigned char byte;
-    for (int i = 0; i < IFHWADDRLEN; i++) {
-        fread(&byte, 1, 1, urandom);
-        switch (i) {
-            case 0:
-                mac->sa_data[i] = byte & ((char) 0xFE);
-                break;
-            default:
-                mac->sa_data[i] = byte;
-        }
-    }
-    fclose(urandom);
-}
-
-char *get_strhwaddr(struct sockaddr hwa)
-{
-    char *mac = (char *) malloc(MACSTRSIZ);
-    if (mac == NULL)
-        return NULL;
-    sprintf(mac, "%.2X:%.2X:%.2X:%.2X:%.2X:%.2X",
-            (unsigned char) hwa.sa_data[0], (unsigned char) hwa.sa_data[1],
-            (unsigned char) hwa.sa_data[2], (unsigned char) hwa.sa_data[3],
-            (unsigned char) hwa.sa_data[4], (unsigned char) hwa.sa_data[5]);
-    return mac;
-}
-
 bool get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa)
 {
     /* struct ethtool_perm_addr{
@@ -73,6 +40,18 @@ bool get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa)
 }
 
 /* sd = socket(AF_INET,SOCK_DGRAM,0) */
+bool get_flags(int sd, char *iface_name, short *flags)
+{
+    /* Get the active flag word of the device. */
+    struct ifreq req;
+    memset(&req, 0x00, sizeof(struct ifreq));
+    strcpy(req.ifr_ifrn.ifrn_name, iface_name);
+    if (ioctl(sd, SIOCGIFFLAGS, &req) < 0)
+        return false;
+    *flags = req.ifr_ifru.ifru_flags;
+    return true;
+}
+
 bool get_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr)
 {
     /* Get the hardware address of a device using ifr_hwaddr. */
@@ -83,6 +62,16 @@ bool get_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr)
         return false;
     memcpy(hwaddr, &req.ifr_ifru.ifru_hwaddr, sizeof(struct sockaddr));
     return true;
+}
+
+bool set_flags(int sd, char *iface_name, short flags)
+{
+    /* Set the active flag word of the device. */
+    struct ifreq req;
+    memset(&req, 0x00, sizeof(struct ifreq));
+    strcpy(req.ifr_ifrn.ifrn_name, iface_name);
+    req.ifr_ifru.ifru_flags = flags;
+    return ioctl(sd, SIOCSIFFLAGS, &req) >= 0;
 }
 
 bool set_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr)
@@ -101,26 +90,49 @@ bool set_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr)
     return ioctl(sd, SIOCSIFHWADDR, &req) >= 0;
 }
 
-bool get_flags(int sd, char *iface_name, short *flags)
+bool parse_hwaddr(char *hwstr, struct sockaddr *ret_sockaddr)
 {
-    /* Get the active flag word of the device. */
-    struct ifreq req;
-    memset(&req, 0x00, sizeof(struct ifreq));
-    strcpy(req.ifr_ifrn.ifrn_name, iface_name);
-    if (ioctl(sd, SIOCGIFFLAGS, &req) < 0)
+    if (strlen(hwstr) >= MACSTRSIZ)
         return false;
-    *flags = req.ifr_ifru.ifru_flags;
+    unsigned int hwaddr[IFHWADDRLEN];
+    if (sscanf(hwstr, "%x:%x:%x:%x:%x:%x", hwaddr, hwaddr + 1, hwaddr + 2, hwaddr + 3, hwaddr + 4, hwaddr + 5) != 6 ||
+        hwaddr[0] & ~0xFE)
+        return false;
+    if (ret_sockaddr != NULL)
+        for (int i = 0; i < IFHWADDRLEN; i++)
+            ret_sockaddr->sa_data[i] = (char) hwaddr[i];
     return true;
 }
 
-bool set_flags(int sd, char *iface_name, short flags)
+char *get_strhwaddr(struct sockaddr *hwa)
 {
-    /* Set the active flag word of the device. */
-    struct ifreq req;
-    memset(&req, 0x00, sizeof(struct ifreq));
-    strcpy(req.ifr_ifrn.ifrn_name, iface_name);
-    req.ifr_ifru.ifru_flags = flags;
-    return ioctl(sd, SIOCSIFFLAGS, &req) >= 0;
+    char *mac = (char *) malloc(MACSTRSIZ);
+    if (mac == NULL)
+        return NULL;
+    sprintf(mac, "%.2X:%.2X:%.2X:%.2X:%.2X:%.2X",
+            (unsigned char) hwa->sa_data[0], (unsigned char) hwa->sa_data[1],
+            (unsigned char) hwa->sa_data[2], (unsigned char) hwa->sa_data[3],
+            (unsigned char) hwa->sa_data[4], (unsigned char) hwa->sa_data[5]);
+    return mac;
 }
 
-
+void rndhwaddr(struct sockaddr *mac)
+{
+/* The LSB of the MSB can not be set,
+ * because those are multicast mac addr!
+ */
+    FILE *urandom;
+    urandom = fopen("/dev/urandom", "r");
+    unsigned char byte;
+    for (int i = 0; i < IFHWADDRLEN; i++) {
+        fread(&byte, 1, 1, urandom);
+        switch (i) {
+            case 0:
+                mac->sa_data[i] = byte & ((char) 0xFE);
+                break;
+            default:
+                mac->sa_data[i] = byte;
+        }
+    }
+    fclose(urandom);
+}

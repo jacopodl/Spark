@@ -67,14 +67,10 @@ int main(int argc, char **argv)
                     strcpy(opt.iface_name, ax_arg);
                     opt.set = true;
                 } else {
-                    unsigned int hwaddr[IFHWADDRLEN];
-                    if (sscanf(ax_arg, "%x:%x:%x:%x:%x:%x", hwaddr, hwaddr + 1, hwaddr + 2,
-                               hwaddr + 3, hwaddr + 4, hwaddr + 5) != 6 || hwaddr[0] & ~0xFE) {
+                    if (!parse_hwaddr(ax_arg, &opt.iface_hwaddr)) {
                         fprintf(stderr, "Malformed mac addr!\n");
                         return -1;
                     }
-                    for (int i = 0; i < IFHWADDRLEN; i++)
-                        opt.iface_hwaddr.sa_data[i] = (char) hwaddr[i];
                     opt.mac = true;
                 }
                 break;
@@ -162,8 +158,8 @@ int show_iface(int filter_flag)
                 close(sd);
                 return -1;
             }
-            char *mac = get_strhwaddr(hwaddr);
-            char *bmac = get_strhwaddr(burnin);
+            char *mac = get_strhwaddr(&hwaddr);
+            char *bmac = get_strhwaddr(&burnin);
             printf("%s\t\t%s - burnin: %s\t%s\n", curr->ifa_name, mac, bmac,
                    (strcmp(mac, bmac) == 0 ? (char *) "" : (char *) "[spoofed]"));
             free(mac);
