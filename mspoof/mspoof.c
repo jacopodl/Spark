@@ -6,8 +6,8 @@
 #include <ifaddrs.h>
 #include <net/if.h>
 #include "mspoof.h"
-#include "../lib/netdhelper.h"
 #include "../lib/argsx.h"
+#include "../lib/netdhelper.h"
 
 void usage()
 {

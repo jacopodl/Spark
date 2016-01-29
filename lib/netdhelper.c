@@ -8,6 +8,16 @@
 #include <linux/sockios.h>
 #include "netdhelper.h"
 
+
+bool build_sockaddr_ll(struct sockaddr_ll *iface, char *if_name,struct sockaddr *hwaddr)
+{
+    memset(iface,0x00,sizeof(struct sockaddr_ll));
+    iface->sll_family=AF_PACKET;
+    memcpy(&iface->sll_addr,hwaddr->sa_data,IFHWADDRLEN);
+    iface->sll_halen=IFHWADDRLEN;
+    return (iface->sll_ifindex=if_nametoindex(if_name))==0;
+}
+
 bool get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa)
 {
     /* struct ethtool_perm_addr{
@@ -118,9 +128,10 @@ char *get_strhwaddr(struct sockaddr *hwa)
 
 void rndhwaddr(struct sockaddr *mac)
 {
-/* The LSB of the MSB can not be set,
+/* The lsb of the MSB can not be set,
  * because those are multicast mac addr!
  */
+    memset(mac,0x00,sizeof(struct sockaddr));
     FILE *urandom;
     urandom = fopen("/dev/urandom", "r");
     unsigned char byte;

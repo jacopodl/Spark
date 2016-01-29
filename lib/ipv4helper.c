@@ -52,15 +52,28 @@ void increment_ipv4addr(struct in_addr *addr)
             break;
 }
 
+void ipv4_checksum(struct ipv4_header *ipHeader)
+{
+    ipHeader->checksum=0x00;
+    unsigned short int *buff = (unsigned short int*)ipHeader;
+    unsigned long sum = 0;
+    for(int i=0; i<sizeof(struct ipv4_header); sum+=buff[i],i++);
+    sum = (sum >> 16) + (sum &0xffff);
+    sum += (sum >> 16);
+    ipHeader->checksum= (unsigned short int)~sum;
+}
+
 void rndipv4addr(struct in_addr *addr)
 {
     FILE *urandom;
     urandom = fopen("/dev/urandom", "r");
     addr->s_addr = 0;
+    /*
     unsigned char byte;
     for (int i = 0; i < IPV4ADDRLEN; i++) {
         fread(&byte, 1, 1, urandom);
         addr->s_addr |= byte << (8 * i);
-    }
+    }*/
+    fread(&addr->s_addr,4,1,urandom);
     fclose(urandom);
 }
