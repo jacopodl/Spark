@@ -9,21 +9,7 @@
 #include "../lib/argsx.h"
 #include "../lib/netdhelper.h"
 
-void usage()
-{
-    printf("\n%s V: %s\n", APPNAME, VERSION);
-    printf("Use: %s [OPTION]...\n"
-                   "Spoof MAC address.\n"
-                   "\t-h\t\tPrint this help\n"
-                   "\t-v, --version\tPrint version and exit\n"
-                   "\t-l, --list\tPrint all network interface with name and MAC\n"
-                   "\t-u\t\tCombined with -l shows the inactive interfaces\n"
-                   "\t-r, --random\tCombined with -s, build and set random MAC\n"
-                   "\t--rset\t\tRestore burned-in MAC\n", APPNAME);
-}
-
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 
     struct options opt = {false, false, false, false, false, IFF_RUNNING, "\0", 0};
 
@@ -55,9 +41,9 @@ int main(int argc, char **argv)
                     opt.rset = true;
                 break;
             case ARGSX_BAD_OPT:
-                return 0;
+                return -1;
             case ARGSX_FEW_ARGS:
-                return 0;
+                return -1;
             case ARGSX_NONOPT:
                 if (!opt.set) {
                     if (strlen(ax_arg) >= IFNAMSIZ) {
@@ -73,6 +59,8 @@ int main(int argc, char **argv)
                     }
                     opt.mac = true;
                 }
+                break;
+            default:
                 break;
         }
     }
@@ -93,8 +81,7 @@ int main(int argc, char **argv)
     return 0;
 }
 
-int make_spoof(struct options *opt)
-{
+int make_spoof(struct options *opt) {
     if (getuid()) {
         fprintf(stderr, "Required elevated privileges!\n");
         return -1;
@@ -138,8 +125,7 @@ int make_spoof(struct options *opt)
     return 0;
 }
 
-int show_iface(int filter_flag)
-{
+int show_iface(int filter_flag) {
     struct ifaddrs *ifa = NULL;
     int sd;
     if (getifaddrs(&ifa) < 0)
@@ -169,4 +155,16 @@ int show_iface(int filter_flag)
     close(sd);
     freeifaddrs(ifa);
     return 0;
+}
+
+void usage() {
+    printf("\n%s V: %s\n"
+                   "Spoof MAC address.\n", APPNAME, VERSION);
+    printf("Usage: %s [OPTIONS]\n"
+                   "\t-h, --help\tPrint this help\n"
+                   "\t-v, --version\tPrint version and exit\n"
+                   "\t-l, --list\tPrint all network interface with name and MAC\n"
+                   "\t-u\t\tCombined with -l shows the inactive interfaces\n"
+                   "\t-r, --random\tCombined with -s, build and set random MAC\n"
+                   "\t--rset\t\tRestore burned-in MAC\n", APPNAME);
 }

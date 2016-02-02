@@ -50,6 +50,8 @@ bool parse_ipv4addr(char *ipstr, struct in_addr *ret_addr);
 
 char *get_stripv4(struct in_addr *addr);
 
+unsigned int build_id();
+
 void get_ipv4bcast_addr(struct in_addr *addr, struct in_addr *netmask, struct in_addr *ret_addr);
 
 void get_ipv4net_addr(struct in_addr *addr, struct in_addr *netmask, struct in_addr *ret_addr);

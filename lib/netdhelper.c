@@ -15,7 +15,7 @@ bool build_sockaddr_ll(struct sockaddr_ll *iface, char *if_name,struct sockaddr 
     iface->sll_family=AF_PACKET;
     memcpy(&iface->sll_addr,hwaddr->sa_data,IFHWADDRLEN);
     iface->sll_halen=IFHWADDRLEN;
-    return (iface->sll_ifindex=if_nametoindex(if_name))==0;
+    return (iface->sll_ifindex=if_nametoindex(if_name))!=0;
 }
 
 bool get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa)

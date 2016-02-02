@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 #include <time.h>
 #include <net/if.h>
 #include <netinet/in.h>
@@ -9,7 +8,7 @@
 
 unsigned int mk_xid()
 {
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
     return (unsigned int) rand();
 }
 
@@ -125,4 +124,16 @@ unsigned char *dhcp_get_option_value(unsigned char option, struct dhcp_pkt *dhcp
         }
     }
     return data;
+}
+
+void dhcp_replace_option(unsigned char option, unsigned char *value, unsigned char offset, struct dhcp_pkt *dhcpPkt)
+{
+    unsigned char *buffopt = dhcpPkt->options;
+    for (unsigned int i = 0; i < OPTIONS_LEN && buffopt[i] != 0xFF; i += buffopt[i + 1] + 2) {
+        if(buffopt[i]==option)
+        {
+            memcpy((buffopt+(i+2))+offset,value,buffopt[i+1]-offset);
+            return;
+        }
+    }
 }

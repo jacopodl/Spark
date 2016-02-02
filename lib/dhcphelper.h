@@ -18,6 +18,7 @@
 #define FLAGS_BROADCAST 0x8000
 
 /* Values for option field */
+/* FIRST OPTION MUST BE MAGIC_COOKIE */
 #define MAGIC_COOKIE (0x63825363) /* Magic cookie validating dhcp options field (and bootp vendorextensions field). */
 
 #define DHCP_REQUESTED_ADDRESS      50
@@ -26,6 +27,7 @@
 #define DHCP_PARAMETER_REQUEST_LIST 55
 #define DHCP_CLIENT_IDENTIFIER      61
 
+/* Parameter request list */
 #define SUBNET_MASK         1
 #define ROUTERS             3
 #define DOMAIN_NAME_SERVERS 6
@@ -43,12 +45,12 @@
 #define DHCPRELEASE     7
 #define DHCPINFORM      8
 
+#define DHCPPKTLEN  548
 #define CHADDR_LEN  (16)
 #define SNAME_LEN   (64)
 #define FILE_LEN    (128)
 #define OPTIONS_LEN (308)
 
-#define DHCPPKTLEN  548
 struct dhcp_pkt {
     unsigned int op:8;
     unsigned int htype:8;
@@ -74,10 +76,12 @@ struct dhcp_container{
 };
 
 unsigned int mk_xid();
+unsigned char *dhcp_get_options(struct dhcp_pkt *dhcpPkt);
+unsigned char *dhcp_get_option_value(unsigned char option, struct dhcp_pkt *dhcpPkt);
 void dhcp_initialize(struct dhcp_container *container);
 void build_dhcp_discover(struct dhcp_container *container, struct sockaddr *chaddr, struct in_addr *ipvreq);
 void build_dhcp_request(struct dhcp_container *container, struct in_addr *ipvreq);
-unsigned char *dhcp_get_options(struct dhcp_pkt *dhcpPkt);
-unsigned char *dhcp_get_option_value(unsigned char option, struct dhcp_pkt *dhcpPkt);
+void dhcp_replace_option(unsigned char option, unsigned char *value, unsigned char offset, struct dhcp_pkt *dhcpPkt);
+void dhcp_init_options(struct dhcp_container *container);
 
 #endif

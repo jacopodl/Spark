@@ -9,5 +9,5 @@ void build_udp_header(struct udp_header *udpHeader, unsigned short sport, unsign
 {
     udpHeader->udph_srcport=htons(sport);
     udpHeader->udph_destport=htons(dport);
-    udpHeader->udph_len=UDPHDRSIZE+paylsize;
+    udpHeader->udph_len=htons((unsigned short int)UDPHDRSIZE+paylsize);
 }
