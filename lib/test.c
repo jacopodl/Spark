@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "ipv4helper.h"
-#include "netdhelper.h"
+#include "ipv4.h"
+#include "netdevice.h"
 
 int main(int argc, char **argv)
 {
