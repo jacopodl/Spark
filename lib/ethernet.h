@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <net/if.h>
 
+#define ETHHWASIZE  6       /* Ethernet addr byte len */
 #define MACSTRSIZE  18      /* Mac addr string size */
 #define ETHHDRSIZE  14      /* Ethernet header size */
 #define ETHMAXPAYL  1500    /* Ethernet max payload */

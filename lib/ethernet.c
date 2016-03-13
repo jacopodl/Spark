@@ -12,13 +12,13 @@
 bool parse_hwaddr(char *hwstr, struct sockaddr *ret_sockaddr, bool bcast) {
     if (strlen(hwstr) >= MACSTRSIZE)
         return false;
-    unsigned int hwaddr[IFHWADDRLEN];
+    unsigned int hwaddr[ETHHWASIZE];
     if (sscanf(hwstr, "%x:%x:%x:%x:%x:%x", hwaddr, hwaddr + 1, hwaddr + 2, hwaddr + 3, hwaddr + 4, hwaddr + 5) != 6)
         return false;
     if (!bcast && hwaddr[0] & ~0xFE)
         return false;
     if (ret_sockaddr != NULL)
-        for (int i = 0; i < IFHWADDRLEN; i++)
+        for (int i = 0; i < ETHHWASIZE; i++)
             ret_sockaddr->sa_data[i] = (char) hwaddr[i];
     return true;
 }
@@ -41,8 +41,8 @@ struct EthHeader *build_ethernet_packet(struct sockaddr *src, struct sockaddr *d
     if (ret == NULL)
         return NULL;
     memset(ret, 0x00, size);
-    memcpy(ret->dhwaddr, dst->sa_data, IFHWADDRLEN);
-    memcpy(ret->shwaddr, src->sa_data, IFHWADDRLEN);
+    memcpy(ret->dhwaddr, dst->sa_data, ETHHWASIZE);
+    memcpy(ret->shwaddr, src->sa_data, ETHHWASIZE);
     ret->eth_type = htons(type);
     if(payload!=NULL)
         memcpy(ret->data, payload, paysize);
@@ -53,8 +53,8 @@ void injects_ethernet_header(unsigned char *buff, struct sockaddr *src, struct s
 {
     struct EthHeader *ret = (struct EthHeader *) buff;
     memset(ret, 0x00, sizeof(struct EthHeader));
-    memcpy(ret->dhwaddr, dst->sa_data, IFHWADDRLEN);
-    memcpy(ret->shwaddr, src->sa_data, IFHWADDRLEN);
+    memcpy(ret->dhwaddr, dst->sa_data, ETHHWASIZE);
+    memcpy(ret->shwaddr, src->sa_data, ETHHWASIZE);
     ret->eth_type = htons(type);
 }
 
@@ -66,7 +66,7 @@ void rndhwaddr(struct sockaddr *mac) {
     FILE *urandom;
     urandom = fopen("/dev/urandom", "r");
     unsigned char byte;
-    for (int i = 0; i < IFHWADDRLEN; i++) {
+    for (int i = 0; i < ETHHWASIZE; i++) {
         fread(&byte, 1, 1, urandom);
         switch (i) {
             case 0:

@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#define DNSHDRSIZE          12
+#define DNSHDRSIZE  12
 
 #define QR_QUERY    0
 #define QR_RESPONSE 1
@@ -49,7 +49,43 @@
 #define RC_BADALG           21
 #define RC_BADTRUNC         22
 
-// http://www.networksorcery.com/enp/protocol/dns.htm#Questions
+#define TY_A                1
+#define TY_NS               2
+#define TY_CNAME            5
+#define TY_SOA              6
+#define TY_MB               7
+#define TY_MG               8
+#define TY_MR               9
+#define TY_NULL             10
+#define TY_WKS              11
+#define TY_PTR              12
+#define TY_HINFO            13
+#define TY_MINFO            14
+#define TY_MX               15
+#define TY_TXT              16
+#define TY_RP               17
+#define TY_GPOS             27
+#define TY_AAAA             28
+#define TY_LOC              29
+#define TY_EID              31
+#define TY_KX               36
+#define TY_CERT             37
+#define TY_A6               38
+#define TY_DNAME            39
+#define TY_DS               43
+#define TY_SSHFP            44
+#define TY_IPSECKEY         45
+#define TY_DHCID            49
+#define TY_HIP              55
+#define TY_NINFO            56
+#define TY_CAA              257
+
+#define CA_IN               1
+#define CA_CH               3
+#define CA_HS               4
+#define CA_NONE             254
+#define CA_ANY              255
+
 
 struct DnsHeader {
     unsigned int id:16;
