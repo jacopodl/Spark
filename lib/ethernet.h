@@ -13,9 +13,14 @@
 #define ETHHDRSIZE  14      /* Ethernet header size */
 #define ETHMAXPAYL  1500    /* Ethernet max payload */
 
+#define ETHTYPE_PUP     0X0200
+#define ETHTYPE_IP      0x0800
+#define ETHTYPE_ARP     0X0806
+#define ETHTYPE_RARP    0X8035
+
 struct EthHeader {
-    unsigned char dhwaddr[IFHWADDRLEN];
-    unsigned char shwaddr[IFHWADDRLEN];
+    unsigned char dhwaddr[ETHHWASIZE];
+    unsigned char shwaddr[ETHHWASIZE];
     unsigned int  eth_type:16;
     unsigned char data[0];
 };

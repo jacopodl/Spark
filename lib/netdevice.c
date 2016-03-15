@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <errno.h>
 #include <stdbool.h>
 #include <string.h>
 #include <sys/ioctl.h>
@@ -11,6 +12,9 @@
 #include <linux/ethtool.h>
 #include <linux/sockios.h>
 #include <linux/if_packet.h>
+#include <fcntl.h>
+#include <unistd.h>
+
 #elif defined(__FreeBSD__) || (defined(__APPLE__) && defined(__MACH__))
 #include <net/if_dl.h>
 #endif
@@ -128,9 +132,15 @@ bool set_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr) {
 #endif
 }
 
-#if defined(__linux__)
+void init_lloptions(struct llOptions *llo, char *iface_name, unsigned int buffl)
+{
+    memset(llo,0x00,sizeof(struct llOptions));
+    memcpy(llo->iface_name,iface_name,IFNAMSIZ);
+    llo->buffl = buffl;
+}
 
-int llsocket(char *iface_name) {
+#if defined(__linux__)
+int llsocket(struct llOptions *llo) {
     int sock;
     struct sockaddr_ll sll;
     sll.sll_family = AF_PACKET;
@@ -138,17 +148,66 @@ int llsocket(char *iface_name) {
     sll.sll_protocol = htons(ETH_P_ALL);
     if ((sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL))) < 0)
         return sock;
-    if ((sll.sll_ifindex = if_nametoindex(iface_name)) == 0)
-        return -1;
-    if (bind(sock, (struct sockaddr *) &sll, sizeof(struct sockaddr_ll)) < 0)
-        return -1;
+    if ((sll.sll_ifindex = if_nametoindex(llo->iface_name)) == 0) {
+        close(sock);
+        return sock;
+    }
+    if (bind(sock, (struct sockaddr *) &sll, sizeof(struct sockaddr_ll)) < 0) {
+        close(sock);
+        return sock;
+    }
+    llo->sfd = sock;
+    if(llo->buffl==0)
+        llo->buffl = sizeof(struct EthHeader)+ETHMAXPAYL;
     return sock;
 }
-
 #elif defined(__FreeBSD__) || (defined(__APPLE__) && defined(__MACH__))
-#pragma message "llsocket not implemented yet!"
-int llsocket(char *iface_name) {
-   fprintf(stderr,"Not implemented yet!\n");
-   return false;
+int llsocket(struct llOptions *llo) {
+    // http://bastian.rieck.ru/howtos/bpf/
+    // Try to open BPF dev
+    char path[11];
+    int sock = -1;
+    for(int i =0;i<99;i++)
+    {
+        sprintf(path,"/dev/bpf%i",i);
+        if((sock = open(path,O_RDWR))!=-1)
+            break;
+    }
+    if(sock==-1)
+    {
+        errno = ENODEV;
+        return sock;
+    }
+    // Assoc with iface;
+    struct ifreq bound_if;
+    memset(&bound_if,0x00,sizeof(struct ifreq));
+    strcpy(bound_if.ifr_name, llo->iface_name);
+    if(ioctl(sock,BIOCSETIF,&bound_if)<0)
+    {
+        close(sock);
+        return -1;
+    }
+    if(llo->buffl==0) {
+        if (ioctl(sock, BIOCGBLEN, &llo->buffl) < 0) {
+            close(sock);
+            return -1;
+        }
+    }
+    else
+    {
+        if (ioctl(sock, BIOCSBLEN, &llo->buffl) < 0) {
+            close(sock);
+            return -1;
+        }
+    }
+    if(llo->bsd_immediate)
+    {
+        if (ioctl(sock, BIOCIMMEDIATE, &llo->bsd_immediate) < 0) {
+            close(sock);
+            return -1;
+        }
+    }
+    llo->sfd=sock;
+    return sock;
 }
 #endif

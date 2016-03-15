@@ -74,6 +74,7 @@ int main(int argc, char **argv) {
 }
 
 int dstar(struct options *opt) {
+    struct llOptions llo;
     struct in_addr sip,dip;
     struct sockaddr dmac;
 
@@ -90,7 +91,8 @@ int dstar(struct options *opt) {
     }
 
     // Open Socket
-    if ((sock = llsocket(opt->iface_name)) < 0)
+    init_lloptions(&llo,opt->iface_name,0);
+    if ((sock = llsocket(&llo)) < 0)
     {
         perror("llsocket");
         return -1;
