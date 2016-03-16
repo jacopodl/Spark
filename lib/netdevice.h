@@ -2,12 +2,16 @@
 #define NETDEVICE
 
 #include <stdbool.h>
+#include <net/if.h>
+#include <sys/socket.h>
+
+#define BPFPATHMAXLEN   11
 
 struct llOptions{
     char iface_name[IFNAMSIZ];
+    char bsd_bind[BPFPATHMAXLEN];
     int sfd;
     unsigned int buffl;
-    bool bsd_immediate;
 };
 
 
