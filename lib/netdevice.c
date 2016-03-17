@@ -6,12 +6,13 @@
 #include <net/if.h>
 #include <netinet/in.h>
 #include <unistd.h>
-#include <ifaddrs.h>
 
 #ifdef __linux__
+
 #include <linux/ethtool.h>
 #include <linux/sockios.h>
 #include <linux/if_packet.h>
+
 #elif defined(__FreeBSD__) || (defined(__APPLE__) && defined(__MACH__))
 #include <net/if_dl.h>
 #include <net/bpf.h>
@@ -22,8 +23,10 @@
 #include "netdevice.h"
 #include "ethernet.h"
 
-bool get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa) {
 #if defined(__linux__)
+
+bool get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa) {
+
     /* struct ethtool_perm_addr{
         __u32   cmd;
         __u32   size;
@@ -51,11 +54,14 @@ bool get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa) {
         memcpy(hwa->sa_data, epa->data, ETHHWASIZE);
     free(epa);
     return true;
-#else
-    fprintf(stderr,"Not implemented yet!\n");
-    return false;
-#endif
 }
+#else
+#pragma message("get_burnedin_mac not supported on OS! :( ")
+bool get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa){
+    // Stub
+    return false;
+}
+#endif
 
 /* sd = socket(AF_INET,SOCK_DGRAM,0) */
 bool get_flags(int sd, char *iface_name, short *flags) {
@@ -130,10 +136,15 @@ bool set_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr) {
 #endif
 }
 
-void init_lloptions(struct llOptions *llo, char *iface_name, unsigned int buffl) {
-    memset(llo, 0x00, sizeof(struct llOptions));
-    memcpy(llo->iface_name, iface_name, IFNAMSIZ);
-    llo->buffl = buffl;
+int llclose(struct llOptions *llo, bool freemem) {
+    int ret;
+    if ((ret = close(llo->sfd)) < 0)
+        return ret;
+    if (freemem)
+        free(llo);
+    else
+        llo->sfd = -1;
+    return ret;
 }
 
 #if defined(__linux__)
@@ -159,6 +170,7 @@ int llsocket(struct llOptions *llo) {
         llo->buffl = sizeof(struct EthHeader) + ETHMAXPAYL;
     return sock;
 }
+
 #elif defined(__FreeBSD__) || (defined(__APPLE__) && defined(__MACH__))
 int llsocket(struct llOptions *llo) {
     // http://bastian.rieck.ru/howtos/bpf/
@@ -203,25 +215,16 @@ int llsocket(struct llOptions *llo) {
 }
 #endif
 
-inline ssize_t llsend(const void *buff, unsigned long len,struct llOptions *llo)
-{
-    return write(llo->sfd,buff,len==0?llo->buffl:len);
+inline ssize_t llrecv(void *buff, struct llOptions *llo) {
+    return read(llo->sfd, buff, llo->buffl);
 }
 
-inline ssize_t llrecv(void *buff, struct llOptions *llo)
-{
-    return read(llo->sfd,buff,llo->buffl);
+inline ssize_t llsend(const void *buff, unsigned long len, struct llOptions *llo) {
+    return write(llo->sfd, buff, len == 0 ? llo->buffl : len);
 }
 
-int llclose(struct llOptions *llo, bool freemem)
-{
-    int ret;
-    if((ret=close(llo->sfd))<0)
-        return ret;
-    if(freemem)
-        free(llo);
-    else
-        llo->sfd=-1;
-    return ret;
+void init_lloptions(struct llOptions *llo, char *iface_name, unsigned int buffl) {
+    memset(llo, 0x00, sizeof(struct llOptions));
+    memcpy(llo->iface_name, iface_name, IFNAMSIZ);
+    llo->buffl = buffl;
 }
-
