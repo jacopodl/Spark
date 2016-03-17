@@ -116,8 +116,6 @@ bool set_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr) {
      * sa_family contains the ARPHRD_* device type, sa_data the L2
      * hardware address starting from byte 0.
      */
-    //https://forums.freebsd.org/threads/27606/
-    // SIOCSIFLLADDR
     struct ifreq req;
     memset(&req, 0x00, sizeof(struct ifreq));
     strcpy(req.ifr_name, iface_name);
@@ -127,8 +125,8 @@ bool set_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr) {
     return ioctl(sd, SIOCSIFHWADDR, &req) >= 0;
 #elif defined(__FreeBSD__) || (defined(__APPLE__) && defined(__MACH__))
     memcpy(&req.ifr_addr.sa_data, hwaddr->sa_data, ETHHWASIZE);
-    req.ifr_addr.sa_family = (unsigned short) 0x01;
-    return ioctl(sd, SIOCSIFADDR, &req) >= 0;
+    req.ifr_addr.sa_len = ETHHWASIZE;
+    return ioctl(sd, SIOCSIFLLADDR, &req) >= 0;
 #endif
 }
 
@@ -166,7 +164,7 @@ int llsocket(struct llOptions *llo) {
     // http://bastian.rieck.ru/howtos/bpf/
     // Try to open BPF dev
     int sock = -1, var;
-    for (int i = 0; i < 99; i++) {
+    for (int i = 0; i < BPFMAXDEV; i++) {
         sprintf(llo->bsd_bind, "/dev/bpf%i", i);
         if ((sock = open(llo->bsd_bind, O_RDWR)) != -1)
             break;
@@ -204,3 +202,26 @@ int llsocket(struct llOptions *llo) {
     return sock;
 }
 #endif
+
+inline ssize_t llsend(const void *buff, unsigned long len,struct llOptions *llo)
+{
+    return write(llo->sfd,buff,len==0?llo->buffl:len);
+}
+
+inline ssize_t llrecv(void *buff, struct llOptions *llo)
+{
+    return read(llo->sfd,buff,llo->buffl);
+}
+
+int llclose(struct llOptions *llo, bool freemem)
+{
+    int ret;
+    if((ret=close(llo->sfd))<0)
+        return ret;
+    if(freemem)
+        free(llo);
+    else
+        llo->sfd=-1;
+    return ret;
+}
+
