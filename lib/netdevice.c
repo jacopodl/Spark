@@ -59,7 +59,7 @@ bool get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa) {
 #pragma message("get_burnedin_mac not supported on OS! :( ")
 bool get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa){
     // Stub
-    return false;
+    return get_hwaddr(sd,iface_name, hwa);
 }
 #endif
 
