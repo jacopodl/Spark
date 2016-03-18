@@ -17,6 +17,7 @@
 #include <net/if_dl.h>
 #include <net/bpf.h>
 #include <errno.h>
+#include <ifaddrs.h>
 #include <fcntl.h>
 #endif
 
@@ -59,7 +60,7 @@ bool get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa) {
 #pragma message("get_burnedin_mac not supported on OS! :( ")
 bool get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa){
     // Stub
-    return false;
+    return get_hwaddr(sd,iface_name, hwa);
 }
 #endif
 
@@ -92,7 +93,7 @@ bool get_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr) {
     {
         if(curr->ifa_addr!=NULL && curr->ifa_addr->sa_family==AF_LINK) {
             struct sockaddr_dl *sdl = (struct sockaddr_dl *) curr->ifa_addr;
-            memcpy(hwaddr->sa_data, (sdl->sdl_data) + (sdl->sdl_nlen), ETHHWASIZE);
+            memcpy(hwaddr->sa_data, LLADDR(sdl), ETHHWASIZE);
             break;
         }
         else
