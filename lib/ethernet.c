@@ -58,6 +58,24 @@ void injects_ethernet_header(unsigned char *buff, struct sockaddr *src, struct s
     ret->eth_type = htons(type);
 }
 
+inline void build_ethbroad_addr(struct sockaddr *addr)
+{
+    memset(addr->sa_data,0xFF,ETHHWASIZE);
+}
+
+void build_ethmulti_addr(struct sockaddr *hw, struct in_addr *ip)
+{
+    ip->s_addr &=  ~ 0xFF;
+    char *ip_ptr = (char *) &ip->s_addr;
+    memset(hw->sa_data,0x00,ETHHWASIZE);
+    *((int *)hw->sa_data) = htonl(0x01005E00);
+    memset(hw->sa_data+3,ip_ptr[1],1);
+    memset(hw->sa_data+4,ip_ptr[2],1);
+    memset(hw->sa_data+5,ip_ptr[3],1);
+    printf("mac: %s",get_strhwaddr(hw));
+    return;
+}
+
 void rndhwaddr(struct sockaddr *mac) {
 /* The lsb of the MSB can not be set,
  * because those are multicast mac addr!

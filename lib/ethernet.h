@@ -34,6 +34,8 @@ char *get_strhwaddr(struct sockaddr *hwa);
 
 void injects_ethernet_header(unsigned char *buff, struct sockaddr *src, struct sockaddr *dst, unsigned short type);
 
+void build_ethmulti_addr(struct sockaddr *hw, struct in_addr *ip);
+
 void rndhwaddr(struct sockaddr *mac);
 
 #endif
