@@ -76,36 +76,38 @@ bool get_flags(int sd, char *iface_name, short *flags) {
     return true;
 }
 
+#if defined(__linux__)
+
 bool get_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr) {
     /* Get the hardware address of a device using ifr_hwaddr. */
     struct ifreq req;
     memset(&req, 0x00, sizeof(struct ifreq));
     strcpy(req.ifr_name, iface_name);
-#if defined(__linux__)
     if (ioctl(sd, SIOCGIFHWADDR, &req) < 0)
         return false;
     memcpy(hwaddr, &req.ifr_hwaddr, sizeof(struct sockaddr));
+    return true;
+}
 #elif defined(__FreeBSD__) || (defined(__APPLE__) && defined(__MACH__))
+bool get_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr) {
+    bool success = false;
     struct ifaddrs *ifa = NULL, *curr = NULL;
     if (getifaddrs(&ifa) < 0)
-        return false;
-    for (curr = ifa; curr != NULL && strcmp(curr->ifa_name,iface_name) == 0; curr = curr->ifa_next)
-    {
-        if(curr->ifa_addr!=NULL && curr->ifa_addr->sa_family==AF_LINK) {
+        return success;
+    for (curr = ifa; curr != NULL; curr = curr->ifa_next) {
+        if (strcmp(curr->ifa_name, iface_name) == 0 && curr->ifa_addr != NULL && curr->ifa_addr->sa_family == AF_LINK) {
             struct sockaddr_dl *sdl = (struct sockaddr_dl *) curr->ifa_addr;
-            memcpy(hwaddr->sa_data, LLADDR(sdl), ETHHWASIZE);
-            break;
-        }
-        else
-        {
-            freeifaddrs(ifa);
-            return false;
+            if (sdl->sdl_alen == ETHHWASIZE) {
+                memcpy(hwaddr->sa_data, LLADDR(sdl), sdl->sdl_alen);
+                success = true;
+                break;
+            }
         }
     }
     freeifaddrs(ifa);
-#endif
-    return true;
+    return success;
 }
+#endif
 
 bool set_flags(int sd, char *iface_name, short flags) {
     /* Set the active flag word of the device. */
