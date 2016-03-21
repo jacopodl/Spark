@@ -7,7 +7,8 @@
 #include <net/if.h>
 #include "mspoof.h"
 #include "../lib/argsx.h"
-#include "../lib/netdhelper.h"
+#include "../lib/netdevice.h"
+#include "../lib/ethernet.h"
 
 int main(int argc, char **argv) {
 
@@ -53,7 +54,7 @@ int main(int argc, char **argv) {
                     strcpy(opt.iface_name, ax_arg);
                     opt.set = true;
                 } else {
-                    if (!parse_hwaddr(ax_arg, &opt.iface_hwaddr)) {
+                    if (!parse_hwaddr(ax_arg, &opt.iface_hwaddr,false)) {
                         fprintf(stderr, "Malformed mac addr!\n");
                         return -1;
                     }
@@ -89,8 +90,10 @@ int make_spoof(struct options *opt) {
     int sd;
     short flags;
     struct ifreq iface_data;
-    if ((sd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+    if ((sd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        fprintf(stderr, "Failed to open socket!\n");
         return -1;
+    }
     memset(&iface_data, 0x00, sizeof(struct ifreq));
     strcpy(iface_data.ifr_name, opt->iface_name);
     if (opt->rmac) {
@@ -125,35 +128,44 @@ int make_spoof(struct options *opt) {
     return 0;
 }
 
-int show_iface(int filter_flag) {
-    struct ifaddrs *ifa = NULL;
+int show_iface(unsigned int filter_flag) {
     int sd;
-    if (getifaddrs(&ifa) < 0)
+    if ((sd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        perror("socket");
         return -1;
-    if ((sd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
-        return -1;
-    printf("NIC:\t\tMAC:\n");
-    struct ifaddrs *curr;
-    for (curr = ifa; curr != NULL; curr = curr->ifa_next) {
-        if (curr->ifa_addr->sa_family != AF_PACKET)
-            continue;
-        if (curr->ifa_flags & filter_flag && !(curr->ifa_flags & IFF_LOOPBACK)) {
-            struct sockaddr hwaddr;
-            struct sockaddr burnin;
-            if ((!get_hwaddr(sd, curr->ifa_name, &hwaddr)) || !get_burnedin_mac(sd, curr->ifa_name, &burnin)) {
-                close(sd);
-                return -1;
-            }
-            char *mac = get_strhwaddr(&hwaddr);
-            char *bmac = get_strhwaddr(&burnin);
-            printf("%s\t\t%s - burnin: %s\t%s\n", curr->ifa_name, mac, bmac,
-                   (strcmp(mac, bmac) == 0 ? (char *) "" : (char *) "[spoofed]"));
-            free(mac);
-            free(bmac);
-        }
     }
+    struct ifList *iflist, *curr;
+    iflist = get_iflist(filter_flag);
+    if(iflist == NULL)
+    {
+        perror("get_ifList");
+        close(sd);
+        return -1;
+    }
+    for(curr = iflist;curr!=NULL;curr = curr->next)
+    {
+        int sburn;
+        struct sockaddr hwaddr;
+        struct sockaddr burnin;
+        char *mac = NULL, *bmac = NULL;
+        if (!get_hwaddr(sd, curr->name, &hwaddr) || (sburn=get_burnedin_mac(sd, curr->name, &burnin)) == NETD_UNSUCCESS){
+            close(sd);
+            return -1;
+        }
+        mac = get_strhwaddr(&hwaddr,false);
+        if(sburn!=NETD_UNSUPPORTED)
+            bmac = get_strhwaddr(&burnin,false);
+        printf("%s:\t\t%s", curr->name, mac);
+        if(sburn!=NETD_UNSUPPORTED)
+            printf(" - burnin: %s\t%s\n", bmac,
+                   (strcmp(mac, bmac) == 0 ? (char *) "" : (char *) "[spoofed]"));
+        else
+            printf("\n");
+        free(mac);
+        free(bmac);
+    }
+    iflist_cleanup(iflist);
     close(sd);
-    freeifaddrs(ifa);
     return 0;
 }
 

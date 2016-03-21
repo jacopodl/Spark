@@ -10,14 +10,14 @@ struct options {
     bool rset;
     bool mac;
     bool rmac;
-    int filter;
+    unsigned int filter;
     char iface_name[IFNAMSIZ];
     struct sockaddr iface_hwaddr;
 };
 
 int make_spoof(struct options *opt);
 
-int show_iface(int filter_flag);
+int show_iface(unsigned int filter_flag);
 
 void usage();
 
