@@ -5,19 +5,17 @@
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <netinet/in.h>
+#include <ifaddrs.h>
+#include <errno.h>
 #include <unistd.h>
 
 #ifdef __linux__
-
 #include <linux/ethtool.h>
 #include <linux/sockios.h>
 #include <linux/if_packet.h>
-#include <ifaddrs.h>
-
 #elif defined(__FreeBSD__) || (defined(__APPLE__) && defined(__MACH__))
 #include <net/if_dl.h>
 #include <net/bpf.h>
-#include <errno.h>
 #include <fcntl.h>
 #endif
 
@@ -128,6 +126,7 @@ struct ifList *get_iflist(unsigned int filter) {
         struct ifList *tmp = (struct ifList *) malloc(sizeof(struct ifList));
         if (tmp == NULL) {
             iflist_cleanup(iflist);
+            errno = ENOMEM;
             return NULL;
         }
         memcpy(tmp->name, curr->ifa_name, IFNAMSIZ);
