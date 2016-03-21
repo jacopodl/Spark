@@ -8,13 +8,17 @@
 #define BPFPATHMAXLEN   11
 #define BPFMAXDEV       99
 
-struct llOptions{
+struct llOptions {
     char iface_name[IFNAMSIZ];
     char bsd_bind[BPFPATHMAXLEN];
     int sfd;
     unsigned long buffl;
 };
 
+struct ifList {
+    char name[IFNAMSIZ];
+    struct ifList *next;
+};
 
 bool get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa);
 
@@ -32,7 +36,11 @@ int llsocket(struct llOptions *llo);
 
 ssize_t llrecv(void *buff, struct llOptions *llo);
 
-ssize_t llsend(const void *buff, unsigned long len,struct llOptions *llo);
+ssize_t llsend(const void *buff, unsigned long len, struct llOptions *llo);
+
+struct ifList *get_iflist(unsigned int filter);
+
+void iflist_cleanup(struct ifList *ifList);
 
 void init_lloptions(struct llOptions *llo, char *iface_name, unsigned int buffl);
 

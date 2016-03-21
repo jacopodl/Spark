@@ -12,12 +12,12 @@
 #include <linux/ethtool.h>
 #include <linux/sockios.h>
 #include <linux/if_packet.h>
+#include <ifaddrs.h>
 
 #elif defined(__FreeBSD__) || (defined(__APPLE__) && defined(__MACH__))
 #include <net/if_dl.h>
 #include <net/bpf.h>
 #include <errno.h>
-#include <ifaddrs.h>
 #include <fcntl.h>
 #endif
 
@@ -88,6 +88,7 @@ bool get_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr) {
     memcpy(hwaddr, &req.ifr_hwaddr, sizeof(struct sockaddr));
     return true;
 }
+
 #elif defined(__FreeBSD__) || (defined(__APPLE__) && defined(__MACH__))
 bool get_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr) {
     bool success = false;
@@ -108,6 +109,40 @@ bool get_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr) {
     return success;
 }
 #endif
+
+struct ifList *get_iflist(unsigned int filter) {
+    struct ifList *iflist = NULL;
+    struct ifaddrs *ifa = NULL, *curr = NULL;
+    if (getifaddrs(&ifa) < 0)
+        return NULL;
+    for (curr = ifa; curr != NULL; curr = curr->ifa_next) {
+#if defined(__linux__)
+        if (curr->ifa_addr->sa_family != AF_PACKET)
+            continue;
+#elif defined(__FreeBSD__) || (defined(__APPLE__) && defined(__MACH__))
+        if (curr->ifa_addr->sa_family != AF_LINK)
+            continue;
+#endif
+        if ((curr->ifa_flags & filter) != filter || (curr->ifa_flags & IFF_LOOPBACK) == IFF_LOOPBACK)
+            continue;
+        struct ifList *tmp = (struct ifList *) malloc(sizeof(struct ifList));
+        if (tmp == NULL) {
+            iflist_cleanup(iflist);
+            return NULL;
+        }
+        memcpy(tmp->name, curr->ifa_name, IFNAMSIZ);
+        tmp->next = iflist;
+        iflist = tmp;
+    }
+    freeifaddrs(ifa);
+    return iflist;
+}
+
+void iflist_cleanup(struct ifList *ifList) {
+    struct ifList *ifl = ifList, *curr = NULL, *ff = NULL;
+    for (curr = ifl; curr != NULL; curr = curr->next, free(ff))
+        ff = curr;
+}
 
 bool set_flags(int sd, char *iface_name, short flags) {
     /* Set the active flag word of the device. */
