@@ -24,19 +24,19 @@
 
 #if defined(__linux__)
 
-bool get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa) {
+int get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa) {
 
     /* struct ethtool_perm_addr{
         __u32   cmd;
         __u32   size;
         __u8    data[0];}
     */
-
+    
     struct ifreq req;
     struct ethtool_perm_addr *epa;
 
     if ((epa = (struct ethtool_perm_addr *) malloc(sizeof(struct ethtool_perm_addr) + ETHHWASIZE)) == NULL)
-        return false;
+        return NETD_UNSUCCESS;
     epa->cmd = ETHTOOL_GPERMADDR;
     epa->size = ETHHWASIZE;
 
@@ -47,18 +47,18 @@ bool get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa) {
 
     if ((ioctl(sd, SIOCETHTOOL, &req) < 0)) {
         free(epa);
-        return false;
+        return NETD_UNSUCCESS;
     }
     else
         memcpy(hwa->sa_data, epa->data, ETHHWASIZE);
     free(epa);
-    return true;
+    return NETD_SUCCESS;
 }
 #else
 #pragma message("get_burnedin_mac not supported on OS! :( ")
 bool get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa){
     // Stub
-    return get_hwaddr(sd,iface_name, hwa);
+    return NETD_UNSUPPORTED;
 }
 #endif
 

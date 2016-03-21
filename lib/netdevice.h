@@ -8,6 +8,10 @@
 #define BPFPATHMAXLEN   11
 #define BPFMAXDEV       99
 
+#define NETD_UNSUCCESS      0
+#define NETD_SUCCESS        1
+#define NETD_UNSUPPORTED    -1
+
 struct llOptions {
     char iface_name[IFNAMSIZ];
     char bsd_bind[BPFPATHMAXLEN];
@@ -20,7 +24,7 @@ struct ifList {
     struct ifList *next;
 };
 
-bool get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa);
+int get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa);
 
 bool get_flags(int sd, char *iface_name, short *flag);
 
