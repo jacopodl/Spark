@@ -23,10 +23,12 @@ bool parse_hwaddr(char *hwstr, struct sockaddr *ret_sockaddr, bool bcast) {
     return true;
 }
 
-char *get_strhwaddr(struct sockaddr *hwa) {
-    char *mac = (char *) malloc(MACSTRSIZE);
-    if (mac == NULL)
-        return NULL;
+char *get_strhwaddr(struct sockaddr *hwa, bool _static) {
+    static char macs[MACSTRSIZE];
+    char *mac = macs;
+    if(!_static)
+        if((mac = (char *) malloc(MACSTRSIZE))==NULL)
+            return NULL;
     sprintf(mac, "%.2X:%.2X:%.2X:%.2X:%.2X:%.2X",
             (unsigned char) hwa->sa_data[0], (unsigned char) hwa->sa_data[1],
             (unsigned char) hwa->sa_data[2], (unsigned char) hwa->sa_data[3],
@@ -72,7 +74,7 @@ void build_ethmulti_addr(struct sockaddr *hw, struct in_addr *ip)
     memset(hw->sa_data+3,ip_ptr[1],1);
     memset(hw->sa_data+4,ip_ptr[2],1);
     memset(hw->sa_data+5,ip_ptr[3],1);
-    printf("mac: %s",get_strhwaddr(hw));
+    //printf("mac: %s",get_strhwaddr(hw));
     return;
 }
 
