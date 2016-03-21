@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 2.8)
 project(Flame)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --pedantic")
-
-set(SOURCE_FILES mspoof.c mspoof.h ${CMAKE_SOURCE_DIR}/lib/argsx.c ${CMAKE_SOURCE_DIR}/lib/netdhelper.c)
+set(SOURCE_FILES mspoof.c)
 add_executable(mspoof ${SOURCE_FILES})
+target_link_libraries(mspoof LINK_PUBLIC Argsx)
+target_link_libraries(mspoof LINK_PUBLIC Spark)

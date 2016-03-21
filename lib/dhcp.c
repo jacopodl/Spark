@@ -3,8 +3,8 @@
 #include <time.h>
 #include <net/if.h>
 #include <netinet/in.h>
-#include "dhcphelper.h"
-#include "ipv4helper.h"
+#include "dhcp.h"
+#include "ipv4.h"
 
 unsigned int mk_xid()
 {
@@ -89,21 +89,21 @@ void dhcp_init_options(struct dhcp_container *container)
     container->dhcpPkt.options[container->op_ptr] = 0xFF;
 }
 
-unsigned char *dhcp_get_options(struct dhcp_pkt *dhcpPkt)
+unsigned char *dhcp_get_options(struct dhcp_pkt *dhcpPkt, unsigned int *len)
 {
-    unsigned idx = 1;
+    *len=0;
     unsigned char *buffopt = dhcpPkt->options;
-    unsigned char *olist = (unsigned char *) malloc(idx);
+    unsigned char *olist = NULL;
     for (unsigned int i = 0; i < OPTIONS_LEN && buffopt[i] != 0xFF; i += buffopt[i + 1] + 2) {
-        olist[idx - 1] = buffopt[i];
-        unsigned char *tmp = (unsigned char *) realloc(olist, idx++);
+        unsigned char *tmp = (unsigned char *) realloc(olist, ++(*len));
         if (tmp == NULL) {
-            free(olist);
+            if(olist!=NULL)
+                free(olist);
             return NULL;
         }
         olist = tmp;
+        olist[(*len) - 1] = buffopt[i];
     }
-    olist[idx - 1] = '\0';
     return olist;
 }
 

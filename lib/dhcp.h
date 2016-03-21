@@ -2,8 +2,8 @@
 // Created by jdl on 15/01/16.
 //
 
-#ifndef DHCPHELPER
-#define DHCPHELPER
+#ifndef DHCP
+#define DHCP
 
 /* Values for OP field */
 #define BOOT_REQUEST    1
@@ -58,7 +58,8 @@ struct dhcp_pkt {
     unsigned int hops:8;
     unsigned int xid;
     unsigned int secs:16;
-    unsigned int flags:16;  /* unused */
+    unsigned int flags:16;
+    /* unused */
     unsigned int ciaddr;
     unsigned int yiaddr;
     unsigned int siaddr;
@@ -66,22 +67,30 @@ struct dhcp_pkt {
     unsigned char chaddr[CHADDR_LEN];
     unsigned char sname[SNAME_LEN];
     unsigned char file[FILE_LEN];
-    unsigned int option;    /* MAGIC COOKIE */
+    unsigned int option;
+    /* MAGIC COOKIE */
     unsigned char options[OPTIONS_LEN];
 };
 
-struct dhcp_container{
+struct dhcp_container {
     unsigned int op_ptr;
     struct dhcp_pkt dhcpPkt;
 };
 
 unsigned int mk_xid();
-unsigned char *dhcp_get_options(struct dhcp_pkt *dhcpPkt);
+
+unsigned char *dhcp_get_options(struct dhcp_pkt *dhcpPkt, unsigned int *len);
+
 unsigned char *dhcp_get_option_value(unsigned char option, struct dhcp_pkt *dhcpPkt);
+
 void dhcp_initialize(struct dhcp_container *container);
+
 void build_dhcp_discover(struct dhcp_container *container, struct sockaddr *chaddr, struct in_addr *ipvreq);
+
 void build_dhcp_request(struct dhcp_container *container, struct in_addr *ipvreq);
+
 void dhcp_replace_option(unsigned char option, unsigned char *value, unsigned char offset, struct dhcp_pkt *dhcpPkt);
+
 void dhcp_init_options(struct dhcp_container *container);
 
 #endif
