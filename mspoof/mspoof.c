@@ -88,10 +88,9 @@ int make_spoof(struct options *opt) {
         return -1;
     }
     int sd;
-    short flags;
     struct ifreq iface_data;
     if ((sd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-        fprintf(stderr, "Failed to open socket!\n");
+        perror("socket");
         return -1;
     }
     memset(&iface_data, 0x00, sizeof(struct ifreq));
@@ -107,21 +106,9 @@ int make_spoof(struct options *opt) {
         }
         memcpy(&(opt->iface_hwaddr), &burnin, sizeof(struct sockaddr));
     }
-    get_flags(sd, opt->iface_name, &flags);
-    flags &= ~IFF_UP;
-    if (!set_flags(sd, opt->iface_name, flags)) {
-        fprintf(stderr, "Unable to set device state!\n");
-        close(sd);
-        return -1;
-    }
     if (!set_hwaddr(sd, opt->iface_name, &opt->iface_hwaddr)) {
         fprintf(stderr, "Unable to set MAC address!\n");
-        close(sd);
-        return -1;
-    }
-    flags |= IFF_UP;
-    if (!set_flags(sd, opt->iface_name, flags)) {
-        fprintf(stderr, "Unable to restore device state!\n");
+        perror("set_hwaddr");
         close(sd);
         return -1;
     }
