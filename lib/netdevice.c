@@ -75,7 +75,7 @@ int get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa) {
 
 #else
 #pragma message("get_burnedin_mac not supported on OS! :( ")
-bool get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa){
+int get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa){
     // Stub
     return NETD_NOTSUPPORTED;
 }
