@@ -148,15 +148,15 @@ int show_iface(unsigned int filter_flag) {
         struct sockaddr hwaddr;
         struct sockaddr burnin;
         char *mac = NULL, *bmac = NULL;
-        if (!get_hwaddr(sd, curr->name, &hwaddr) || (sburn=get_burnedin_mac(sd, curr->name, &burnin)) == NETD_UNSUCCESS){
+        if (get_hwaddr(sd, curr->name, &hwaddr) == NETD_UNSUCCESS || (sburn=get_burnedin_mac(sd, curr->name, &burnin)) == NETD_UNSUCCESS){
             close(sd);
             return -1;
         }
         mac = get_strhwaddr(&hwaddr,false);
-        if(sburn!=NETD_UNSUPPORTED)
+        if(sburn!=NETD_NOTSUPPORTED)
             bmac = get_strhwaddr(&burnin,false);
         printf("%s:\t\t%s", curr->name, mac);
-        if(sburn!=NETD_UNSUPPORTED)
+        if(sburn!=NETD_NOTSUPPORTED)
             printf(" - burnin: %s\t%s\n", bmac,
                    (strcmp(mac, bmac) == 0 ? (char *) "" : (char *) "[spoofed]"));
         else
