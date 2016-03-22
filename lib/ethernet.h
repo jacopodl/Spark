@@ -30,9 +30,11 @@ struct EthHeader *build_ethernet_packet(struct sockaddr *src, struct sockaddr *d
 
 bool parse_hwaddr(char *hwstr, struct sockaddr *ret_sockaddr, bool bcast);
 
-char *get_strhwaddr(struct sockaddr *hwa);
+char *get_strhwaddr(struct sockaddr *hwa, bool _static);
 
 void injects_ethernet_header(unsigned char *buff, struct sockaddr *src, struct sockaddr *dst, unsigned short type);
+
+void build_ethmulti_addr(struct sockaddr *hw, struct in_addr *ip);
 
 void rndhwaddr(struct sockaddr *mac);
 

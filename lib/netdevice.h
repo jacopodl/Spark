@@ -1,3 +1,19 @@
+/*
+* <netdevice, part of Spark.>
+* Copyright (C) <2015-2016> <Jacopo De Luca>
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #ifndef NETDEVICE
 #define NETDEVICE
 
@@ -10,7 +26,7 @@
 
 #define NETD_UNSUCCESS      0
 #define NETD_SUCCESS        1
-#define NETD_UNSUPPORTED    -1
+#define NETD_NOTSUPPORTED    -1
 
 struct llOptions {
     char iface_name[IFNAMSIZ];
@@ -26,17 +42,17 @@ struct ifList {
 
 int get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa);
 
-bool get_flags(int sd, char *iface_name, short *flag);
+int get_flags(int sd, char *iface_name, short *flag);
 
-bool get_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr);
-
-bool set_flags(int sd, char *iface_name, short flags);
-
-bool set_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr);
+int get_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr);
 
 int llclose(struct llOptions *llo, bool freemem);
 
 int llsocket(struct llOptions *llo);
+
+int set_flags(int sd, char *iface_name, short flags);
+
+int set_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr);
 
 ssize_t llrecv(void *buff, struct llOptions *llo);
 

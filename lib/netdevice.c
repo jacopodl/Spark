@@ -1,3 +1,19 @@
+/*
+* <netdevice, part of Spark.>
+* Copyright (C) <2015-2016> <Jacopo De Luca>
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -10,9 +26,11 @@
 #include <unistd.h>
 
 #ifdef __linux__
+
 #include <linux/ethtool.h>
 #include <linux/sockios.h>
 #include <linux/if_packet.h>
+
 #elif defined(__FreeBSD__) || (defined(__APPLE__) && defined(__MACH__))
 #include <net/if_dl.h>
 #include <net/bpf.h>
@@ -31,7 +49,7 @@ int get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa) {
         __u32   size;
         __u8    data[0];}
     */
-    
+
     struct ifreq req;
     struct ethtool_perm_addr *epa;
 
@@ -54,51 +72,51 @@ int get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa) {
     free(epa);
     return NETD_SUCCESS;
 }
+
 #else
 #pragma message("get_burnedin_mac not supported on OS! :( ")
 bool get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa){
     // Stub
-    return NETD_UNSUPPORTED;
+    return NETD_NOTSUPPORTED;
 }
 #endif
 
-/* sd = socket(AF_INET,SOCK_DGRAM,0) */
-bool get_flags(int sd, char *iface_name, short *flags) {
+int get_flags(int sd, char *iface_name, short *flags) {
     /* Get the active flag word of the device. */
     struct ifreq req;
     memset(&req, 0x00, sizeof(struct ifreq));
     strcpy(req.ifr_name, iface_name);
     if (ioctl(sd, SIOCGIFFLAGS, &req) < 0)
-        return false;
+        return NETD_UNSUCCESS;
     *flags = req.ifr_flags;
-    return true;
+    return NETD_SUCCESS;
 }
 
 #if defined(__linux__)
 
-bool get_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr) {
+int get_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr) {
     /* Get the hardware address of a device using ifr_hwaddr. */
     struct ifreq req;
     memset(&req, 0x00, sizeof(struct ifreq));
     strcpy(req.ifr_name, iface_name);
     if (ioctl(sd, SIOCGIFHWADDR, &req) < 0)
-        return false;
+        return NETD_UNSUCCESS;
     memcpy(hwaddr, &req.ifr_hwaddr, sizeof(struct sockaddr));
-    return true;
+    return NETD_SUCCESS;
 }
 
 #elif defined(__FreeBSD__) || (defined(__APPLE__) && defined(__MACH__))
-bool get_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr) {
-    bool success = false;
+int get_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr) {
+    bool success = NETD_UNSUCCESS;
     struct ifaddrs *ifa = NULL, *curr = NULL;
     if (getifaddrs(&ifa) < 0)
-        return success;
+        return NETD_UNSUCCESS;
     for (curr = ifa; curr != NULL; curr = curr->ifa_next) {
         if (strcmp(curr->ifa_name, iface_name) == 0 && curr->ifa_addr != NULL && curr->ifa_addr->sa_family == AF_LINK) {
             struct sockaddr_dl *sdl = (struct sockaddr_dl *) curr->ifa_addr;
             if (sdl->sdl_alen == ETHHWASIZE) {
                 memcpy(hwaddr->sa_data, LLADDR(sdl), sdl->sdl_alen);
-                success = true;
+                success = NETD_SUCCESS;
                 break;
             }
         }
@@ -106,6 +124,84 @@ bool get_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr) {
     freeifaddrs(ifa);
     return success;
 }
+#endif
+
+
+int llclose(struct llOptions *llo, bool freemem) {
+    int ret;
+    if ((ret = close(llo->sfd)) < 0)
+        return -1;
+    if (freemem)
+        free(llo);
+    else
+        llo->sfd = -1;
+    return ret;
+}
+
+#if defined(__linux__)
+
+int llsocket(struct llOptions *llo) {
+    int sock;
+    struct sockaddr_ll sll;
+    sll.sll_family = AF_PACKET;
+    sll.sll_halen = ETHHWASIZE;
+    sll.sll_protocol = htons(ETH_P_ALL);
+    if ((sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL))) < 0)
+        return -1;
+    if ((sll.sll_ifindex = if_nametoindex(llo->iface_name)) == 0) {
+        close(sock);
+        return -1;
+    }
+    if (bind(sock, (struct sockaddr *) &sll, sizeof(struct sockaddr_ll)) < 0) {
+        close(sock);
+        return -1;
+    }
+    llo->sfd = sock;
+    if (llo->buffl == 0)
+        llo->buffl = sizeof(struct EthHeader) + ETHMAXPAYL; // Size of 1 packet
+    return sock;
+}
+
+#elif defined(__FreeBSD__) || (defined(__APPLE__) && defined(__MACH__))
+int llsocket(struct llOptions *llo) {
+    int sock = -1, var;
+    for (int i = 0; i < BPFMAXDEV; i++) {
+        sprintf(llo->bsd_bind, "/dev/bpf%i", i);
+        if ((sock = open(llo->bsd_bind, O_RDWR)) != -1)
+            break;
+    }
+    if (sock == -1) {
+        errno = ENODEV;
+        return -1;
+    }
+    struct ifreq bound_if;
+    memset(&bound_if, 0x00, sizeof(struct ifreq));
+    strcpy(bound_if.ifr_name, llo->iface_name);
+    if (llo->buffl == 0) {
+        if (ioctl(sock, BIOCGBLEN, &llo->buffl) < 0) {
+            close(sock);
+            return -1;
+        }
+    }
+    else {
+        if (ioctl(sock, BIOCSBLEN, &llo->buffl) < 0) {
+            close(sock);
+            return -1;
+        }
+    }
+    if (ioctl(sock, BIOCSETIF, &bound_if) < 0) {
+        close(sock);
+        return -1;
+    }
+    var = 1;
+    if (ioctl(sock, BIOCIMMEDIATE, &var) < 0) {
+        close(sock);
+        return -1;
+    }
+    llo->sfd = sock;
+    return sock;
+}
+
 #endif
 
 struct ifList *get_iflist(unsigned int filter) {
@@ -137,22 +233,23 @@ struct ifList *get_iflist(unsigned int filter) {
     return iflist;
 }
 
-void iflist_cleanup(struct ifList *ifList) {
-    struct ifList *ifl = ifList, *curr = NULL, *ff = NULL;
-    for (curr = ifl; curr != NULL; curr = curr->next, free(ff))
-        ff = curr;
+inline void iflist_cleanup(struct ifList *ifList) {
+    struct ifList *tmp, *curr;
+    for (curr = ifList; curr != NULL; tmp = curr->next, free(curr), curr = tmp);
 }
 
-bool set_flags(int sd, char *iface_name, short flags) {
+int set_flags(int sd, char *iface_name, short flags) {
     /* Set the active flag word of the device. */
     struct ifreq req;
     memset(&req, 0x00, sizeof(struct ifreq));
     strcpy(req.ifr_name, iface_name);
     req.ifr_flags = flags;
-    return ioctl(sd, SIOCSIFFLAGS, &req) >= 0;
+    return ioctl(sd, SIOCSIFFLAGS, &req) != -1 ? NETD_SUCCESS : NETD_UNSUCCESS;
 }
 
-bool set_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr) {
+#if defined(__linux__)
+
+int set_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr) {
     /*
      * Set the hardware address of a device using ifr_hwaddr.
      * The hardware address is specified in a struct sockaddr.
@@ -162,94 +259,21 @@ bool set_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr) {
     struct ifreq req;
     memset(&req, 0x00, sizeof(struct ifreq));
     strcpy(req.ifr_name, iface_name);
-#if defined(__linux__)
     memcpy(&req.ifr_hwaddr.sa_data, hwaddr->sa_data, ETHHWASIZE);
     req.ifr_hwaddr.sa_family = (unsigned short) 0x01;
-    return ioctl(sd, SIOCSIFHWADDR, &req) >= 0;
+    return ioctl(sd, SIOCSIFHWADDR, &req) != -1 ? NETD_SUCCESS : NETD_UNSUCCESS;
+}
+
 #elif defined(__FreeBSD__) || (defined(__APPLE__) && defined(__MACH__))
+int set_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr) {
+    struct ifreq req;
+    memset(&req, 0x00, sizeof(struct ifreq));
+    strcpy(req.ifr_name, iface_name);
     memcpy(&req.ifr_addr.sa_data, hwaddr->sa_data, ETHHWASIZE);
     req.ifr_addr.sa_len = ETHHWASIZE;
-    return ioctl(sd, SIOCSIFLLADDR, &req) >= 0;
-#endif
+    return ioctl(sd, SIOCSIFLLADDR, &req) != -1?NETD_SUCCESS:NETD_UNSUCCESS;
 }
 
-int llclose(struct llOptions *llo, bool freemem) {
-    int ret;
-    if ((ret = close(llo->sfd)) < 0)
-        return ret;
-    if (freemem)
-        free(llo);
-    else
-        llo->sfd = -1;
-    return ret;
-}
-
-#if defined(__linux__)
-
-int llsocket(struct llOptions *llo) {
-    int sock;
-    struct sockaddr_ll sll;
-    sll.sll_family = AF_PACKET;
-    sll.sll_halen = ETH_ALEN;
-    sll.sll_protocol = htons(ETH_P_ALL);
-    if ((sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL))) < 0)
-        return sock;
-    if ((sll.sll_ifindex = if_nametoindex(llo->iface_name)) == 0) {
-        close(sock);
-        return sock;
-    }
-    if (bind(sock, (struct sockaddr *) &sll, sizeof(struct sockaddr_ll)) < 0) {
-        close(sock);
-        return sock;
-    }
-    llo->sfd = sock;
-    if (llo->buffl == 0)
-        llo->buffl = sizeof(struct EthHeader) + ETHMAXPAYL;
-    return sock;
-}
-
-#elif defined(__FreeBSD__) || (defined(__APPLE__) && defined(__MACH__))
-int llsocket(struct llOptions *llo) {
-    // http://bastian.rieck.ru/howtos/bpf/
-    // Try to open BPF dev
-    int sock = -1, var;
-    for (int i = 0; i < BPFMAXDEV; i++) {
-        sprintf(llo->bsd_bind, "/dev/bpf%i", i);
-        if ((sock = open(llo->bsd_bind, O_RDWR)) != -1)
-            break;
-    }
-    if (sock == -1) {
-        errno = ENODEV;
-        return sock;
-    }
-    // Assoc with iface;
-    struct ifreq bound_if;
-    memset(&bound_if, 0x00, sizeof(struct ifreq));
-    strcpy(bound_if.ifr_name, llo->iface_name);
-    if (llo->buffl == 0) {
-        if (ioctl(sock, BIOCGBLEN, &llo->buffl) < 0) {
-            close(sock);
-            return -1;
-        }
-    }
-    else {
-        if (ioctl(sock, BIOCSBLEN, &llo->buffl) < 0) {
-            close(sock);
-            return -1;
-        }
-    }
-    if (ioctl(sock, BIOCSETIF, &bound_if) < 0) {
-        close(sock);
-        return -1;
-    }
-    var = 1;
-    if (ioctl(sock, BIOCIMMEDIATE, &var) < 0) {
-        close(sock);
-        return -1;
-    }
-    llo->sfd = sock;
-    return sock;
-}
 #endif
 
 inline ssize_t llrecv(void *buff, struct llOptions *llo) {
@@ -260,7 +284,7 @@ inline ssize_t llsend(const void *buff, unsigned long len, struct llOptions *llo
     return write(llo->sfd, buff, len == 0 ? llo->buffl : len);
 }
 
-void init_lloptions(struct llOptions *llo, char *iface_name, unsigned int buffl) {
+inline void init_lloptions(struct llOptions *llo, char *iface_name, unsigned int buffl) {
     memset(llo, 0x00, sizeof(struct llOptions));
     memcpy(llo->iface_name, iface_name, IFNAMSIZ);
     llo->buffl = buffl;
