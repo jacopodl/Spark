@@ -32,21 +32,24 @@
 #define ETHTYPE_RARP    0X8035
 
 struct EthHeader {
-    unsigned char   dhwaddr[ETHHWASIZE];
-    unsigned char   shwaddr[ETHHWASIZE];
-    unsigned short  eth_type;
-    unsigned char   data[0];
+    unsigned char dhwaddr[ETHHWASIZE];
+    unsigned char shwaddr[ETHHWASIZE];
+    unsigned short eth_type;
+    unsigned char data[0];
 };
-
-struct EthHeader *build_ethernet_packet(struct sockaddr *src, struct sockaddr *dst, unsigned short type, unsigned long paysize, unsigned char *payload);
 
 bool parse_hwaddr(char *hwstr, struct sockaddr *ret_sockaddr, bool bcast);
 
 char *get_strhwaddr(struct sockaddr *hwa, bool _static);
 
-void injects_ethernet_header(unsigned char *buff, struct sockaddr *src, struct sockaddr *dst, unsigned short type);
+struct EthHeader *build_ethernet_packet(struct sockaddr *src, struct sockaddr *dst, unsigned short type,
+                                        unsigned long paysize, unsigned char *payload);
+
+void build_ethbroad_addr(struct sockaddr *addr);
 
 void build_ethmulti_addr(struct sockaddr *hw, struct in_addr *ip);
+
+void injects_ethernet_header(unsigned char *buff, struct sockaddr *src, struct sockaddr *dst, unsigned short type);
 
 void rndhwaddr(struct sockaddr *mac);
 
