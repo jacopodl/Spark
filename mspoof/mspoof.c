@@ -116,7 +116,7 @@ int make_spoof(struct options *opt) {
 }
 
 int show_iface(unsigned int filter_flag) {
-    int sd;
+    int sd,gbin,total = 0, inerr =0;
     if ((sd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         perror("socket");
         return -1;
@@ -129,31 +129,40 @@ int show_iface(unsigned int filter_flag) {
         close(sd);
         return -1;
     }
-    for(curr = iflist;curr!=NULL;curr = curr->next)
+    for(curr = iflist;curr!=NULL;curr = curr->next,total++)
     {
-        int sburn;
         struct sockaddr hwaddr;
         struct sockaddr burnin;
         char *mac = NULL, *bmac = NULL;
-        if (get_hwaddr(sd, curr->name, &hwaddr) == NETD_UNSUCCESS || (sburn=get_burnedin_mac(sd, curr->name, &burnin)) == NETD_UNSUCCESS){
-            close(sd);
-            return -1;
+        if (get_hwaddr(sd, curr->name, &hwaddr) == NETD_UNSUCCESS)
+        {
+            inerr++;
+            continue;
         }
+        gbin = get_burnedin_mac(sd,curr->name,&burnin);
         mac = get_strhwaddr(&hwaddr,false);
-        if(sburn!=NETD_NOTSUPPORTED)
-            bmac = get_strhwaddr(&burnin,false);
-        printf("%s:\t\t%s", curr->name, mac);
-        if(sburn!=NETD_NOTSUPPORTED)
-            printf(" - burnin: %s\t%s\n", bmac,
-                   (strcmp(mac, bmac) == 0 ? (char *) "" : (char *) "[spoofed]"));
-        else
-            printf("\n");
+        switch(gbin)
+        {
+            case NETD_SUCCESS:
+                bmac = get_strhwaddr(&burnin,false);
+                printf("%s\t\t%s - burnin: %s\t%s\n", curr->name, mac, bmac,
+                       (strcmp(mac, bmac) == 0 ? (char *) "" : (char *) "[spoofed]"));
+                break;
+            case NETD_UNSUCCESS:
+                printf("%s\t\t%s - burnin: %s\n", curr->name, mac,(char*)"Err");
+                break;
+            case NETD_NOTSUPPORTED:
+                printf("%s:\t\t%s", curr->name, mac);
+                break;
+            default:
+                break;
+        }
         free(mac);
         free(bmac);
     }
     iflist_cleanup(iflist);
     close(sd);
-    return 0;
+    return inerr==total?-1:0;
 }
 
 void usage() {
