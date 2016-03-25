@@ -51,7 +51,7 @@ char *get_stripv4(struct in_addr *addr, bool _static) {
 struct Ipv4Header *build_ipv4_packet(struct in_addr *src, struct in_addr *dst, unsigned char ihl, unsigned short len,
                                      unsigned short id, unsigned char ttl, unsigned char proto, unsigned long paysize,
                                      unsigned char *payload) {
-    unsigned long size = sizeof(struct Ipv4Header) + paysize;
+    unsigned long size = IPV4HDRSIZE + paysize;
     struct Ipv4Header *ret = (struct Ipv4Header *) malloc(size);
     if (ret == NULL)
         return NULL;
@@ -64,7 +64,8 @@ struct Ipv4Header *build_ipv4_packet(struct in_addr *src, struct in_addr *dst, u
     ret->protocol = proto;
     ret->saddr = src->s_addr;
     ret->daddr = dst->s_addr;
-    memcpy(ret->data, payload, paysize);
+    if (payload != NULL)
+        memcpy(ret->data, payload, paysize);
     ipv4_checksum(ret);
     return ret;
 }
@@ -96,7 +97,7 @@ void increment_ipv4addr(struct in_addr *addr) {
 void injects_ipv4_header(unsigned char *buff, struct in_addr *src, struct in_addr *dst, unsigned char ihl,
                          unsigned short len, unsigned short id, unsigned char ttl, unsigned char proto) {
     struct Ipv4Header *ipv4 = (struct Ipv4Header *) buff;
-    memset(ipv4, 0x00, sizeof(struct Ipv4Header));
+    memset(ipv4, 0x00, IPV4HDRSIZE);
     ipv4->version = IPV4VERSION;
     ipv4->ihl = ihl;
     ipv4->len = htons(len);
