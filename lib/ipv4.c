@@ -1,3 +1,19 @@
+/*
+* <ipv4, part of Spark.>
+* Copyright (C) <2015-2016> <Jacopo De Luca>
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -7,9 +23,9 @@
 #include "ipv4.h"
 
 bool parse_ipv4addr(char *ipstr, struct in_addr *ret_addr) {
+    unsigned int ipaddr[IPV4ADDRLEN];
     if (strlen(ipstr) >= IPV4STRSIZE)
         return false;
-    unsigned int ipaddr[IPV4ADDRLEN];
     if (sscanf(ipstr, "%u.%u.%u.%u", ipaddr, ipaddr + 1, ipaddr + 2, ipaddr + 3) != 4)
         return false;
     if (ipaddr[0] > 255 || ipaddr[1] > 255 || ipaddr[2] > 255 || ipaddr[3] > 255)
@@ -19,18 +35,16 @@ bool parse_ipv4addr(char *ipstr, struct in_addr *ret_addr) {
     return true;
 }
 
-char *get_stripv4(struct in_addr *addr) {
-    char *ipstr = (char *) malloc(IPV4STRSIZE);
-    if (ipstr == NULL)
-        return NULL;
+char *get_stripv4(struct in_addr *addr, bool _static) {
+    char ips[IPV4STRSIZE];
+    char *ipstr = ips;
+    if (!_static) {
+        if ((ipstr = (char *) malloc(IPV4STRSIZE)) == NULL)
+            return NULL;
+    }
     sprintf(ipstr, "%u.%u.%u.%u", addr->s_addr & 0xFF, addr->s_addr >> 8 & 0xFF, addr->s_addr >> 16 & 0xFF,
             addr->s_addr >> 24 & 0xFF);
     return ipstr;
-}
-
-inline unsigned short build_id() {
-    srand((unsigned int) time(NULL));
-    return ((uint16_t) rand());
 }
 
 struct Ipv4Header *build_ipv4_packet(struct in_addr *src, struct in_addr *dst, unsigned char ihl, unsigned short len,
@@ -54,6 +68,11 @@ struct Ipv4Header *build_ipv4_packet(struct in_addr *src, struct in_addr *dst, u
     return ret;
 }
 
+inline unsigned short build_id() {
+    srand((unsigned int) time(NULL));
+    return ((uint16_t) rand());
+}
+
 inline void get_ipv4bcast_addr(struct in_addr *addr, struct in_addr *netmask, struct in_addr *ret_addr) {
     ret_addr->s_addr = (~netmask->s_addr) | addr->s_addr;
 }
@@ -74,7 +93,7 @@ void increment_ipv4addr(struct in_addr *addr) {
 }
 
 void injects_ipv4_header(unsigned char *buff, struct in_addr *src, struct in_addr *dst, unsigned char ihl,
-                        unsigned short len, unsigned short id, unsigned char ttl, unsigned char proto) {
+                         unsigned short len, unsigned short id, unsigned char ttl, unsigned char proto) {
     struct Ipv4Header *ipv4 = (struct Ipv4Header *) buff;
     memset(ipv4, 0x00, sizeof(struct Ipv4Header));
     ipv4->version = IPV4VERSION;
@@ -89,6 +108,7 @@ void injects_ipv4_header(unsigned char *buff, struct in_addr *src, struct in_add
 }
 
 void ipv4_checksum(struct Ipv4Header *ipHeader) {
+    // TODO controllare questa funzione
     ipHeader->checksum = 0x00;
     unsigned short int *buff = (unsigned short int *) ipHeader;
     unsigned long sum = 0;
@@ -101,13 +121,6 @@ void ipv4_checksum(struct Ipv4Header *ipHeader) {
 void rndipv4addr(struct in_addr *addr) {
     FILE *urandom;
     urandom = fopen("/dev/urandom", "r");
-    addr->s_addr = 0;
-    /*
-    unsigned char byte;
-    for (int i = 0; i < IPV4ADDRLEN; i++) {
-        fread(&byte, 1, 1, urandom);
-        addr->s_addr |= byte << (8 * i);
-    }*/
     fread(&addr->s_addr, 4, 1, urandom);
     fclose(urandom);
 }
