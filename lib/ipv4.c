@@ -20,6 +20,7 @@
 #include <stdbool.h>
 #include <arpa/inet.h>
 #include <time.h>
+
 #include "ipv4.h"
 
 bool parse_ipv4addr(char *ipstr, struct in_addr *ret_addr) {
@@ -36,8 +37,8 @@ bool parse_ipv4addr(char *ipstr, struct in_addr *ret_addr) {
 }
 
 char *get_stripv4(struct in_addr *addr, bool _static) {
-    char ips[IPV4STRSIZE];
-    char *ipstr = ips;
+    static char static_buff[IPV4STRSIZE];
+    char *ipstr = static_buff;
     if (!_static) {
         if ((ipstr = (char *) malloc(IPV4STRSIZE)) == NULL)
             return NULL;
