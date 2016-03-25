@@ -25,6 +25,9 @@
 #include <errno.h>
 #include <unistd.h>
 
+#include "netdevice.h"
+#include "ethernet.h"
+
 #ifdef __linux__
 
 #include <linux/ethtool.h>
@@ -36,9 +39,6 @@
 #include <net/bpf.h>
 #include <fcntl.h>
 #endif
-
-#include "netdevice.h"
-#include "ethernet.h"
 
 #if defined(__linux__)
 

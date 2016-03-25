@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <netinet/in.h>
+
 #include "ethernet.h"
 
 bool parse_hwaddr(char *hwstr, struct sockaddr *ret_sockaddr, bool bcast) {
@@ -38,8 +39,10 @@ bool parse_hwaddr(char *hwstr, struct sockaddr *ret_sockaddr, bool bcast) {
 char *get_strhwaddr(struct sockaddr *hwa, bool _static) {
     static char static_buff[MACSTRSIZE];
     char *mac = static_buff;
-    if (!_static) if ((mac = (char *) malloc(MACSTRSIZE)) == NULL)
-        return NULL;
+    if (!_static) {
+        if ((mac = (char *) malloc(MACSTRSIZE)) == NULL)
+            return NULL;
+    }
     sprintf(mac, "%.2X:%.2X:%.2X:%.2X:%.2X:%.2X",
             (unsigned char) hwa->sa_data[0], (unsigned char) hwa->sa_data[1],
             (unsigned char) hwa->sa_data[2], (unsigned char) hwa->sa_data[3],
