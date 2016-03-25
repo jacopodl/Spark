@@ -52,7 +52,7 @@ char *get_strhwaddr(struct sockaddr *hwa, bool _static) {
 
 struct EthHeader *build_ethernet_packet(struct sockaddr *src, struct sockaddr *dst, unsigned short type,
                                         unsigned long paysize, unsigned char *payload) {
-    unsigned long size = sizeof(struct EthHeader) + paysize;
+    unsigned long size = ETHHDRSIZE + paysize;
     struct EthHeader *ret = (struct EthHeader *) malloc(size);
     if (ret == NULL)
         return NULL;
@@ -80,7 +80,7 @@ void build_ethmulti_addr(struct sockaddr *hw, struct in_addr *ip) {
 
 void injects_ethernet_header(unsigned char *buff, struct sockaddr *src, struct sockaddr *dst, unsigned short type) {
     struct EthHeader *ret = (struct EthHeader *) buff;
-    memset(ret, 0x00, sizeof(struct EthHeader));
+    memset(ret, 0x00, ETHHDRSIZE);
     memcpy(ret->dhwaddr, dst->sa_data, ETHHWASIZE);
     memcpy(ret->shwaddr, src->sa_data, ETHHWASIZE);
     ret->eth_type = htons(type);
