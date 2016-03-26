@@ -62,9 +62,9 @@ struct Ipv4Header {
     unsigned char data[0];
 };
 
-bool parse_ipv4addr(char *ipstr, struct in_addr *ret_addr);
+bool parse_ipv4addr(char *ipstr, unsigned int *ret_addr);
 
-char *get_stripv4(struct in_addr *addr, bool _static);
+char *get_stripv4(unsigned int *addr, bool _static);
 
 struct Ipv4Header *build_ipv4_packet(struct in_addr *src, struct in_addr *dst, unsigned char ihl, unsigned short len,
                                      unsigned short id, unsigned char ttl, unsigned char proto, unsigned long paysize,

@@ -23,7 +23,7 @@
 
 #include "ipv4.h"
 
-bool parse_ipv4addr(char *ipstr, struct in_addr *ret_addr) {
+bool parse_ipv4addr(char *ipstr, unsigned int *ret_addr) {
     unsigned int ipaddr[IPV4ADDRLEN];
     if (strlen(ipstr) >= IPV4STRSIZE)
         return false;
@@ -32,19 +32,19 @@ bool parse_ipv4addr(char *ipstr, struct in_addr *ret_addr) {
     if (ipaddr[0] > 255 || ipaddr[1] > 255 || ipaddr[2] > 255 || ipaddr[3] > 255)
         return false;
     if (ret_addr != NULL)
-        ret_addr->s_addr = (ipaddr[3] << 24 | ipaddr[2] << 16 | ipaddr[1] << 8 | ipaddr[0]);
+        *ret_addr = (ipaddr[3] << 24 | ipaddr[2] << 16 | ipaddr[1] << 8 | ipaddr[0]);
     return true;
 }
 
-char *get_stripv4(struct in_addr *addr, bool _static) {
+char *get_stripv4(unsigned int *addr, bool _static) {
     static char static_buff[IPV4STRSIZE];
     char *ipstr = static_buff;
     if (!_static) {
         if ((ipstr = (char *) malloc(IPV4STRSIZE)) == NULL)
             return NULL;
     }
-    sprintf(ipstr, "%u.%u.%u.%u", addr->s_addr & 0xFF, addr->s_addr >> 8 & 0xFF, addr->s_addr >> 16 & 0xFF,
-            addr->s_addr >> 24 & 0xFF);
+    sprintf(ipstr, "%u.%u.%u.%u", (*addr) & 0xFF, (*addr) >> 8 & 0xFF, (*addr) >> 16 & 0xFF,
+            (*addr) >> 24 & 0xFF);
     return ipstr;
 }
 
@@ -58,7 +58,7 @@ struct Ipv4Header *build_ipv4_packet(struct in_addr *src, struct in_addr *dst, u
     memset(ret, 0x00, size);
     ret->version = IPV4VERSION;
     ret->ihl = ihl;
-    ret->len = htons(len);
+    ret->len = htons(IPV4HDRSIZE + len);
     ret->id = id;
     ret->ttl = ttl;
     ret->protocol = proto;
@@ -110,7 +110,7 @@ void injects_ipv4_header(unsigned char *buff, struct in_addr *src, struct in_add
     memset(ipv4, 0x00, IPV4HDRSIZE);
     ipv4->version = IPV4VERSION;
     ipv4->ihl = ihl;
-    ipv4->len = htons(len);
+    ipv4->len = htons(IPV4HDRSIZE + len);
     ipv4->id = id;
     ipv4->ttl = ttl;
     ipv4->protocol = proto;
