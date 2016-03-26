@@ -70,8 +70,7 @@ struct Ipv4Header *build_ipv4_packet(struct in_addr *src, struct in_addr *dst, u
     return ret;
 }
 
-// TODO CAMBIARE IL NOME
-inline unsigned short build_id() {
+inline unsigned short build_ipv4id() {
     srand((unsigned int) time(NULL));
     return ((uint16_t) rand());
 }

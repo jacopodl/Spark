@@ -70,7 +70,7 @@ struct Ipv4Header *build_ipv4_packet(struct in_addr *src, struct in_addr *dst, u
                                      unsigned short id, unsigned char ttl, unsigned char proto, unsigned long paysize,
                                      unsigned char *payload);
 
-unsigned short build_id();
+unsigned short build_ipv4id();
 
 unsigned short ipv4_checksum(struct Ipv4Header *ipHeader);
 
