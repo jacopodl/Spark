@@ -1,12 +1,25 @@
-//
-// Created by jdl on 24/02/16.
-//
+/*
+* <ethernet, part of Spark.>
+* Copyright (C) <2015-2016> <Jacopo De Luca>
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <netinet/in.h>
+
 #include "ethernet.h"
 
 bool parse_hwaddr(char *hwstr, struct sockaddr *ret_sockaddr, bool bcast) {
@@ -24,11 +37,12 @@ bool parse_hwaddr(char *hwstr, struct sockaddr *ret_sockaddr, bool bcast) {
 }
 
 char *get_strhwaddr(struct sockaddr *hwa, bool _static) {
-    static char macs[MACSTRSIZE];
-    char *mac = macs;
-    if(!_static)
-        if((mac = (char *) malloc(MACSTRSIZE))==NULL)
+    static char static_buff[MACSTRSIZE];
+    char *mac = static_buff;
+    if (!_static) {
+        if ((mac = (char *) malloc(MACSTRSIZE)) == NULL)
             return NULL;
+    }
     sprintf(mac, "%.2X:%.2X:%.2X:%.2X:%.2X:%.2X",
             (unsigned char) hwa->sa_data[0], (unsigned char) hwa->sa_data[1],
             (unsigned char) hwa->sa_data[2], (unsigned char) hwa->sa_data[3],
@@ -37,8 +51,8 @@ char *get_strhwaddr(struct sockaddr *hwa, bool _static) {
 }
 
 struct EthHeader *build_ethernet_packet(struct sockaddr *src, struct sockaddr *dst, unsigned short type,
-                                         unsigned long paysize, unsigned char *payload) {
-    unsigned long size = sizeof(struct EthHeader) + paysize;
+                                        unsigned long paysize, unsigned char *payload) {
+    unsigned long size = ETHHDRSIZE + paysize;
     struct EthHeader *ret = (struct EthHeader *) malloc(size);
     if (ret == NULL)
         return NULL;
@@ -46,36 +60,30 @@ struct EthHeader *build_ethernet_packet(struct sockaddr *src, struct sockaddr *d
     memcpy(ret->dhwaddr, dst->sa_data, ETHHWASIZE);
     memcpy(ret->shwaddr, src->sa_data, ETHHWASIZE);
     ret->eth_type = htons(type);
-    if(payload!=NULL)
+    if (payload != NULL)
         memcpy(ret->data, payload, paysize);
     return ret;
 }
 
-void injects_ethernet_header(unsigned char *buff, struct sockaddr *src, struct sockaddr *dst, unsigned short type)
-{
+inline void build_ethbroad_addr(struct sockaddr *addr) {
+    memset(addr->sa_data, 0xFF, ETHHWASIZE);
+}
+
+void build_ethmulti_addr(struct sockaddr *hw, struct in_addr *ip) {
+    memset(hw->sa_data, 0x00, ETHHWASIZE);
+    *((int *) hw->sa_data) = htonl(0x01005E00);
+    hw->sa_data[5] = *(((char *) &ip->s_addr) + 3);
+    hw->sa_data[4] = *(((char *) &ip->s_addr) + 2);
+    hw->sa_data[3] = *(((char *) &ip->s_addr) + 1) & (char) 0x7F;
+    return;
+}
+
+void injects_ethernet_header(unsigned char *buff, struct sockaddr *src, struct sockaddr *dst, unsigned short type) {
     struct EthHeader *ret = (struct EthHeader *) buff;
-    memset(ret, 0x00, sizeof(struct EthHeader));
+    memset(ret, 0x00, ETHHDRSIZE);
     memcpy(ret->dhwaddr, dst->sa_data, ETHHWASIZE);
     memcpy(ret->shwaddr, src->sa_data, ETHHWASIZE);
     ret->eth_type = htons(type);
-}
-
-inline void build_ethbroad_addr(struct sockaddr *addr)
-{
-    memset(addr->sa_data,0xFF,ETHHWASIZE);
-}
-
-void build_ethmulti_addr(struct sockaddr *hw, struct in_addr *ip)
-{
-    ip->s_addr &=  ~ 0xFF;
-    char *ip_ptr = (char *) &ip->s_addr;
-    memset(hw->sa_data,0x00,ETHHWASIZE);
-    *((int *)hw->sa_data) = htonl(0x01005E00);
-    memset(hw->sa_data+3,ip_ptr[1],1);
-    memset(hw->sa_data+4,ip_ptr[2],1);
-    memset(hw->sa_data+5,ip_ptr[3],1);
-    //printf("mac: %s",get_strhwaddr(hw));
-    return;
 }
 
 void rndhwaddr(struct sockaddr *mac) {
@@ -85,16 +93,7 @@ void rndhwaddr(struct sockaddr *mac) {
     memset(mac, 0x00, sizeof(struct sockaddr));
     FILE *urandom;
     urandom = fopen("/dev/urandom", "r");
-    unsigned char byte;
-    for (int i = 0; i < ETHHWASIZE; i++) {
-        fread(&byte, 1, 1, urandom);
-        switch (i) {
-            case 0:
-                mac->sa_data[i] = byte & ((char) 0xFE);
-                break;
-            default:
-                mac->sa_data[i] = byte;
-        }
-    }
+    fread(mac->sa_data, 1, ETHHWASIZE, urandom);
+    mac->sa_data[0] &= ((char) 0xFE);
     fclose(urandom);
 }
