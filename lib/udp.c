@@ -30,7 +30,7 @@ struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, uns
     memset(ret,0x00,size);
     ret->udp_srcport = htons(srcp);
     ret->udp_dstport = htons(dstp);
-    ret->udp_len=htons(UDP4MINLEN + len);
+    ret->udp_len=htons(UDPMINSIZE + len);
     if(payload!=NULL)
         memcpy(ret->data,payload,paysize);
     return ret;

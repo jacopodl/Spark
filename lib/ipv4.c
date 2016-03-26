@@ -25,7 +25,7 @@
 
 bool parse_ipv4addr(char *ipstr, unsigned int *ret_addr) {
     unsigned int ipaddr[IPV4ADDRLEN];
-    if (strlen(ipstr) >= IPV4STRSIZE)
+    if (strlen(ipstr) >= IPV4STRLEN)
         return false;
     if (sscanf(ipstr, "%u.%u.%u.%u", ipaddr, ipaddr + 1, ipaddr + 2, ipaddr + 3) != 4)
         return false;
@@ -37,10 +37,10 @@ bool parse_ipv4addr(char *ipstr, unsigned int *ret_addr) {
 }
 
 char *get_stripv4(unsigned int *addr, bool _static) {
-    static char static_buff[IPV4STRSIZE];
+    static char static_buff[IPV4STRLEN];
     char *ipstr = static_buff;
     if (!_static) {
-        if ((ipstr = (char *) malloc(IPV4STRSIZE)) == NULL)
+        if ((ipstr = (char *) malloc(IPV4STRLEN)) == NULL)
             return NULL;
     }
     sprintf(ipstr, "%u.%u.%u.%u", (*addr) & 0xFF, (*addr) >> 8 & 0xFF, (*addr) >> 16 & 0xFF,

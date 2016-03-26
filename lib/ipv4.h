@@ -20,14 +20,15 @@
 #include <stdbool.h>
 #include <arpa/inet.h>
 
-#define IPV4VERSION 4       /* IP version  */
-#define IPV4HDRSIZE 20      /* Header size */
-#define IPV4DEFTTL  64      /* Time to live default value */
-#define IPV4MAXTTL  255     /* Time to live max value */
-#define IPV4MAXSIZE 65535   /* IP max size */
+#define IPV4VERSION 4                   // IP version
+#define IPV4HDRSIZE 20                  // Header size
+#define IPV4DEFTTL  64                  // Time to live default value
+#define IPV4MAXTTL  255                 // Time to live max value
+#define IPV4MINSIZE (IPV4HDRSIZE + 0)   // IPv4 min size
+#define IPV4MAXSIZE 65535               // IPv4 max size
 
-#define IPV4ADDRLEN 4       /* IP addr length */
-#define IPV4STRSIZE 16      /* IPV4 string size */
+#define IPV4ADDRLEN 4                   // IP addr length
+#define IPV4STRLEN  16                  // IPV4 string length
 
 struct Ipv4Header {
 #if __BYTE_ORDER == __LITTLE_ENDIAN

@@ -21,8 +21,8 @@
 #include "ipv4.h"
 
 #define UDPHDRSIZE  8                                           // Header size
-#define UDP4MINLEN  (UDPHDRSIZE + 0)                            // UDP over IPv4 min len
-#define UDP4MAXLEN  (ETHMAXPAYL - (IPV4HDRSIZE + UDPHDRSIZE))   // UDP over IPv4 max len
+#define UDPMINSIZE  (UDPHDRSIZE + 0)                            // UDP min len
+#define UDP4MAXSIZE (ETHMAXPAYL - (IPV4HDRSIZE + UDPHDRSIZE))   // UDP over IPv4 max len
 
 struct UdpHeader {
     unsigned short udp_srcport;
