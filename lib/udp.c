@@ -23,14 +23,14 @@
 struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, unsigned short len, unsigned long paysize,
                                     unsigned char *payload)
 {
-    unsigned long size = sizeof(struct UdpHeader) + paysize;
+    unsigned long size = UDPHDRSIZE + paysize;
     struct UdpHeader *ret = (struct UdpHeader*)malloc(size);
     if(ret==NULL)
         return NULL;
     memset(ret,0x00,size);
     ret->udp_srcport = htons(srcp);
     ret->udp_dstport = htons(dstp);
-    ret->udp_len=htons(len);
+    ret->udp_len=htons(UDP4MINLEN + len);
     if(payload!=NULL)
         memcpy(ret->data,payload,paysize);
     return ret;
@@ -39,7 +39,7 @@ struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, uns
 void injects_udp_header(unsigned char *buff,unsigned short srcp, unsigned short dstp, unsigned short len)
 {
     struct UdpHeader *ret = (struct UdpHeader*)buff;
-    memset(ret,0x00,sizeof(struct UdpHeader));
+    memset(ret,0x00,UDPHDRSIZE);
     ret->udp_srcport = htons(srcp);
     ret->udp_dstport = htons(dstp);
     ret->udp_len=htons(len);

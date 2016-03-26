@@ -20,9 +20,9 @@
 #include "ethernet.h"
 #include "ipv4.h"
 
-#define UDPHDRSIZE  8   // Header size
-#define UDPMINLEN   (UDPHDRSIZE + 0)
-#define UDPMAXLEN   (ETHMAXPAYL - (IPV4HDRSIZE - UDPHDRSIZE))   // Max udp packet len
+#define UDPHDRSIZE  8                                           // Header size
+#define UDP4MINLEN  (UDPHDRSIZE + 0)                            // UDP over IPv4 min len
+#define UDP4MAXLEN  (ETHMAXPAYL - (IPV4HDRSIZE + UDPHDRSIZE))   // UDP over IPv4 max len
 
 struct UdpHeader {
     unsigned short udp_srcport;
@@ -34,6 +34,8 @@ struct UdpHeader {
 
 struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, unsigned short len, unsigned long paysize,
                                     unsigned char *payload);
+
+unsigned short udp4_checksum(struct UdpHeader *udpHeader, struct Ipv4Header *ipv4Header);
 
 void injects_udp_header(unsigned char *buff,unsigned short srcp, unsigned short dstp, unsigned short len);
 
