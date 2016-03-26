@@ -1,17 +1,34 @@
-//
-// Created by jdl on 27/01/16.
-//
+/*
+* <udp, part of Spark.>
+* Copyright (C) <2015-2016> <Jacopo De Luca>
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #ifndef UDP
 #define UDP
 
-#define UDPHDRSIZE 8 /* Header size */
+#include "ethernet.h"
+#include "ipv4.h"
+
+#define UDPHDRSIZE  8   // Header size
+#define UDPMINLEN   (UDPHDRSIZE + 0)
+#define UDPMAXLEN   (ETHMAXPAYL - (IPV4HDRSIZE - UDPHDRSIZE))   // Max udp packet len
 
 struct UdpHeader {
-    unsigned int udph_srcport:16;
-    unsigned int udph_destport:16;
-    unsigned int udph_len:16;
-    unsigned int udph_chksum:16;
+    unsigned short udp_srcport;
+    unsigned short udp_dstport;
+    unsigned short udp_len;
+    unsigned short udp_cheksum;
     unsigned char data[0];
 };
 
