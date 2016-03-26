@@ -72,6 +72,8 @@ struct Ipv4Header *build_ipv4_packet(struct in_addr *src, struct in_addr *dst, u
 
 unsigned short build_id();
 
+unsigned short ipv4_checksum(struct Ipv4Header *ipHeader);
+
 void get_ipv4bcast_addr(struct in_addr *addr, struct in_addr *netmask, struct in_addr *ret_addr);
 
 void get_ipv4net_addr(struct in_addr *addr, struct in_addr *netmask, struct in_addr *ret_addr);
@@ -82,8 +84,6 @@ void increment_ipv4addr(struct in_addr *addr);
 
 void injects_ipv4_header(unsigned char *buff, struct in_addr *src, struct in_addr *dst, unsigned char ihl,
                          unsigned short len, unsigned short id, unsigned char ttl, unsigned char proto);
-
-void ipv4_checksum(struct Ipv4Header *ipHeader);
 
 void rndipv4addr(struct in_addr *addr);
 

@@ -66,13 +66,24 @@ struct Ipv4Header *build_ipv4_packet(struct in_addr *src, struct in_addr *dst, u
     ret->daddr = dst->s_addr;
     if (payload != NULL)
         memcpy(ret->data, payload, paysize);
-    ipv4_checksum(ret);
+    ret->checksum = ipv4_checksum(ret);
     return ret;
 }
 
+// TODO CAMBIARE IL NOME
 inline unsigned short build_id() {
     srand((unsigned int) time(NULL));
     return ((uint16_t) rand());
+}
+
+unsigned short ipv4_checksum(struct Ipv4Header *ipHeader) {
+    ipHeader->checksum = 0x00;
+    unsigned short *buff = (unsigned short *) ipHeader;
+    unsigned long sum = 0;
+    for (int i = 0; i < sizeof(struct Ipv4Header); sum += buff[i], i++);
+    sum = (sum >> 16) + (sum & 0xffff);
+    sum += (sum >> 16);
+    return (unsigned short) ~sum;
 }
 
 inline void get_ipv4bcast_addr(struct in_addr *addr, struct in_addr *netmask, struct in_addr *ret_addr) {
@@ -106,18 +117,7 @@ void injects_ipv4_header(unsigned char *buff, struct in_addr *src, struct in_add
     ipv4->protocol = proto;
     ipv4->saddr = src->s_addr;
     ipv4->daddr = dst->s_addr;
-    ipv4_checksum(ipv4);
-}
-
-void ipv4_checksum(struct Ipv4Header *ipHeader) {
-    // TODO controllare questa funzione
-    ipHeader->checksum = 0x00;
-    unsigned short int *buff = (unsigned short int *) ipHeader;
-    unsigned long sum = 0;
-    for (int i = 0; i < sizeof(struct Ipv4Header); sum += buff[i], i++);
-    sum = (sum >> 16) + (sum & 0xffff);
-    sum += (sum >> 16);
-    ipHeader->checksum = (unsigned short int) ~sum;
+    ipv4->checksum = ipv4_checksum(ipv4);
 }
 
 void rndipv4addr(struct in_addr *addr) {
