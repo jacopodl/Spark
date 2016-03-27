@@ -76,7 +76,6 @@ inline unsigned short build_ipv4id() {
 }
 
 unsigned short ipv4_checksum(struct Ipv4Header *ipHeader) {
-    ipHeader->checksum = 0x00;
     unsigned short *buff = (unsigned short *) ipHeader;
     unsigned long sum = 0;
     for (int i = 0; i < sizeof(struct Ipv4Header); sum += buff[i], i++);
