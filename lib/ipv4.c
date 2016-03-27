@@ -55,19 +55,27 @@ struct Ipv4Header *build_ipv4_packet(struct in_addr *src, struct in_addr *dst, u
     struct Ipv4Header *ret = (struct Ipv4Header *) malloc(size);
     if (ret == NULL)
         return NULL;
-    memset(ret, 0x00, size);
-    ret->version = IPV4VERSION;
-    ret->ihl = ihl;
-    ret->len = htons(IPV4HDRSIZE + len);
-    ret->id = id;
-    ret->ttl = ttl;
-    ret->protocol = proto;
-    ret->saddr = src->s_addr;
-    ret->daddr = dst->s_addr;
+    injects_ipv4_header((unsigned char *) ret, src, dst, ihl, len, id, ttl, proto);
     if (payload != NULL)
         memcpy(ret->data, payload, paysize);
     ret->checksum = ipv4_checksum(ret);
     return ret;
+}
+
+struct Ipv4Header *injects_ipv4_header(unsigned char *buff, struct in_addr *src, struct in_addr *dst, unsigned char ihl,
+                                       unsigned short len, unsigned short id, unsigned char ttl, unsigned char proto) {
+    struct Ipv4Header *ipv4 = (struct Ipv4Header *) buff;
+    memset(ipv4, 0x00, IPV4HDRSIZE);
+    ipv4->version = IPV4VERSION;
+    ipv4->ihl = ihl;
+    ipv4->len = htons((unsigned short) IPV4HDRSIZE + len);
+    ipv4->id = id;
+    ipv4->ttl = ttl;
+    ipv4->protocol = proto;
+    ipv4->saddr = src->s_addr;
+    ipv4->daddr = dst->s_addr;
+    ipv4->checksum = ipv4_checksum(ipv4);
+    return ipv4;
 }
 
 inline unsigned short build_ipv4id() {
@@ -78,7 +86,7 @@ inline unsigned short build_ipv4id() {
 unsigned short ipv4_checksum(struct Ipv4Header *ipHeader) {
     unsigned short *buff = (unsigned short *) ipHeader;
     unsigned long sum = 0;
-    for (int i = 0; i < sizeof(struct Ipv4Header); sum += buff[i], i++);
+    for (int i = 0; i < IPV4HDRSIZE; sum += buff[i], i++);
     sum = (sum >> 16) + (sum & 0xffff);
     sum += (sum >> 16);
     return (unsigned short) ~sum;
@@ -101,21 +109,6 @@ void increment_ipv4addr(struct in_addr *addr) {
     for (int i = IPV4ADDRLEN - 1; i >= 0; i--)
         if (++byte[i] != 0x00)
             break;
-}
-
-void injects_ipv4_header(unsigned char *buff, struct in_addr *src, struct in_addr *dst, unsigned char ihl,
-                         unsigned short len, unsigned short id, unsigned char ttl, unsigned char proto) {
-    struct Ipv4Header *ipv4 = (struct Ipv4Header *) buff;
-    memset(ipv4, 0x00, IPV4HDRSIZE);
-    ipv4->version = IPV4VERSION;
-    ipv4->ihl = ihl;
-    ipv4->len = htons(IPV4HDRSIZE + len);
-    ipv4->id = id;
-    ipv4->ttl = ttl;
-    ipv4->protocol = proto;
-    ipv4->saddr = src->s_addr;
-    ipv4->daddr = dst->s_addr;
-    ipv4->checksum = ipv4_checksum(ipv4);
 }
 
 void rndipv4addr(struct in_addr *addr) {

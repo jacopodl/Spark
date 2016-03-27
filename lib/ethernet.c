@@ -56,12 +56,18 @@ struct EthHeader *build_ethernet_packet(struct sockaddr *src, struct sockaddr *d
     struct EthHeader *ret = (struct EthHeader *) malloc(size);
     if (ret == NULL)
         return NULL;
-    memset(ret, 0x00, size);
+    injects_ethernet_header((unsigned char*)ret,src,dst,type);
+    if (payload != NULL)
+        memcpy(ret->data, payload, paysize);
+    return ret;
+}
+
+struct EthHeader *injects_ethernet_header(unsigned char *buff, struct sockaddr *src, struct sockaddr *dst, unsigned short type) {
+    struct EthHeader *ret = (struct EthHeader *) buff;
+    memset(ret, 0x00, ETHHDRSIZE);
     memcpy(ret->dhwaddr, dst->sa_data, ETHHWASIZE);
     memcpy(ret->shwaddr, src->sa_data, ETHHWASIZE);
     ret->eth_type = htons(type);
-    if (payload != NULL)
-        memcpy(ret->data, payload, paysize);
     return ret;
 }
 
@@ -76,14 +82,6 @@ void build_ethmulti_addr(struct sockaddr *hw, struct in_addr *ip) {
     hw->sa_data[4] = *(((char *) &ip->s_addr) + 2);
     hw->sa_data[3] = *(((char *) &ip->s_addr) + 1) & (char) 0x7F;
     return;
-}
-
-void injects_ethernet_header(unsigned char *buff, struct sockaddr *src, struct sockaddr *dst, unsigned short type) {
-    struct EthHeader *ret = (struct EthHeader *) buff;
-    memset(ret, 0x00, ETHHDRSIZE);
-    memcpy(ret->dhwaddr, dst->sa_data, ETHHWASIZE);
-    memcpy(ret->shwaddr, src->sa_data, ETHHWASIZE);
-    ret->eth_type = htons(type);
 }
 
 void rndhwaddr(struct sockaddr *mac) {
