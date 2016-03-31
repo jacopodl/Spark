@@ -49,7 +49,7 @@ unsigned short udp4_checksum(struct UdpHeader *udpHeader, struct Ipv4Header *ipv
     sum = (sum >> 16) + (sum & 0xffff);
     sum += (sum >> 16);
     sum = ~sum;
-    return (unsigned short) (sum == 0 ? 0x01 : sum); // RFC 768
+    return (unsigned short) (sum == 0 ? 0xFFFF : sum); // RFC 768
 }
 
 struct UdpHeader *injects_udp_header(unsigned char *buff, unsigned short srcp, unsigned short dstp,
