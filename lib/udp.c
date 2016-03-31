@@ -17,7 +17,6 @@
 #include <netinet/in.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 #include "udp.h"
 
