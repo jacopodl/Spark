@@ -85,7 +85,7 @@ inline unsigned short build_ipv4id() {
 
 unsigned short ipv4_checksum(struct Ipv4Header *ipHeader) {
     unsigned short *buff = (unsigned short *) ipHeader;
-    unsigned long sum = 0;
+    register unsigned int sum = 0;
     for (int i = 0; i < IPV4HDRSIZE; sum += buff[i], i++);
     sum = (sum >> 16) + (sum & 0xffff);
     sum += (sum >> 16);
