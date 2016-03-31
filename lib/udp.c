@@ -17,30 +17,48 @@
 #include <netinet/in.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "udp.h"
 
 struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, unsigned short len, unsigned long paysize,
-                                    unsigned char *payload)
-{
+                                   unsigned char *payload) {
     unsigned long size = UDPHDRSIZE + paysize;
-    struct UdpHeader *ret = (struct UdpHeader*)malloc(size);
-    if(ret==NULL)
+    struct UdpHeader *ret = (struct UdpHeader *) malloc(size);
+    if (ret == NULL)
         return NULL;
-    memset(ret,0x00,size);
-    ret->udp_srcport = htons(srcp);
-    ret->udp_dstport = htons(dstp);
-    ret->udp_len=htons(UDPMINSIZE + len);
-    if(payload!=NULL)
-        memcpy(ret->data,payload,paysize);
+    injects_udp_header((unsigned char *) ret, srcp, dstp, len);
+    if (payload != NULL)
+        memcpy(ret->data, payload, paysize);
     return ret;
 }
 
-void injects_udp_header(unsigned char *buff,unsigned short srcp, unsigned short dstp, unsigned short len)
-{
-    struct UdpHeader *ret = (struct UdpHeader*)buff;
-    memset(ret,0x00,UDPHDRSIZE);
+unsigned short udp4_checksum(struct UdpHeader *udpHeader, struct Ipv4Header *ipv4Header) {
+    unsigned short *buf = (unsigned short *) udpHeader;
+    register unsigned int sum = 0;
+    udpHeader->udp_cheksum = 0;
+
+    // Add the pseudo-header
+    sum += *(((unsigned short *) &ipv4Header->saddr));
+    sum += *(((unsigned short *) &ipv4Header->saddr) + 1);
+    sum += *(((unsigned short *) &ipv4Header->daddr));
+    sum += *(((unsigned short *) &ipv4Header->daddr) + 1);
+    sum += htons(ipv4Header->protocol) + udpHeader->udp_len;
+
+    for (int i = 0; i < ntohs(udpHeader->udp_len); i += 2)
+        sum += *buf++;
+    sum = (sum >> 16) + (sum & 0xffff);
+    sum += (sum >> 16);
+    sum = ~sum;
+    return (unsigned short) (sum == 0 ? 0x01 : sum); // RFC 768
+}
+
+struct UdpHeader *injects_udp_header(unsigned char *buff, unsigned short srcp, unsigned short dstp,
+                                     unsigned short len) {
+    struct UdpHeader *ret = (struct UdpHeader *) buff;
+    memset(ret, 0x00, UDPHDRSIZE);
     ret->udp_srcport = htons(srcp);
     ret->udp_dstport = htons(dstp);
-    ret->udp_len=htons(len);
+    ret->udp_len = htons(((unsigned short) UDPHDRSIZE) + len);
+    return ret;
 }

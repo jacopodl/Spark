@@ -35,8 +35,8 @@ struct UdpHeader {
 struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, unsigned short len, unsigned long paysize,
                                     unsigned char *payload);
 
-unsigned short udp4_checksum(struct UdpHeader *udpHeader, struct Ipv4Header *ipv4Header);
+struct UdpHeader *injects_udp_header(unsigned char *buff,unsigned short srcp, unsigned short dstp, unsigned short len);
 
-void injects_udp_header(unsigned char *buff,unsigned short srcp, unsigned short dstp, unsigned short len);
+unsigned short udp4_checksum(struct UdpHeader *udpHeader, struct Ipv4Header *ipv4Header);
 
 #endif
