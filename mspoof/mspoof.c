@@ -152,7 +152,7 @@ int show_iface(unsigned int filter_flag) {
                 printf("%s\t\t%s - burnin: %s\n", curr->name, mac,(char*)"Err");
                 break;
             case NETD_NOTSUPPORTED:
-                printf("%s:\t\t%s", curr->name, mac);
+                printf("%s:\t\t%s\n", curr->name, mac);
                 break;
             default:
                 break;
