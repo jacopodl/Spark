@@ -14,8 +14,8 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef UDP
-#define UDP
+#ifndef SPARK_UDP
+#define SPARK_UDP
 
 #include "ethernet.h"
 #include "ipv4.h"

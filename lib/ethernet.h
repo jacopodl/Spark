@@ -14,8 +14,8 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ETHERNET
-#define ETHERNET
+#ifndef SPARK_ETHERNET
+#define SPARK_ETHERNET
 
 #include <stdbool.h>
 #include <net/if.h>
