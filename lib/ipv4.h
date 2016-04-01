@@ -20,14 +20,15 @@
 #include <stdbool.h>
 #include <arpa/inet.h>
 
-#define IPV4VERSION 4       /* IP version  */
-#define IPV4HDRSIZE 20      /* Header size */
-#define IPV4DEFTTL  64      /* Time to live default value */
-#define IPV4MAXTTL  255     /* Time to live max value */
-#define IPV4MAXSIZE 65535   /* IP max size */
+#define IPV4VERSION 4                   // IP version
+#define IPV4HDRSIZE 20                  // Header size
+#define IPV4DEFTTL  64                  // Time to live default value
+#define IPV4MAXTTL  255                 // Time to live max value
+#define IPV4MINSIZE (IPV4HDRSIZE + 0)   // IPv4 min size
+#define IPV4MAXSIZE 65535               // IPv4 max size
 
-#define IPV4ADDRLEN 4       /* IP addr length */
-#define IPV4STRSIZE 16      /* IPV4 string size */
+#define IPV4ADDRLEN 4                   // IP addr length
+#define IPV4STRLEN  16                  // IPV4 string length
 
 struct Ipv4Header {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -62,13 +63,16 @@ struct Ipv4Header {
     unsigned char data[0];
 };
 
-bool parse_ipv4addr(char *ipstr, struct in_addr *ret_addr);
+bool parse_ipv4addr(char *ipstr, unsigned int *ret_addr);
 
-char *get_stripv4(struct in_addr *addr, bool _static);
+char *get_stripv4(unsigned int *addr, bool _static);
 
 struct Ipv4Header *build_ipv4_packet(struct in_addr *src, struct in_addr *dst, unsigned char ihl, unsigned short len,
                                      unsigned short id, unsigned char ttl, unsigned char proto, unsigned long paysize,
                                      unsigned char *payload);
+
+struct Ipv4Header *injects_ipv4_header(unsigned char *buff, struct in_addr *src, struct in_addr *dst, unsigned char ihl,
+                                       unsigned short len, unsigned short id, unsigned char ttl, unsigned char proto);
 
 unsigned short build_ipv4id();
 
@@ -81,9 +85,6 @@ void get_ipv4net_addr(struct in_addr *addr, struct in_addr *netmask, struct in_a
 void get_ipv4wildcard_mask(struct in_addr *netmask, struct in_addr *ret_wildcard);
 
 void increment_ipv4addr(struct in_addr *addr);
-
-void injects_ipv4_header(unsigned char *buff, struct in_addr *src, struct in_addr *dst, unsigned char ihl,
-                         unsigned short len, unsigned short id, unsigned char ttl, unsigned char proto);
 
 void rndipv4addr(struct in_addr *addr);
 

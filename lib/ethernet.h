@@ -45,11 +45,11 @@ char *get_strhwaddr(struct sockaddr *hwa, bool _static);
 struct EthHeader *build_ethernet_packet(struct sockaddr *src, struct sockaddr *dst, unsigned short type,
                                         unsigned long paysize, unsigned char *payload);
 
+struct EthHeader *injects_ethernet_header(unsigned char *buff, struct sockaddr *src, struct sockaddr *dst, unsigned short type);
+
 void build_ethbroad_addr(struct sockaddr *addr);
 
 void build_ethmulti_addr(struct sockaddr *hw, struct in_addr *ip);
-
-void injects_ethernet_header(unsigned char *buff, struct sockaddr *src, struct sockaddr *dst, unsigned short type);
 
 void rndhwaddr(struct sockaddr *mac);
 
