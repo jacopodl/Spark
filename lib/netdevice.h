@@ -48,7 +48,7 @@ int get_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr);
 
 int llclose(struct llOptions *llo, bool freemem);
 
-int llsocket(struct llOptions *llo);
+int llsocket(struct llOptions *llo, char *iface_name, unsigned int buffl);
 
 int set_flags(int sd, char *iface_name, short flags);
 
@@ -62,6 +62,6 @@ struct ifList *get_iflist(unsigned int filter);
 
 void iflist_cleanup(struct ifList *ifList);
 
-void init_lloptions(struct llOptions *llo, char *iface_name, unsigned int buffl);
+static void init_lloptions(struct llOptions *llo, char *iface_name, unsigned int buffl);
 
 #endif
