@@ -5,7 +5,11 @@
 #ifndef TCP
 #define TCP
 
+#define TCPHDRSIZE  20
+#define TCPSTDOFF   5   // (TCPHDRSIZE/(DWORD(32Bit)/8))
 #define TCPOPTSIZE  40
+#define TCPMSSDEF   536
+
 
 // Option
 #define TCPOPT_EOPLIST  0
@@ -30,38 +34,38 @@
 #define TCPOPT_TCPAO    29
 
 struct TcpHeader {
-    unsigned short srcprt;
-    unsigned short dstprt;
+    unsigned short src;
+    unsigned short dst;
     unsigned int seq;
-    unsigned int ackn;
+    unsigned int ackseq;
 #if __BYTE_ORDER == __LITTLE_ENDIAN
+    unsigned char ecn_n:1;
     unsigned char rsv:3;
     unsigned char offset:4;
+    // Control Bits
+    unsigned char fin:1;
+    unsigned char syn:1;
+    unsigned char rst:1;
+    unsigned char psh:1;
+    unsigned char ack:1;
+    unsigned char urg:1;
     // Explicit Congestion Notification
     unsigned char ecn_e:1;
     unsigned char ecn_c:1;
-    unsigned char ecn_n:1;
-    // Control Bits
-    unsigned char ctrl_f:1;
-    unsigned char ctrl_s:1;
-    unsigned char ctrl_r:1;
-    unsigned char ctrl_p:1;
-    unsigned char ctrl_a:1;
-    unsigned char ctrl_u:1;
 #elif __BYTE_ORDER == __BIG_ENDIAN
     unsigned char offset:4;
     unsigned char rsv:3;
-    // Explicit Congestion Notification
     unsigned char ecn_n:1;
+    // Explicit Congestion Notification
     unsigned char ecn_c:1;
     unsigned char ecn_e:1;
     // Control Bits
-    unsigned char ctrl_u:1;
-    unsigned char ctrl_a:1;
-    unsigned char ctrl_p:1;
-    unsigned char ctrl_r:1;
-    unsigned char ctrl_s:1;
-    unsigned char ctrl_f:1;
+    unsigned char urg:1;
+    unsigned char ack:1;
+    unsigned char psh:1;
+    unsigned char rst:1;
+    unsigned char syn:1;
+    unsigned char fin:1;
 #endif
     unsigned short window;
     unsigned short checksum;
@@ -72,8 +76,8 @@ struct TcpHeader {
 struct TcpHeader *build_tcp_packet(unsigned short srcp, unsigned short dstp, unsigned long paysize,
                                    unsigned char *payload);
 
-struct TcpHeader *injects_udp_header(unsigned char *buff, unsigned short srcp, unsigned short dstp, unsigned short len);
+struct TcpHeader *injects_tcp_header(unsigned char *buff, unsigned short srcp, unsigned short dstp);
 
-unsigned short udp4_checksum(struct TcpHeader *TcpHeader, struct Ipv4Header *ipv4Header);
+unsigned short tcp_checksum4(struct TcpHeader *TcpHeader, struct Ipv4Header *ipv4Header);
 
 #endif
