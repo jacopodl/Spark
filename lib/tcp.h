@@ -1,12 +1,26 @@
-//
-// Created by root on 01/04/16.
-//
+/*
+* <tcp, part of Spark.>
+* Copyright (C) <2015-2016> <Jacopo De Luca>
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
-#ifndef TCP
-#define TCP
+#ifndef SPARK_TCP
+#define SPARK_TCP
+
+#include "ipv4.h"
 
 #define TCPHDRSIZE  20
-#define TCPSTDOFF   5   // (TCPHDRSIZE/(DWORD(32Bit)/8))
+#define TCPHDRLEN   5   // (TCPHDRSIZE/(DWORD(32Bit)/8))
 #define TCPOPTSIZE  40
 #define TCPMSSDEF   536
 
@@ -36,12 +50,21 @@
 struct TcpHeader {
     unsigned short src;
     unsigned short dst;
-    unsigned int seq;
-    unsigned int ackseq;
+    unsigned int seqn;
+    unsigned int ackn;
 #if __BYTE_ORDER == __LITTLE_ENDIAN
     unsigned char ecn_n:1;
     unsigned char rsv:3;
     unsigned char offset:4;
+    unsigned char flags[0];
+#define TCPCWR      0x80
+#define TCPECNE     0x40
+#define TCPURG      0x20
+#define TCPACK      0x10
+#define TCPPSH      0x08
+#define TCPRST      0x04
+#define TCPSYN      0x02
+#define TCPFIN      0x01
     // Control Bits
     unsigned char fin:1;
     unsigned char syn:1;
@@ -56,6 +79,16 @@ struct TcpHeader {
     unsigned char offset:4;
     unsigned char rsv:3;
     unsigned char ecn_n:1;
+    unsigned char flags[0];
+    // --> FIX IT <--
+#define TCPCWR      0x80
+#define TCPECNE     0x40
+#define TCPURG      0x20
+#define TCPACK      0x10
+#define TCPPSH      0x08
+#define TCPRST      0x04
+#define TCPSYN      0x02
+#define TCPFIN      0x01
     // Explicit Congestion Notification
     unsigned char ecn_c:1;
     unsigned char ecn_e:1;
@@ -73,10 +106,14 @@ struct TcpHeader {
     unsigned char data[0];
 };
 
-struct TcpHeader *build_tcp_packet(unsigned short srcp, unsigned short dstp, unsigned long paysize,
+struct TcpHeader *build_tcp_packet(unsigned short src, unsigned short dst, unsigned int seqn,
+                                   unsigned int ackn, unsigned char flags,
+                                   unsigned short window, unsigned short urgp, unsigned long paysize,
                                    unsigned char *payload);
 
-struct TcpHeader *injects_tcp_header(unsigned char *buff, unsigned short srcp, unsigned short dstp);
+struct TcpHeader *injects_tcp_header(unsigned char *buff, unsigned short src, unsigned short dst, unsigned int seqn,
+                                     unsigned int ackn, unsigned char flags,
+                                     unsigned short window, unsigned short urgp);
 
 unsigned short tcp_checksum4(struct TcpHeader *TcpHeader, struct Ipv4Header *ipv4Header);
 
