@@ -18,7 +18,7 @@
 #define SPARK_ETHERNET
 
 #include <stdbool.h>
-#include <net/if.h>
+#include <netinet/in.h>
 
 #define ETHHWASIZE  6       /* Ethernet addr byte len */
 #define MACSTRSIZE  18      /* Mac addr string size */
