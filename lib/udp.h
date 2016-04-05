@@ -17,7 +17,6 @@
 #ifndef SPARK_UDP
 #define SPARK_UDP
 
-#include "ethernet.h"
 #include "ipv4.h"
 
 #define UDPHDRSIZE  8                                           // Header size

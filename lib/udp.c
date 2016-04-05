@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "ipv4.h"
 #include "udp.h"
 
 struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, unsigned short len, unsigned long paysize,
