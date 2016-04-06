@@ -52,7 +52,24 @@ struct TcpHeader *injects_tcp_header(unsigned char *buff, unsigned short src, un
     return ret;
 }
 
-unsigned short tcp_checksum4(struct TcpHeader *TcpHeader, struct Ipv4Header *ipv4Header)
-{
+unsigned short tcp_checksum4(struct TcpHeader *TcpHeader, struct Ipv4Header *ipv4Header) {
+    unsigned short *buf = (unsigned short *) TcpHeader;
+    unsigned short tcpl = ntohs(ipv4Header->len) - (unsigned short) IPV4HDRSIZE;
+    register unsigned int sum = 0;
+    TcpHeader->checksum = 0;
 
+    // Add the pseudo-header
+    sum += *(((unsigned short *) &ipv4Header->saddr));
+    sum += *(((unsigned short *) &ipv4Header->saddr) + 1);
+    sum += *(((unsigned short *) &ipv4Header->daddr));
+    sum += *(((unsigned short *) &ipv4Header->daddr) + 1);
+    sum += htons(ipv4Header->protocol);
+    sum += htons(tcpl);
+
+    for (int i = 0; i < tcpl; i += 2)
+        sum += *buf++;
+    sum = (sum >> 16) + (sum & 0xffff);
+    sum += (sum >> 16);
+    sum = ~sum;
+    return (unsigned short) sum;
 }

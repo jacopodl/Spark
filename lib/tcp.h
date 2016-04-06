@@ -20,7 +20,7 @@
 #include "ipv4.h"
 
 #define TCPHDRSIZE  20
-#define TCPHDRLEN   5   // (TCPHDRSIZE/(DWORD(32Bit)/8))
+#define TCPHDRLEN   5   // (TCPHDRSIZE / (DWORD/8))
 #define TCPOPTSIZE  40
 #define TCPMSSDEF   536
 
@@ -80,15 +80,14 @@ struct TcpHeader {
     unsigned char rsv:3;
     unsigned char ecn_n:1;
     unsigned char flags[0];
-    // --> FIX IT <--
-#define TCPCWR      0x80
-#define TCPECNE     0x40
-#define TCPURG      0x20
-#define TCPACK      0x10
-#define TCPPSH      0x08
-#define TCPRST      0x04
-#define TCPSYN      0x02
-#define TCPFIN      0x01
+#define TCPCWR      0x01
+#define TCPECNE     0x02
+#define TCPURG      0x04
+#define TCPACK      0x08
+#define TCPPSH      0x10
+#define TCPRST      0x20
+#define TCPSYN      0x40
+#define TCPFIN      0x80
     // Explicit Congestion Notification
     unsigned char ecn_c:1;
     unsigned char ecn_e:1;
