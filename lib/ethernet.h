@@ -20,11 +20,12 @@
 #include <stdbool.h>
 #include <netinet/in.h>
 
-#define ETHHWASIZE  6       /* Ethernet addr byte len */
-#define MACSTRSIZE  18      /* Mac addr string size */
-#define ETHHDRSIZE  14      /* Ethernet header size */
-#define ETHMINPAYL  64      /* Ethernet min payload */
-#define ETHMAXPAYL  1500    /* Ethernet max payload */
+#define ETHHWASIZE      6       // Ethernet addr byte len
+#define MACSTRSIZE      18      // Mac addr string size
+#define MACSTRHLFSIZE   9       // Mac addr string half size
+#define ETHHDRSIZE      14      // Ethernet header size
+#define ETHMINPAYL      64      // Ethernet min payload
+#define ETHMAXPAYL      1500    // Ethernet max payload
 
 #define ETHTYPE_PUP     0X0200
 #define ETHTYPE_IP      0x0800
@@ -43,6 +44,10 @@ bool ethcmp(struct sockaddr *mac1, struct sockaddr *mac2);
 bool parse_hwaddr(char *hwstr, struct sockaddr *ret_sockaddr, bool bcast);
 
 char *get_strhwaddr(struct sockaddr *hwa, bool _static);
+
+char *get_serial(struct sockaddr *hwa, bool _static);
+
+char *get_vendor(struct sockaddr *hwa, bool _static);
 
 struct EthHeader *build_ethernet_packet(struct sockaddr *src, struct sockaddr *dst, unsigned short type,
                                         unsigned long paysize, unsigned char *payload);

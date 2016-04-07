@@ -22,16 +22,11 @@
 
 #include "ethernet.h"
 
-bool ethcmp(struct sockaddr *mac1, struct sockaddr *mac2)
-{
-    bool success = true;
-    for(int i=0;i<ETHHWASIZE;i++)
-        if(mac1->sa_data[i]!=mac2->sa_data[i])
-        {
-            success = false;
-            break;
-        }
-    return success;
+bool ethcmp(struct sockaddr *mac1, struct sockaddr *mac2) {
+    for (int i = 0; i < ETHHWASIZE; i++)
+        if (mac1->sa_data[i] != mac2->sa_data[i])
+            return false;
+    return true;
 }
 
 bool parse_hwaddr(char *hwstr, struct sockaddr *ret_sockaddr, bool bcast) {
@@ -62,19 +57,44 @@ char *get_strhwaddr(struct sockaddr *hwa, bool _static) {
     return mac;
 }
 
+char *get_serial(struct sockaddr *hwa, bool _static) {
+    static char static_buff[MACSTRHLFSIZE];
+    char *serial = static_buff;
+    if (!_static) {
+        if ((serial = (char *) malloc(MACSTRHLFSIZE)) == NULL)
+            return NULL;
+    }
+    sprintf(serial, "%.2X:%.2X:%.2X", (unsigned char) hwa->sa_data[3], (unsigned char) hwa->sa_data[4],
+            (unsigned char) hwa->sa_data[5]);
+    return serial;
+}
+
+char *get_vendor(struct sockaddr *hwa, bool _static) {
+    static char static_buff[MACSTRHLFSIZE];
+    char *vendor = static_buff;
+    if (!_static) {
+        if ((vendor = (char *) malloc(MACSTRHLFSIZE)) == NULL)
+            return NULL;
+    }
+    sprintf(vendor, "%.2X:%.2X:%.2X", (unsigned char) hwa->sa_data[0], (unsigned char) hwa->sa_data[1],
+            (unsigned char) hwa->sa_data[2]);
+    return vendor;
+}
+
 struct EthHeader *build_ethernet_packet(struct sockaddr *src, struct sockaddr *dst, unsigned short type,
                                         unsigned long paysize, unsigned char *payload) {
     unsigned long size = ETHHDRSIZE + paysize;
     struct EthHeader *ret = (struct EthHeader *) malloc(size);
     if (ret == NULL)
         return NULL;
-    injects_ethernet_header((unsigned char*)ret,src,dst,type);
+    injects_ethernet_header((unsigned char *) ret, src, dst, type);
     if (payload != NULL)
         memcpy(ret->data, payload, paysize);
     return ret;
 }
 
-struct EthHeader *injects_ethernet_header(unsigned char *buff, struct sockaddr *src, struct sockaddr *dst, unsigned short type) {
+struct EthHeader *injects_ethernet_header(unsigned char *buff, struct sockaddr *src, struct sockaddr *dst,
+                                          unsigned short type) {
     struct EthHeader *ret = (struct EthHeader *) buff;
     memset(ret, 0x00, ETHHDRSIZE);
     memcpy(ret->dhwaddr, dst->sa_data, ETHHWASIZE);
