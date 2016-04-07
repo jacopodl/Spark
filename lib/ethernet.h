@@ -38,6 +38,8 @@ struct EthHeader {
     unsigned char data[0];
 };
 
+bool ethcmp(struct sockaddr *mac1, struct sockaddr *mac2);
+
 bool parse_hwaddr(char *hwstr, struct sockaddr *ret_sockaddr, bool bcast);
 
 char *get_strhwaddr(struct sockaddr *hwa, bool _static);

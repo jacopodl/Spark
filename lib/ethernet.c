@@ -22,6 +22,18 @@
 
 #include "ethernet.h"
 
+bool ethcmp(struct sockaddr *mac1, struct sockaddr *mac2)
+{
+    bool success = true;
+    for(int i=0;i<ETHHWASIZE;i++)
+        if(mac1->sa_data[i]!=mac2->sa_data[i])
+        {
+            success = false;
+            break;
+        }
+    return success;
+}
+
 bool parse_hwaddr(char *hwstr, struct sockaddr *ret_sockaddr, bool bcast) {
     if (strlen(hwstr) >= MACSTRSIZE)
         return false;
