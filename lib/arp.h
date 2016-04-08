@@ -5,6 +5,9 @@
 #ifndef SPARK_ARP
 #define SPARK_ARP
 
+#include "ethernet.h"
+#include "ipv4.h"
+
 #define ARPHWT_ETH      1
 #define ARPHWT_EXPETH   2
 #define ARPHWT_AX25     3
@@ -21,9 +24,11 @@
 
 #define ARPOP_REQUEST   1
 #define ARPOP_REPLY     2
-#define ARPOP_REQREV    3
-#define ARPOP_REPREV    4
+#define ARPOP_REVREQ    3
+#define ARPOP_REVREP    4
 
+#define ARPHDRSIZE          8
+#define ARPPKTETHIP4SIZE    (ARPHDRSIZE + ((ETHHWASIZE+IPV4ADDRLEN)*2))
 
 struct ArpHeader {
     unsigned short hw_type;
@@ -31,11 +36,17 @@ struct ArpHeader {
     unsigned char hwalen;
     unsigned char pralen;
     unsigned short opcode;
-    unsigned data[0];
+    unsigned char data[0];
 };
 
-struct ArpHeader *injects_arp_header(unsigned char *buff, unsigned char hwalen, unsigned char pralen,
+struct ArpHeader *injects_arp_packet(unsigned char *buff, unsigned char hwalen, unsigned char pralen,
                                      unsigned short opcode, struct sockaddr *shwaddr, struct sockaddr *spraddr,
                                      struct sockaddr *dhwaddr, struct sockaddr *dpraddr);
 
+struct ArpHeader *injects_arp_ethip4_packet(unsigned char *buff, unsigned short opcode, struct sockaddr *shwaddr,
+                                            struct in_addr *spraddr, struct sockaddr *dhwaddr,
+                                            struct in_addr *dpraddr);
+
+bool arp_ethip4_resolver(struct llOptions *llo, unsigned short opcode, struct sockaddr *shwaddr,
+                         struct in_addr *spraddr, struct sockaddr *dhwaddr, struct in_addr *dpraddr);
 #endif
