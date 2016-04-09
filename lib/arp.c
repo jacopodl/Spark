@@ -1,6 +1,18 @@
-//
-// Created by root on 06/04/16.
-//
+/*
+* <arp, part of Spark.>
+* Copyright (C) <2015-2016> <Jacopo De Luca>
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include <string.h>
 #include <stdlib.h>
@@ -45,12 +57,16 @@ bool arp_ethip4_resolver(struct llOptions *llo, unsigned short opcode, struct so
                          struct in_addr *spraddr, struct sockaddr *dhwaddr, struct in_addr *dpraddr) {
     bool success = false;
     int ttry = 0;
-    unsigned char *rcvb = (unsigned char *) malloc(llo->buffl);
+    unsigned char *rcvb;
     struct EthHeader *eth, *r_eth;
     struct ArpHeader *arp, *r_arp;
     struct sockaddr ethbroad;
+    if ((rcvb = (unsigned char *) malloc(llo->buffl)) == NULL)
+        return false;
     build_ethbroad_addr(&ethbroad);
     eth = build_ethernet_packet(shwaddr, &ethbroad, ETHTYPE_ARP, ARPPKTETHIP4SIZE, NULL);
+    if (eth == NULL)
+        return false;
     arp = injects_arp_ethip4_packet(eth->data, opcode, shwaddr, spraddr, dhwaddr, dpraddr);
     llsend(eth, ETHHDRSIZE + ARPPKTETHIP4SIZE, llo);
     while (ttry < 10) {
@@ -69,7 +85,7 @@ bool arp_ethip4_resolver(struct llOptions *llo, unsigned short opcode, struct so
                     success = true;
                     break;
                 case ARPOP_REVREP:
-                    // TODO Da fare
+                    dpraddr->s_addr = *((unsigned int *) (r_arp->data + ETHHWASIZE));
                     success = true;
                     break;
                 default:
