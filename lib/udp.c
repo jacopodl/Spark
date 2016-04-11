@@ -18,33 +18,37 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "ipv4.h"
 #include "udp.h"
 
-struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, unsigned short len, unsigned long paysize,
+struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, unsigned short len,
+                                   struct Ipv4Header *ipv4Header, unsigned long paysize,
                                    unsigned char *payload) {
     unsigned long size = UDPHDRSIZE + paysize;
     struct UdpHeader *ret = (struct UdpHeader *) malloc(size);
     if (ret == NULL)
         return NULL;
     injects_udp_header((unsigned char *) ret, srcp, dstp, len);
-    if (payload != NULL)
+    if (payload != NULL) {
         memcpy(ret->data, payload, paysize);
+        ret->checksum = udp_checksum4(ret,ipv4Header);
+    }
     return ret;
 }
 
-unsigned short udp4_checksum(struct UdpHeader *udpHeader, struct Ipv4Header *ipv4Header) {
+unsigned short udp_checksum4(struct UdpHeader *udpHeader, struct Ipv4Header *ipv4Header) {
     unsigned short *buf = (unsigned short *) udpHeader;
     register unsigned int sum = 0;
-    udpHeader->udp_cheksum = 0;
+    udpHeader->checksum = 0;
 
     // Add the pseudo-header
     sum += *(((unsigned short *) &ipv4Header->saddr));
     sum += *(((unsigned short *) &ipv4Header->saddr) + 1);
     sum += *(((unsigned short *) &ipv4Header->daddr));
     sum += *(((unsigned short *) &ipv4Header->daddr) + 1);
-    sum += htons(ipv4Header->protocol) + udpHeader->udp_len;
+    sum += htons(ipv4Header->protocol) + udpHeader->len;
 
-    for (int i = 0; i < ntohs(udpHeader->udp_len); i += 2)
+    for (int i = 0; i < ntohs(udpHeader->len); i += 2)
         sum += *buf++;
     sum = (sum >> 16) + (sum & 0xffff);
     sum += (sum >> 16);
@@ -56,8 +60,8 @@ struct UdpHeader *injects_udp_header(unsigned char *buff, unsigned short srcp, u
                                      unsigned short len) {
     struct UdpHeader *ret = (struct UdpHeader *) buff;
     memset(ret, 0x00, UDPHDRSIZE);
-    ret->udp_srcport = htons(srcp);
-    ret->udp_dstport = htons(dstp);
-    ret->udp_len = htons(((unsigned short) UDPHDRSIZE) + len);
+    ret->srcport = htons(srcp);
+    ret->dstport = htons(dstp);
+    ret->len = htons(((unsigned short) UDPHDRSIZE) + len);
     return ret;
 }

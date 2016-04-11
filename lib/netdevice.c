@@ -140,9 +140,10 @@ int llclose(struct llOptions *llo, bool freemem) {
 
 #if defined(__linux__)
 
-int llsocket(struct llOptions *llo) {
-    int sock;
+int llsocket(struct llOptions *llo, char *iface_name, unsigned int buffl) {
+    init_lloptions(llo,iface_name,buffl);
     struct sockaddr_ll sll;
+    int sock;
     sll.sll_family = AF_PACKET;
     sll.sll_halen = ETHHWASIZE;
     sll.sll_protocol = htons(ETH_P_ALL);
@@ -284,7 +285,7 @@ inline ssize_t llsend(const void *buff, unsigned long len, struct llOptions *llo
     return write(llo->sfd, buff, len == 0 ? llo->buffl : len);
 }
 
-inline void init_lloptions(struct llOptions *llo, char *iface_name, unsigned int buffl) {
+static inline void init_lloptions(struct llOptions *llo, char *iface_name, unsigned int buffl) {
     memset(llo, 0x00, sizeof(struct llOptions));
     memcpy(llo->iface_name, iface_name, IFNAMSIZ);
     llo->buffl = buffl;
