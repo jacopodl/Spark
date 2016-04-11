@@ -14,8 +14,8 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SPARK_UDP
-#define SPARK_UDP
+#ifndef SPARK_UDP_H
+#define SPARK_UDP_H
 
 #include "ipv4.h"
 

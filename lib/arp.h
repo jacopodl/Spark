@@ -14,8 +14,8 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SPARK_ARP
-#define SPARK_ARP
+#ifndef SPARK_ARP_H
+#define SPARK_ARP_H
 
 #include "ethernet.h"
 #include "ipv4.h"

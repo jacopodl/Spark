@@ -14,8 +14,8 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SPARK_IPV4
-#define SPARK_IPV4
+#ifndef SPARK_IPV4_H
+#define SPARK_IPV4_H
 
 #include <stdbool.h>
 #include <arpa/inet.h>

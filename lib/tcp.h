@@ -14,8 +14,8 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SPARK_TCP
-#define SPARK_TCP
+#ifndef SPARK_TCP_H
+#define SPARK_TCP_H
 
 #include "ipv4.h"
 

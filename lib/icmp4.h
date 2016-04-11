@@ -14,8 +14,8 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SPARK_ICMP
-#define SPARK_ICMP
+#ifndef SPARK_ICMP_H
+#define SPARK_ICMP_H
 
 #define ICMPTY_ECHO_REPLY           0
 #define ICMPTY_DST_UNREACHABLE      3

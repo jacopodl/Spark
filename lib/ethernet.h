@@ -14,8 +14,8 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SPARK_ETHERNET
-#define SPARK_ETHERNET
+#ifndef SPARK_ETHERNET_H
+#define SPARK_ETHERNET_H
 
 #include <stdbool.h>
 #include <netinet/in.h>
@@ -52,7 +52,8 @@ char *get_vendor(struct sockaddr *hwa, bool _static);
 struct EthHeader *build_ethernet_packet(struct sockaddr *src, struct sockaddr *dst, unsigned short type,
                                         unsigned long paysize, unsigned char *payload);
 
-struct EthHeader *injects_ethernet_header(unsigned char *buff, struct sockaddr *src, struct sockaddr *dst, unsigned short type);
+struct EthHeader *injects_ethernet_header(unsigned char *buff, struct sockaddr *src, struct sockaddr *dst,
+                                          unsigned short type);
 
 void build_ethbroad_addr(struct sockaddr *addr);
 

@@ -14,8 +14,8 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SPARK_NETDEVICE
-#define SPARK_NETDEVICE
+#ifndef SPARK_NETDEVICE_H
+#define SPARK_NETDEVICE_H
 
 #include <stdbool.h>
 #include <sys/socket.h>
