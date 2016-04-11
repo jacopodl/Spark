@@ -107,7 +107,8 @@ struct TcpHeader {
 
 struct TcpHeader *build_tcp_packet(unsigned short src, unsigned short dst, unsigned int seqn,
                                    unsigned int ackn, unsigned char flags,
-                                   unsigned short window, unsigned short urgp, unsigned long paysize,
+                                   unsigned short window, unsigned short urgp, struct Ipv4Header *ipv4Header,
+                                   unsigned long paysize,
                                    unsigned char *payload);
 
 struct TcpHeader *injects_tcp_header(unsigned char *buff, unsigned short src, unsigned short dst, unsigned int seqn,

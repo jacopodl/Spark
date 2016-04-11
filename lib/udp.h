@@ -31,10 +31,11 @@ struct UdpHeader {
     unsigned char data[0];
 };
 
-struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, unsigned short len, unsigned long paysize,
-                                    unsigned char *payload);
+struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, unsigned short len,
+                                   struct Ipv4Header *ipv4Header, unsigned long paysize,
+                                   unsigned char *payload);
 
-struct UdpHeader *injects_udp_header(unsigned char *buff,unsigned short srcp, unsigned short dstp, unsigned short len);
+struct UdpHeader *injects_udp_header(unsigned char *buff, unsigned short srcp, unsigned short dstp, unsigned short len);
 
 unsigned short udp_checksum4(struct UdpHeader *udpHeader, struct Ipv4Header *ipv4Header);
 
