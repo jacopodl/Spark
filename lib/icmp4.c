@@ -54,7 +54,6 @@ struct IcmpHeader *injects_icmp4_header(unsigned char *buff, unsigned char type,
     ret->type = type;
     ret->code = code;
     return ret;
-
 }
 
 static struct IcmpHeader *buinj_icmp4_echo_request(unsigned char *buff, bool memalloc, unsigned short id,
@@ -91,7 +90,6 @@ unsigned short icmp4_checksum(struct IcmpHeader *icmpHeader, struct Ipv4Header *
     unsigned short icmpl = ntohs(ipv4Header->len) - (unsigned short) IPV4HDRSIZE;
     register unsigned int sum = 0;
     icmpHeader->chksum = 0;
-
     for (int i = 0; i < icmpl; i += 2)
         sum += *buf++;
     sum = (sum >> 16) + (sum & 0xffff);
