@@ -38,12 +38,23 @@
 #define ICMPTY_DOMAIN_NAME_REPLY    38
 
 
-#define ICMP4HDRSIZE    4
+#define ICMP4HDRSIZE    8
 
 struct IcmpHeader {
     unsigned char type;
     unsigned char code;
     unsigned short chksum;
+    union {
+        struct {
+            unsigned short id;
+            unsigned short sqn;
+        } echo;
+        struct {
+            unsigned short unused;
+            unsigned short mtu;
+        } mtu;
+        unsigned int hdr;
+    };
     unsigned char data[0];
 };
 
@@ -51,7 +62,20 @@ struct IcmpHeader *build_icmp4_packet(unsigned char type, unsigned char code, st
                                       unsigned long paysize,
                                       unsigned char *payload);
 
+struct IcmpHeader *build_icmp4_echo_request(unsigned char *buff, unsigned short id, unsigned short seqn,
+                                            struct Ipv4Header *ipv4Header, unsigned long paysize,
+                                            unsigned char *payload);
+
 struct IcmpHeader *injects_icmp4_header(unsigned char *buff, unsigned char type, unsigned char code);
+
+struct IcmpHeader *injects_icmp4_echo_request(unsigned char *buff, unsigned short id, unsigned short seqn,
+                                              struct Ipv4Header *ipv4Header, unsigned long paysize,
+                                              unsigned char *payload);
+
+static struct IcmpHeader *buinj_icmp4_echo_request(unsigned char *buff, bool memalloc, unsigned short id,
+                                                   unsigned short seqn,
+                                                   struct Ipv4Header *ipv4Header, unsigned long paysize,
+                                                   unsigned char *payload);
 
 unsigned short icmp4_checksum(struct IcmpHeader *icmpHeader, struct Ipv4Header *ipv4Header);
 
