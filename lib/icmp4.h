@@ -38,12 +38,21 @@
 #define ICMPTY_DOMAIN_NAME_REPLY    38
 
 
-struct  IcmpHeader
-{
+#define ICMP4HDRSIZE    4
+
+struct IcmpHeader {
     unsigned char type;
     unsigned char code;
     unsigned short chksum;
     unsigned char data[0];
 };
+
+struct IcmpHeader *build_icmp4_packet(unsigned char type, unsigned char code, struct Ipv4Header *ipv4Header,
+                                      unsigned long paysize,
+                                      unsigned char *payload);
+
+struct IcmpHeader *injects_icmp4_header(unsigned char *buff, unsigned char type, unsigned char code);
+
+unsigned short icmp4_checksum(struct IcmpHeader *icmpHeader, struct Ipv4Header *ipv4Header);
 
 #endif
