@@ -28,7 +28,7 @@ struct UdpHeader {
     unsigned short dstport;
     unsigned short len;
     unsigned short checksum;
-    unsigned char data[0];
+    unsigned char data[];
 };
 
 struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, unsigned short len,

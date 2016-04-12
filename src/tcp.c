@@ -49,7 +49,7 @@ struct TcpHeader *injects_tcp_header(unsigned char *buff, unsigned short src, un
     ret->dst = htons(dst);
     ret->seqn = htonl(seqn);
     ret->ackn = htonl(ackn);
-    *ret->flags = flags;
+    ret->flags = flags;
     ret->window = htons(window);
     ret->urp = htons(urgp);
     return ret;
