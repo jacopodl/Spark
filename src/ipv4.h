@@ -60,7 +60,7 @@ struct Ipv4Header {
     unsigned short checksum;
     unsigned int saddr;
     unsigned int daddr;
-    unsigned char data[0];
+    unsigned char data[];
 };
 
 bool parse_ipv4addr(char *ipstr, unsigned int *ret_addr);

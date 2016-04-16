@@ -36,7 +36,7 @@ struct EthHeader {
     unsigned char dhwaddr[ETHHWASIZE];
     unsigned char shwaddr[ETHHWASIZE];
     unsigned short eth_type;
-    unsigned char data[0];
+    unsigned char data[];
 };
 
 bool ethcmp(struct sockaddr *mac1, struct sockaddr *mac2);

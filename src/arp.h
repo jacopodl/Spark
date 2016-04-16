@@ -48,7 +48,7 @@ struct ArpHeader {
     unsigned char hwalen;
     unsigned char pralen;
     unsigned short opcode;
-    unsigned char data[0];
+    unsigned char data[];
 };
 
 struct ArpHeader *injects_arp_packet(unsigned char *buff, unsigned char hwalen, unsigned char pralen,

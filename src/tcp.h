@@ -56,7 +56,7 @@ struct TcpHeader {
     unsigned char ecn_n:1;
     unsigned char rsv:3;
     unsigned char offset:4;
-    unsigned char flags[0];
+    union {
 #define TCPCWR      0x80
 #define TCPECNE     0x40
 #define TCPURG      0x20
@@ -65,21 +65,23 @@ struct TcpHeader {
 #define TCPRST      0x04
 #define TCPSYN      0x02
 #define TCPFIN      0x01
-    // Control Bits
-    unsigned char fin:1;
-    unsigned char syn:1;
-    unsigned char rst:1;
-    unsigned char psh:1;
-    unsigned char ack:1;
-    unsigned char urg:1;
-    // Explicit Congestion Notification
-    unsigned char ecn_e:1;
-    unsigned char ecn_c:1;
+        unsigned char flags;
+        // Control Bits
+        unsigned char fin:1;
+        unsigned char syn:1;
+        unsigned char rst:1;
+        unsigned char psh:1;
+        unsigned char ack:1;
+        unsigned char urg:1;
+        // Explicit Congestion Notification
+        unsigned char ecn_e:1;
+        unsigned char ecn_c:1;
+    };
 #elif __BYTE_ORDER == __BIG_ENDIAN
     unsigned char offset:4;
     unsigned char rsv:3;
     unsigned char ecn_n:1;
-    unsigned char flags[0];
+    union {
 #define TCPCWR      0x01
 #define TCPECNE     0x02
 #define TCPURG      0x04
@@ -88,21 +90,23 @@ struct TcpHeader {
 #define TCPRST      0x20
 #define TCPSYN      0x40
 #define TCPFIN      0x80
-    // Explicit Congestion Notification
-    unsigned char ecn_c:1;
-    unsigned char ecn_e:1;
-    // Control Bits
-    unsigned char urg:1;
-    unsigned char ack:1;
-    unsigned char psh:1;
-    unsigned char rst:1;
-    unsigned char syn:1;
-    unsigned char fin:1;
+        unsigned char flags;
+        // Explicit Congestion Notification
+        unsigned char ecn_c:1;
+        unsigned char ecn_e:1;
+        // Control Bits
+        unsigned char urg:1;
+        unsigned char ack:1;
+        unsigned char psh:1;
+        unsigned char rst:1;
+        unsigned char syn:1;
+        unsigned char fin:1;
+    };
 #endif
     unsigned short window;
     unsigned short checksum;
     unsigned short urp;
-    unsigned char data[0];
+    unsigned char data[];
 };
 
 struct TcpHeader *build_tcp_packet(unsigned short src, unsigned short dst, unsigned int seqn,

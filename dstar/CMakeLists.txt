@@ -1,8 +1,0 @@
-cmake_minimum_required(VERSION 2.8)
-project(Flame)
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
-set(SOURCE_FILES dstar.c)
-add_executable(dstar ${SOURCE_FILES})
-target_link_libraries(dstar LINK_PUBLIC Argsx)
-target_link_libraries(dstar LINK_PUBLIC Spark)

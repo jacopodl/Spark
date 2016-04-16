@@ -55,7 +55,7 @@ struct IcmpHeader {
         } mtu;
         unsigned int hdr;
     };
-    unsigned char data[0];
+    unsigned char data[];
 };
 
 struct IcmpHeader *build_icmp4_packet(unsigned char type, unsigned char code, struct Ipv4Header *ipv4Header,
