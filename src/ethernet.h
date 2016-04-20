@@ -18,7 +18,7 @@
 #define SPARK_ETHERNET_H
 
 #include <stdbool.h>
-#include <netinet/in.h>
+#include "datatype.h"
 
 #define ETHHWASIZE      6       // Ethernet addr byte len
 #define MACSTRSIZE      18      // Mac addr string size
@@ -39,26 +39,26 @@ struct EthHeader {
     unsigned char data[];
 };
 
-bool ethcmp(struct sockaddr *mac1, struct sockaddr *mac2);
+bool ethcmp(struct netaddr_mac *mac1, struct netaddr_mac *mac2);
 
-bool parse_hwaddr(char *hwstr, struct sockaddr *ret_sockaddr, bool bcast);
+bool parse_hwaddr(char *hwstr, struct netaddr_mac *ret_hwaddr, bool bcast);
 
-char *get_strhwaddr(struct sockaddr *hwa, bool _static);
+char *get_strhwaddr(struct netaddr_mac *hwa, bool _static);
 
-char *get_serial(struct sockaddr *hwa, bool _static);
+char *get_serial(struct netaddr_mac *hwa, bool _static);
 
-char *get_vendor(struct sockaddr *hwa, bool _static);
+char *get_vendor(struct netaddr_mac *hwa, bool _static);
 
-struct EthHeader *build_ethernet_packet(struct sockaddr *src, struct sockaddr *dst, unsigned short type,
+struct EthHeader *build_ethernet_packet(struct netaddr_mac *src, struct netaddr_mac *dst, unsigned short type,
                                         unsigned long paysize, unsigned char *payload);
 
-struct EthHeader *injects_ethernet_header(unsigned char *buff, struct sockaddr *src, struct sockaddr *dst,
+struct EthHeader *injects_ethernet_header(unsigned char *buff, struct netaddr_mac *src, struct netaddr_mac *dst,
                                           unsigned short type);
 
-void build_ethbroad_addr(struct sockaddr *addr);
+void build_ethbroad_addr(struct netaddr_mac *addr);
 
-void build_ethmulti_addr(struct sockaddr *hw, struct in_addr *ip);
+void build_ethmulti_addr(struct netaddr_mac *hw, struct netaddr_ip *ip);
 
-void rndhwaddr(struct sockaddr *mac);
+void rndhwaddr(struct netaddr_mac *mac);
 
 #endif

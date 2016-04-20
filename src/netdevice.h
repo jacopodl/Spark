@@ -20,6 +20,7 @@
 #include <stdbool.h>
 #include <sys/socket.h>
 #include <net/if.h>
+#include "datatype.h"
 
 #define BPFPATHMAXLEN   11
 #define BPFMAXDEV       99
@@ -40,11 +41,11 @@ struct ifList {
     struct ifList *next;
 };
 
-int get_burnedin_mac(int sd, char *iface_name, struct sockaddr *hwa);
+int get_burnedin_mac(int sd, char *iface_name, struct netaddr_mac *hwa);
 
 int get_flags(int sd, char *iface_name, short *flag);
 
-int get_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr);
+int get_hwaddr(int sd, char *iface_name, struct netaddr_mac *hwaddr);
 
 int llclose(struct llOptions *llo, bool freemem);
 
@@ -52,7 +53,7 @@ int llsocket(struct llOptions *llo, char *iface_name, unsigned int buffl);
 
 int set_flags(int sd, char *iface_name, short flags);
 
-int set_hwaddr(int sd, char *iface_name, struct sockaddr *hwaddr);
+int set_hwaddr(int sd, char *iface_name, struct netaddr_mac *hwaddr);
 
 ssize_t llrecv(void *buff, struct llOptions *llo);
 

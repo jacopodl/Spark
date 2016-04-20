@@ -20,16 +20,17 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 
+#include "datatype.h"
 #include "ethernet.h"
 
-bool ethcmp(struct sockaddr *mac1, struct sockaddr *mac2) {
+bool ethcmp(struct netaddr_mac *mac1, struct netaddr_mac *mac2) {
     for (int i = 0; i < ETHHWASIZE; i++)
-        if (mac1->sa_data[i] != mac2->sa_data[i])
+        if (mac1->mac[i] != mac2->mac[i])
             return false;
     return true;
 }
 
-bool parse_hwaddr(char *hwstr, struct sockaddr *ret_sockaddr, bool bcast) {
+bool parse_hwaddr(char *hwstr, struct netaddr_mac *ret_hwaddr, bool bcast) {
     if (strlen(hwstr) >= MACSTRSIZE)
         return false;
     unsigned int hwaddr[ETHHWASIZE];
@@ -37,13 +38,13 @@ bool parse_hwaddr(char *hwstr, struct sockaddr *ret_sockaddr, bool bcast) {
         return false;
     if (!bcast && hwaddr[0] & ~0xFE)
         return false;
-    if (ret_sockaddr != NULL)
+    if (ret_hwaddr != NULL)
         for (int i = 0; i < ETHHWASIZE; i++)
-            ret_sockaddr->sa_data[i] = (char) hwaddr[i];
+            ret_hwaddr->mac[i] = (char) hwaddr[i];
     return true;
 }
 
-char *get_strhwaddr(struct sockaddr *hwa, bool _static) {
+char *get_strhwaddr(struct netaddr_mac *hwa, bool _static) {
     static char static_buff[MACSTRSIZE];
     char *mac = static_buff;
     if (!_static) {
@@ -51,37 +52,37 @@ char *get_strhwaddr(struct sockaddr *hwa, bool _static) {
             return NULL;
     }
     sprintf(mac, "%.2X:%.2X:%.2X:%.2X:%.2X:%.2X",
-            (unsigned char) hwa->sa_data[0], (unsigned char) hwa->sa_data[1],
-            (unsigned char) hwa->sa_data[2], (unsigned char) hwa->sa_data[3],
-            (unsigned char) hwa->sa_data[4], (unsigned char) hwa->sa_data[5]);
+            hwa->mac[0], hwa->mac[1],
+            hwa->mac[2], hwa->mac[3],
+            hwa->mac[4], hwa->mac[5]);
     return mac;
 }
 
-char *get_serial(struct sockaddr *hwa, bool _static) {
+char *get_serial(struct netaddr_mac *hwa, bool _static) {
     static char static_buff[MACSTRHLFSIZE];
     char *serial = static_buff;
     if (!_static) {
         if ((serial = (char *) malloc(MACSTRHLFSIZE)) == NULL)
             return NULL;
     }
-    sprintf(serial, "%.2X:%.2X:%.2X", (unsigned char) hwa->sa_data[3], (unsigned char) hwa->sa_data[4],
-            (unsigned char) hwa->sa_data[5]);
+    sprintf(serial, "%.2X:%.2X:%.2X", (unsigned char) hwa->mac[3], (unsigned char) hwa->mac[4],
+            (unsigned char) hwa->mac[5]);
     return serial;
 }
 
-char *get_vendor(struct sockaddr *hwa, bool _static) {
+char *get_vendor(struct netaddr_mac *hwa, bool _static) {
     static char static_buff[MACSTRHLFSIZE];
     char *vendor = static_buff;
     if (!_static) {
         if ((vendor = (char *) malloc(MACSTRHLFSIZE)) == NULL)
             return NULL;
     }
-    sprintf(vendor, "%.2X:%.2X:%.2X", (unsigned char) hwa->sa_data[0], (unsigned char) hwa->sa_data[1],
-            (unsigned char) hwa->sa_data[2]);
+    sprintf(vendor, "%.2X:%.2X:%.2X", (unsigned char) hwa->mac[0], (unsigned char) hwa->mac[1],
+            (unsigned char) hwa->mac[2]);
     return vendor;
 }
 
-struct EthHeader *build_ethernet_packet(struct sockaddr *src, struct sockaddr *dst, unsigned short type,
+struct EthHeader *build_ethernet_packet(struct netaddr_mac *src, struct netaddr_mac *dst, unsigned short type,
                                         unsigned long paysize, unsigned char *payload) {
     unsigned long size = ETHHDRSIZE + paysize;
     struct EthHeader *ret = (struct EthHeader *) malloc(size);
@@ -93,37 +94,37 @@ struct EthHeader *build_ethernet_packet(struct sockaddr *src, struct sockaddr *d
     return ret;
 }
 
-struct EthHeader *injects_ethernet_header(unsigned char *buff, struct sockaddr *src, struct sockaddr *dst,
+struct EthHeader *injects_ethernet_header(unsigned char *buff, struct netaddr_mac *src, struct netaddr_mac *dst,
                                           unsigned short type) {
     struct EthHeader *ret = (struct EthHeader *) buff;
     memset(ret, 0x00, ETHHDRSIZE);
-    memcpy(ret->dhwaddr, dst->sa_data, ETHHWASIZE);
-    memcpy(ret->shwaddr, src->sa_data, ETHHWASIZE);
+    memcpy(ret->dhwaddr, dst->mac, ETHHWASIZE);
+    memcpy(ret->shwaddr, src->mac, ETHHWASIZE);
     ret->eth_type = htons(type);
     return ret;
 }
 
-inline void build_ethbroad_addr(struct sockaddr *addr) {
-    memset(addr->sa_data, 0xFF, ETHHWASIZE);
+inline void build_ethbroad_addr(struct netaddr_mac *addr) {
+    memset(addr->mac, 0xFF, ETHHWASIZE);
 }
 
-void build_ethmulti_addr(struct sockaddr *hw, struct in_addr *ip) {
-    memset(hw->sa_data, 0x00, ETHHWASIZE);
-    *((int *) hw->sa_data) = htonl(0x01005E00);
-    hw->sa_data[5] = *(((char *) &ip->s_addr) + 3);
-    hw->sa_data[4] = *(((char *) &ip->s_addr) + 2);
-    hw->sa_data[3] = *(((char *) &ip->s_addr) + 1) & (char) 0x7F;
+void build_ethmulti_addr(struct netaddr_mac *hw, struct netaddr_ip *ip) {
+    memset(hw->mac, 0x00, ETHHWASIZE);
+    *((int *) hw->mac) = htonl(0x01005E00);
+    hw->mac[5] = *(((unsigned char *) &ip->ip) + 3);
+    hw->mac[4] = *(((unsigned char *) &ip->ip) + 2);
+    hw->mac[3] = *(((unsigned char *) &ip->ip) + 1) & (char) 0x7F;
     return;
 }
 
-void rndhwaddr(struct sockaddr *mac) {
+void rndhwaddr(struct netaddr_mac *mac) {
 /* The lsb of the MSB can not be set,
  * because those are multicast mac addr!
  */
-    memset(mac, 0x00, sizeof(struct sockaddr));
+    memset(mac, 0x00, sizeof(struct netaddr_mac));
     FILE *urandom;
     urandom = fopen("/dev/urandom", "r");
-    fread(mac->sa_data, 1, ETHHWASIZE, urandom);
-    mac->sa_data[0] &= ((char) 0xFE);
+    fread(mac->mac, 1, ETHHWASIZE, urandom);
+    mac->mac[0] &= ((char) 0xFE);
     fclose(urandom);
 }
