@@ -164,7 +164,7 @@ int llsocket(struct llOptions *llo, char *iface_name, unsigned int buffl) {
 }
 
 #elif defined(__FreeBSD__) || (defined(__APPLE__) && defined(__MACH__))
-int llsocket(struct llOptions *llo) {
+int llsocket(struct llOptions *llo, char *iface_name, unsigned int buffl) {
     int sock = -1, var;
     for (int i = 0; i < BPFMAXDEV; i++) {
         sprintf(llo->bsd_bind, "/dev/bpf%i", i);
