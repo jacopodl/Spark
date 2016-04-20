@@ -1,5 +1,5 @@
 /*
-* <Spark.>
+* <datatype, part of Spark.>
 * Copyright (C) <2015-2016> <Jacopo De Luca>
 *
 * This program is free software: you can redistribute it and/or modify
@@ -14,19 +14,21 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SPARK_H
-#define SPARK_H
+#ifndef SPARK_DATATYPE_H
+#define SPARK_DATATYPE_H
 
-#define SPARK_VERSION_MAJOR @VERSION_MAJOR@
-#define SPARK_VERSION_MINOR	@VERSION_MINOR@
-
-#include "datatype.h"
-#include "netdevice.h"
 #include "ethernet.h"
-#include "arp.h"
-#include "ipv4.h"
-#include "icmp4.h"
-#include "tcp.h"
-#include "udp.h"
+
+struct netaddr {
+    unsigned char na_data[20];
+};
+
+struct netaddr_mac {
+    unsigned char mac[ETHHWASIZE];
+};
+
+struct netaddr_ip {
+    unsigned int ip;
+};
 
 #endif
