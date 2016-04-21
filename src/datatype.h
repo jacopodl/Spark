@@ -17,14 +17,12 @@
 #ifndef SPARK_DATATYPE_H
 #define SPARK_DATATYPE_H
 
-#include "ethernet.h"
-
 struct netaddr {
     unsigned char na_data[20];
 };
 
 struct netaddr_mac {
-    unsigned char mac[ETHHWASIZE];
+    unsigned char mac[6];
 };
 
 struct netaddr_ip {
