@@ -21,6 +21,7 @@
 #include <arpa/inet.h>
 #include <time.h>
 
+#include "datatype.h"
 #include "ipv4.h"
 
 bool parse_ipv4addr(char *ipstr, unsigned int *ret_addr) {
@@ -48,7 +49,7 @@ char *get_stripv4(unsigned int *addr, bool _static) {
     return ipstr;
 }
 
-struct Ipv4Header *build_ipv4_packet(struct in_addr *src, struct in_addr *dst, unsigned char ihl, unsigned short len,
+struct Ipv4Header *build_ipv4_packet(struct netaddr_ip *src, struct netaddr_ip *dst, unsigned char ihl, unsigned short len,
                                      unsigned short id, unsigned char ttl, unsigned char proto, unsigned long paysize,
                                      unsigned char *payload) {
     unsigned long size = IPV4HDRSIZE + paysize;
@@ -62,7 +63,7 @@ struct Ipv4Header *build_ipv4_packet(struct in_addr *src, struct in_addr *dst, u
     return ret;
 }
 
-struct Ipv4Header *injects_ipv4_header(unsigned char *buff, struct in_addr *src, struct in_addr *dst, unsigned char ihl,
+struct Ipv4Header *injects_ipv4_header(unsigned char *buff, struct netaddr_ip *src, struct netaddr_ip *dst, unsigned char ihl,
                                        unsigned short len, unsigned short id, unsigned char ttl, unsigned char proto) {
     struct Ipv4Header *ipv4 = (struct Ipv4Header *) buff;
     memset(ipv4, 0x00, IPV4HDRSIZE);
@@ -72,8 +73,8 @@ struct Ipv4Header *injects_ipv4_header(unsigned char *buff, struct in_addr *src,
     ipv4->id = id;
     ipv4->ttl = ttl;
     ipv4->protocol = proto;
-    ipv4->saddr = src->s_addr;
-    ipv4->daddr = dst->s_addr;
+    ipv4->saddr = src->ip;
+    ipv4->daddr = dst->ip;
     ipv4->checksum = ipv4_checksum(ipv4);
     return ipv4;
 }
@@ -92,28 +93,28 @@ unsigned short ipv4_checksum(struct Ipv4Header *ipHeader) {
     return (unsigned short) ~sum;
 }
 
-inline void get_ipv4bcast_addr(struct in_addr *addr, struct in_addr *netmask, struct in_addr *ret_addr) {
-    ret_addr->s_addr = (~netmask->s_addr) | addr->s_addr;
+inline void get_ipv4bcast_addr(struct netaddr_ip *addr, struct netaddr_ip *netmask, struct netaddr_ip *ret_addr) {
+    ret_addr->ip = (~netmask->ip) | addr->ip;
 }
 
-inline void get_ipv4net_addr(struct in_addr *addr, struct in_addr *netmask, struct in_addr *ret_addr) {
-    ret_addr->s_addr = addr->s_addr & netmask->s_addr;
+inline void get_ipv4net_addr(struct netaddr_ip *addr, struct netaddr_ip *netmask, struct netaddr_ip *ret_addr) {
+    ret_addr->ip = addr->ip & netmask->ip;
 }
 
-inline void get_ipv4wildcard_mask(struct in_addr *netmask, struct in_addr *ret_wildcard) {
-    ret_wildcard->s_addr = ~netmask->s_addr;
+inline void get_ipv4wildcard_mask(struct netaddr_ip *netmask, struct netaddr_ip *ret_wildcard) {
+    ret_wildcard->ip = ~netmask->ip;
 }
 
-void increment_ipv4addr(struct in_addr *addr) {
-    unsigned char *byte = (unsigned char *) &addr->s_addr;
+void increment_ipv4addr(struct netaddr_ip *addr) {
+    unsigned char *byte = (unsigned char *) &addr->ip;
     for (int i = IPV4ADDRLEN - 1; i >= 0; i--)
         if (++byte[i] != 0x00)
             break;
 }
 
-void rndipv4addr(struct in_addr *addr) {
+void rndipv4addr(struct netaddr_ip *addr) {
     FILE *urandom;
     urandom = fopen("/dev/urandom", "r");
-    fread(&addr->s_addr, 4, 1, urandom);
+    fread(&addr->ip, IPV4ADDRLEN, 1, urandom);
     fclose(urandom);
 }

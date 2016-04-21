@@ -19,6 +19,7 @@
 
 #include <stdbool.h>
 #include <arpa/inet.h>
+#include "datatype.h"
 
 #define IPV4VERSION 4                   // IP version
 #define IPV4HDRSIZE 20                  // Header size
@@ -67,25 +68,25 @@ bool parse_ipv4addr(char *ipstr, unsigned int *ret_addr);
 
 char *get_stripv4(unsigned int *addr, bool _static);
 
-struct Ipv4Header *build_ipv4_packet(struct in_addr *src, struct in_addr *dst, unsigned char ihl, unsigned short len,
+struct Ipv4Header *build_ipv4_packet(struct netaddr_ip *src, struct netaddr_ip *dst, unsigned char ihl, unsigned short len,
                                      unsigned short id, unsigned char ttl, unsigned char proto, unsigned long paysize,
                                      unsigned char *payload);
 
-struct Ipv4Header *injects_ipv4_header(unsigned char *buff, struct in_addr *src, struct in_addr *dst, unsigned char ihl,
+struct Ipv4Header *injects_ipv4_header(unsigned char *buff, struct netaddr_ip *src, struct netaddr_ip *dst, unsigned char ihl,
                                        unsigned short len, unsigned short id, unsigned char ttl, unsigned char proto);
 
 unsigned short build_ipv4id();
 
 unsigned short ipv4_checksum(struct Ipv4Header *ipHeader);
 
-void get_ipv4bcast_addr(struct in_addr *addr, struct in_addr *netmask, struct in_addr *ret_addr);
+void get_ipv4bcast_addr(struct netaddr_ip *addr, struct netaddr_ip *netmask, struct netaddr_ip *ret_addr);
 
-void get_ipv4net_addr(struct in_addr *addr, struct in_addr *netmask, struct in_addr *ret_addr);
+void get_ipv4net_addr(struct netaddr_ip *addr, struct netaddr_ip *netmask, struct netaddr_ip *ret_addr);
 
-void get_ipv4wildcard_mask(struct in_addr *netmask, struct in_addr *ret_wildcard);
+void get_ipv4wildcard_mask(struct netaddr_ip *netmask, struct netaddr_ip *ret_wildcard);
 
-void increment_ipv4addr(struct in_addr *addr);
+void increment_ipv4addr(struct netaddr_ip *addr);
 
-void rndipv4addr(struct in_addr *addr);
+void rndipv4addr(struct netaddr_ip *addr);
 
 #endif

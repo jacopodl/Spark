@@ -18,13 +18,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "datatype.h"
 #include "netdevice.h"
 #include "ethernet.h"
 #include "arp.h"
 
 struct ArpHeader *injects_arp_packet(unsigned char *buff, unsigned char hwalen, unsigned char pralen,
-                                     unsigned short opcode, struct sockaddr *shwaddr, struct sockaddr *spraddr,
-                                     struct sockaddr *dhwaddr, struct sockaddr *dpraddr) {
+                                     unsigned short opcode, struct netaddr *shwaddr, struct netaddr *spraddr,
+                                     struct netaddr *dhwaddr, struct netaddr *dpraddr) {
     struct ArpHeader *arp = (struct ArpHeader *) buff;
     unsigned char *data = (unsigned char *) arp->data;
     unsigned int tlen = (unsigned int) ARPHDRSIZE + ((hwalen + pralen) * 2);
@@ -34,33 +35,30 @@ struct ArpHeader *injects_arp_packet(unsigned char *buff, unsigned char hwalen, 
     arp->hwalen = hwalen;
     arp->pralen = pralen;
     arp->opcode = htons(opcode);
-    memcpy(data, shwaddr->sa_data, hwalen);
+    memcpy(data, shwaddr->na_data, hwalen);
     data += hwalen;
-    memcpy(data, spraddr->sa_data, pralen);
+    memcpy(data, spraddr->na_data, pralen);
     data += pralen;
-    memcpy(data, dhwaddr->sa_data, hwalen);
+    memcpy(data, dhwaddr->na_data, hwalen);
     data += hwalen;
-    memcpy(data, dpraddr->sa_data, pralen);
+    memcpy(data, dpraddr->na_data, pralen);
     return arp;
 }
 
-struct ArpHeader *injects_arp_ethip4_packet(unsigned char *buff, unsigned short opcode, struct sockaddr *shwaddr,
-                                            struct in_addr *spraddr, struct sockaddr *dhwaddr,
-                                            struct in_addr *dpraddr) {
-    struct sockaddr spr, dpr;
-    memcpy(&spr.sa_data, &spraddr->s_addr, IPV4ADDRLEN);
-    memcpy(&dpr.sa_data, &dpraddr->s_addr, IPV4ADDRLEN);
-    return injects_arp_packet(buff, ETHHWASIZE, IPV4ADDRLEN, opcode, shwaddr, &spr, dhwaddr, &dpr);
+struct ArpHeader *injects_arp_ethip4_packet(unsigned char *buff, unsigned short opcode, struct netaddr_mac *shwaddr,
+                                            struct netaddr_ip *spraddr, struct netaddr_mac *dhwaddr,
+                                            struct netaddr_ip *dpraddr) {
+    return injects_arp_packet(buff, ETHHWASIZE, IPV4ADDRLEN, opcode, (struct netaddr*)shwaddr, (struct netaddr*)spraddr, (struct netaddr*)dhwaddr, (struct netaddr*)dpraddr);
 }
 
-bool arp_ethip4_resolver(struct llOptions *llo, unsigned short opcode, struct sockaddr *shwaddr,
-                         struct in_addr *spraddr, struct sockaddr *dhwaddr, struct in_addr *dpraddr) {
+bool arp_ethip4_resolver(struct llOptions *llo, unsigned short opcode, struct netaddr_mac *shwaddr,
+                         struct netaddr_ip *spraddr, struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr) {
     bool success = false;
     int ttry = 0;
     unsigned char *rcvb;
     struct EthHeader *eth, *r_eth;
     struct ArpHeader *arp, *r_arp;
-    struct sockaddr ethbroad;
+    struct netaddr_mac ethbroad;
     if ((rcvb = (unsigned char *) malloc(llo->buffl)) == NULL)
         return false;
     build_ethbroad_addr(&ethbroad);
@@ -81,11 +79,11 @@ bool arp_ethip4_resolver(struct llOptions *llo, unsigned short opcode, struct so
                 continue;
             switch (ntohs(r_arp->opcode)) {
                 case ARPOP_REPLY:
-                    memcpy(dhwaddr->sa_data, r_arp->data, ETHHWASIZE);
+                    memcpy(dhwaddr->mac, r_arp->data, ETHHWASIZE);
                     success = true;
                     break;
                 case ARPOP_REVREP:
-                    dpraddr->s_addr = *((unsigned int *) (r_arp->data + ETHHWASIZE));
+                    dpraddr->ip= *((unsigned int *) (r_arp->data + ETHHWASIZE));
                     success = true;
                     break;
                 default:

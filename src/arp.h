@@ -17,6 +17,7 @@
 #ifndef SPARK_ARP_H
 #define SPARK_ARP_H
 
+#include "datatype.h"
 #include "ethernet.h"
 #include "ipv4.h"
 
@@ -52,13 +53,13 @@ struct ArpHeader {
 };
 
 struct ArpHeader *injects_arp_packet(unsigned char *buff, unsigned char hwalen, unsigned char pralen,
-                                     unsigned short opcode, struct sockaddr *shwaddr, struct sockaddr *spraddr,
-                                     struct sockaddr *dhwaddr, struct sockaddr *dpraddr);
+                                     unsigned short opcode, struct netaddr *shwaddr, struct netaddr *spraddr,
+                                     struct netaddr *dhwaddr, struct netaddr *dpraddr);
 
-struct ArpHeader *injects_arp_ethip4_packet(unsigned char *buff, unsigned short opcode, struct sockaddr *shwaddr,
-                                            struct in_addr *spraddr, struct sockaddr *dhwaddr,
-                                            struct in_addr *dpraddr);
+struct ArpHeader *injects_arp_ethip4_packet(unsigned char *buff, unsigned short opcode, struct netaddr_mac *shwaddr,
+                                            struct netaddr_ip *spraddr, struct netaddr_mac *dhwaddr,
+                                            struct netaddr_ip *dpraddr);
 
-bool arp_ethip4_resolver(struct llOptions *llo, unsigned short opcode, struct sockaddr *shwaddr,
-                         struct in_addr *spraddr, struct sockaddr *dhwaddr, struct in_addr *dpraddr);
+bool arp_ethip4_resolver(struct llOptions *llo, unsigned short opcode, struct netaddr_mac *shwaddr,
+                         struct netaddr_ip *spraddr, struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr);
 #endif
