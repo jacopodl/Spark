@@ -89,11 +89,23 @@ struct DhcpPacket {
 
 struct DhcpPacket *build_dhcp_discover(struct netaddr_mac *chaddr, struct netaddr_ip *ipreq, unsigned int *optoff);
 
+struct DhcpPacket *build_dhcp_raw(unsigned char *buff, unsigned char op, unsigned char htype, unsigned char hlen,
+                                  unsigned char hops, unsigned int xid,
+                                  unsigned short secs, unsigned short flags, struct netaddr_ip *ciaddr,
+                                  struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr, struct netaddr_ip *giaddr,
+                                  struct netaddr *chaddr, char *sname);
+
 struct DhcpPacket *build_dhcp_request(struct netaddr_mac *chaddr, struct netaddr_ip *ipreq, unsigned int xid,
                                       struct netaddr_ip *siaddr, unsigned int *optoff);
 
 struct DhcpPacket *injects_dhcp_discover(unsigned char *buff, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
                                          unsigned int *optoff);
+
+struct DhcpPacket *injects_dhcp_raw(unsigned char *buff, unsigned char op, unsigned char htype, unsigned char hlen,
+                                    unsigned char hops, unsigned int xid,
+                                    unsigned short secs, unsigned short flags, struct netaddr_ip *ciaddr,
+                                    struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr, struct netaddr_ip *giaddr,
+                                    struct netaddr *chaddr, char *sname);
 
 struct DhcpPacket *injects_dhcp_request(unsigned char *buff, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
                                         unsigned int xid, struct netaddr_ip *siaddr, unsigned int *optoff);

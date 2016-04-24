@@ -31,6 +31,18 @@ struct DhcpPacket *build_dhcp_discover(struct netaddr_mac *chaddr, struct netadd
     return injects_dhcp_discover((unsigned char *) dhcpPkt, chaddr, ipreq, optoff);
 }
 
+struct DhcpPacket *build_dhcp_raw(unsigned char *buff, unsigned char op, unsigned char htype, unsigned char hlen,
+                                  unsigned char hops, unsigned int xid,
+                                  unsigned short secs, unsigned short flags, struct netaddr_ip *ciaddr,
+                                  struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr, struct netaddr_ip *giaddr,
+                                  struct netaddr *chaddr, char *sname) {
+    struct DhcpPacket *dhcpPkt = (struct DhcpPacket *) malloc(DHCPPKTLEN);
+    if (dhcpPkt == NULL)
+        return NULL;
+    return injects_dhcp_raw((unsigned char *) dhcpPkt, op, htype, hlen, hops, xid, secs, flags, ciaddr, yiaddr, siaddr,
+                            giaddr, chaddr, sname);
+}
+
 struct DhcpPacket *build_dhcp_request(struct netaddr_mac *chaddr, struct netaddr_ip *ipreq, unsigned int xid,
                                       struct netaddr_ip *siaddr, unsigned int *optoff) {
     struct DhcpPacket *dhcpPkt = (struct DhcpPacket *) malloc(DHCPPKTLEN);
@@ -41,16 +53,12 @@ struct DhcpPacket *build_dhcp_request(struct netaddr_mac *chaddr, struct netaddr
 
 struct DhcpPacket *injects_dhcp_discover(unsigned char *buff, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
                                          unsigned int *optoff) {
-    struct DhcpPacket *dhcpPkt = (struct DhcpPacket *) buff;
-    *optoff = 0;
-    dhcpPkt->op = DHCP_OP_BOOT_REQUEST;
-    dhcpPkt->htype = DHCP_HTYPE_ETHER;
-    dhcpPkt->hlen = IFHWADDRLEN;
-    dhcpPkt->xid = dhcp_mkxid();
-    dhcpPkt->flags = DHCP_FLAGS_BROADCAST;
-    memcpy(dhcpPkt->chaddr, chaddr->mac, IFHWADDRLEN);
 
-    dhcpPkt->option = htonl(DHCP_MAGIC_COOKIE);
+    struct DhcpPacket *dhcpPkt = injects_dhcp_raw(buff, DHCP_OP_BOOT_REQUEST, DHCP_HTYPE_ETHER, IFHWADDRLEN, 0,
+                                                  dhcp_mkxid(), 0, DHCP_FLAGS_BROADCAST, NULL, NULL, NULL, NULL,
+                                                  (struct netaddr *) chaddr, NULL);
+    *optoff = 0;
+
     dhcpPkt->options[(*optoff)++] = DHCP_MESSAGE_TYPE;
     dhcpPkt->options[(*optoff)++] = 0x01;
     dhcpPkt->options[(*optoff)++] = DHCP_DISCOVER;
@@ -66,19 +74,42 @@ struct DhcpPacket *injects_dhcp_discover(unsigned char *buff, struct netaddr_mac
     return dhcpPkt;
 }
 
+struct DhcpPacket *injects_dhcp_raw(unsigned char *buff, unsigned char op, unsigned char htype, unsigned char hlen,
+                                    unsigned char hops, unsigned int xid,
+                                    unsigned short secs, unsigned short flags, struct netaddr_ip *ciaddr,
+                                    struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr, struct netaddr_ip *giaddr,
+                                    struct netaddr *chaddr, char *sname) {
+    struct DhcpPacket *dhcpPkt = (struct DhcpPacket *) buff;
+    memset(dhcpPkt, 0x00, DHCPPKTLEN);
+    dhcpPkt->op = op;
+    dhcpPkt->htype = htype;
+    dhcpPkt->hlen = hlen;
+    dhcpPkt->hops = hops;
+    dhcpPkt->xid = xid;
+    dhcpPkt->secs = secs;
+    dhcpPkt->flags = flags;
+    if (ciaddr != NULL)
+        dhcpPkt->ciaddr = ciaddr->ip;
+    if (yiaddr != NULL)
+        dhcpPkt->yiaddr = yiaddr->ip;
+    if (siaddr != NULL)
+        dhcpPkt->siaddr = siaddr->ip;
+    if (giaddr != NULL)
+        dhcpPkt->giaddr = giaddr->ip;
+    if (chaddr != NULL)
+        memcpy(dhcpPkt->chaddr, chaddr->na_data, hlen);
+    if (sname != NULL)
+        memcpy(dhcpPkt->sname, sname, DHCP_SNAMELEN);
+    dhcpPkt->option = htonl(DHCP_MAGIC_COOKIE);
+    return dhcpPkt;
+}
+
 struct DhcpPacket *injects_dhcp_request(unsigned char *buff, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
                                         unsigned int xid, struct netaddr_ip *siaddr, unsigned int *optoff) {
-    struct DhcpPacket *dhcpPkt = (struct DhcpPacket *) buff;
+    struct DhcpPacket *dhcpPkt = injects_dhcp_raw(buff, DHCP_OP_BOOT_REQUEST, DHCP_HTYPE_ETHER, IFHWADDRLEN, 0, xid, 0,
+                                                  DHCP_FLAGS_BROADCAST, NULL, NULL, siaddr, NULL,
+                                                  (struct netaddr *) chaddr, NULL);
     *optoff = 0;
-    dhcpPkt->op = DHCP_OP_BOOT_REQUEST;
-    dhcpPkt->htype = DHCP_HTYPE_ETHER;
-    dhcpPkt->hlen = IFHWADDRLEN;
-    dhcpPkt->xid = xid;
-    dhcpPkt->flags = DHCP_FLAGS_BROADCAST;
-    dhcpPkt->siaddr = siaddr->ip;
-    memcpy(dhcpPkt->chaddr, chaddr->mac, IFHWADDRLEN);
-
-    dhcpPkt->option = htonl(DHCP_MAGIC_COOKIE);
     dhcpPkt->options[(*optoff)++] = DHCP_MESSAGE_TYPE;
     dhcpPkt->options[(*optoff)++] = 0x01;
     dhcpPkt->options[(*optoff)++] = DHCP_REQUEST;
