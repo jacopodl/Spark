@@ -86,8 +86,12 @@ struct DhcpPacket {
     unsigned char options[DHCP_OPTLEN];
 };
 
+bool dhcp_append_option(struct DhcpPacket *dhcpPkt, unsigned char op, unsigned char len,
+                        unsigned char *payload);
 
-struct DhcpPacket *build_dhcp_discover(struct netaddr_mac *chaddr, struct netaddr_ip *ipreq, unsigned int *optoff);
+bool dhcp_replace_option(struct DhcpPacket *dhcpPkt, unsigned char option, unsigned char *value, unsigned char offset);
+
+struct DhcpPacket *build_dhcp_discover(struct netaddr_mac *chaddr, struct netaddr_ip *ipreq);
 
 struct DhcpPacket *build_dhcp_raw(unsigned char *buff, unsigned char op, unsigned char htype, unsigned char hlen,
                                   unsigned char hops, unsigned int xid,
@@ -96,10 +100,9 @@ struct DhcpPacket *build_dhcp_raw(unsigned char *buff, unsigned char op, unsigne
                                   struct netaddr *chaddr, char *sname);
 
 struct DhcpPacket *build_dhcp_request(struct netaddr_mac *chaddr, struct netaddr_ip *ipreq, unsigned int xid,
-                                      struct netaddr_ip *siaddr, unsigned int *optoff);
+                                      struct netaddr_ip *siaddr);
 
-struct DhcpPacket *injects_dhcp_discover(unsigned char *buff, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
-                                         unsigned int *optoff);
+struct DhcpPacket *injects_dhcp_discover(unsigned char *buff, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq);
 
 struct DhcpPacket *injects_dhcp_raw(unsigned char *buff, unsigned char op, unsigned char htype, unsigned char hlen,
                                     unsigned char hops, unsigned int xid,
@@ -108,7 +111,7 @@ struct DhcpPacket *injects_dhcp_raw(unsigned char *buff, unsigned char op, unsig
                                     struct netaddr *chaddr, char *sname);
 
 struct DhcpPacket *injects_dhcp_request(unsigned char *buff, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
-                                        unsigned int xid, struct netaddr_ip *siaddr, unsigned int *optoff);
+                                        unsigned int xid, struct netaddr_ip *siaddr);
 
 unsigned char *dhcp_get_options(struct DhcpPacket *dhcpPkt, unsigned int *len);
 
@@ -116,11 +119,6 @@ unsigned char *dhcp_get_option_value(struct DhcpPacket *dhcpPkt, unsigned char o
 
 unsigned int dhcp_mkxid();
 
-void dhcp_append_option(struct DhcpPacket *dhcpPkt, unsigned int *optoff, unsigned char op, unsigned char len,
-                        unsigned char *payload);
-
-void dhcp_init_options(struct DhcpPacket *dhcpPkt, unsigned int *optoff);
-
-void dhcp_replace_option(struct DhcpPacket *dhcpPkt, unsigned char option, unsigned char *value, unsigned char offset);
+void dhcp_init_options(struct DhcpPacket *dhcpPkt);
 
 #endif
