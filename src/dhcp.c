@@ -67,6 +67,13 @@ struct DhcpPacket *build_dhcp_raw(unsigned char *buff, unsigned char op, unsigne
                             giaddr, chaddr, sname);
 }
 
+struct DhcpPacket *build_dhcp_release(struct netaddr_mac *chaddr, struct netaddr_ip *ciaddr, struct netaddr_ip *server) {
+    struct DhcpPacket *dhcpPkt = (struct DhcpPacket *) malloc(DHCPPKTLEN);
+    if (dhcpPkt == NULL)
+        return NULL;
+    return injects_dhcp_release((unsigned char *) dhcpPkt, chaddr,ciaddr,server);
+}
+
 struct DhcpPacket *build_dhcp_request(struct netaddr_mac *chaddr, struct netaddr_ip *ipreq, unsigned int xid,
                                       struct netaddr_ip *siaddr) {
     struct DhcpPacket *dhcpPkt = (struct DhcpPacket *) malloc(DHCPPKTLEN);
@@ -92,7 +99,8 @@ struct DhcpPacket *injects_dhcp_discover(unsigned char *buff, struct netaddr_mac
     memcpy(buff_client_id + 1, chaddr->mac, IFHWADDRLEN);
 
     dhcp_append_option(dhcpPkt, DHCP_CLIENT_IDENTIFIER, IFHWADDRLEN + 1, buff_client_id);
-    dhcp_append_option(dhcpPkt, DHCP_REQUESTED_ADDRESS, IPV4ADDRLEN, (unsigned char *) &(ipreq->ip));
+    if(ipreq != NULL)
+    	dhcp_append_option(dhcpPkt, DHCP_REQUESTED_ADDRESS, IPV4ADDRLEN, (unsigned char *) &(ipreq->ip));
     unsigned char buff_parameter_request[] = {DHCP_REQ_SUBMASK, DHCP_REQ_ROUTERS, DHCP_REQ_DOMAIN_NAME, DHCP_REQ_DNS};
     dhcp_append_option(dhcpPkt, DHCP_PARAMETER_REQUEST_LIST, 0x04, buff_parameter_request);
     return dhcpPkt;
@@ -125,6 +133,22 @@ struct DhcpPacket *injects_dhcp_raw(unsigned char *buff, unsigned char op, unsig
     if (sname != NULL)
         memcpy(dhcpPkt->sname, sname, DHCP_SNAMELEN);
     dhcpPkt->option = htonl(DHCP_MAGIC_COOKIE);
+    dhcpPkt->options[0] = 0xFF;
+    return dhcpPkt;
+}
+
+struct DhcpPacket *injects_dhcp_release(unsigned char *buff, struct netaddr_mac *chaddr, struct netaddr_ip *ciaddr,
+                                        struct netaddr_ip *server) {
+    struct DhcpPacket *dhcpPkt = injects_dhcp_raw(buff, DHCP_OP_BOOT_REQUEST, DHCP_HTYPE_ETHER, IFHWADDRLEN, 0, dhcp_mkxid(), 0,
+                                                  0, ciaddr, NULL, NULL, NULL,
+                                                  (struct netaddr *) chaddr, NULL);
+    int optoff = 0;
+    dhcpPkt->options[(optoff)++] = DHCP_MESSAGE_TYPE;
+    dhcpPkt->options[(optoff)++] = 0x01;
+    dhcpPkt->options[(optoff)++] = DHCP_RELEASE;
+    dhcpPkt->options[(optoff)] = 0xFF;
+
+    dhcp_append_option(dhcpPkt, DHCP_SERVER_IDENTIFIER, IPV4ADDRLEN, (unsigned char *) &server->ip);
     return dhcpPkt;
 }
 

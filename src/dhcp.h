@@ -99,6 +99,8 @@ struct DhcpPacket *build_dhcp_raw(unsigned char *buff, unsigned char op, unsigne
                                   struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr, struct netaddr_ip *giaddr,
                                   struct netaddr *chaddr, char *sname);
 
+struct DhcpPacket *build_dhcp_release(struct netaddr_mac *chaddr, struct netaddr_ip *ciaddr, struct netaddr_ip *server);
+
 struct DhcpPacket *build_dhcp_request(struct netaddr_mac *chaddr, struct netaddr_ip *ipreq, unsigned int xid,
                                       struct netaddr_ip *siaddr);
 
@@ -109,6 +111,9 @@ struct DhcpPacket *injects_dhcp_raw(unsigned char *buff, unsigned char op, unsig
                                     unsigned short secs, unsigned short flags, struct netaddr_ip *ciaddr,
                                     struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr, struct netaddr_ip *giaddr,
                                     struct netaddr *chaddr, char *sname);
+
+struct DhcpPacket *injects_dhcp_release(unsigned char *buff, struct netaddr_mac *chaddr, struct netaddr_ip *ciaddr,
+                                        struct netaddr_ip *server);
 
 struct DhcpPacket *injects_dhcp_request(unsigned char *buff, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
                                         unsigned int xid, struct netaddr_ip *siaddr);
