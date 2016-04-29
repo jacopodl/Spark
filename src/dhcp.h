@@ -36,6 +36,7 @@
 #define DHCP_MAGIC_COOKIE (0x63825363)   // Magic cookie validating dhcp options field (and bootp vendor extensions field)
 
 #define DHCP_REQUESTED_ADDRESS      50
+#define DHCP_ADDR_LEASE_TIME        51
 #define DHCP_MESSAGE_TYPE           53
 #define DHCP_SERVER_IDENTIFIER      54
 #define DHCP_PARAMETER_REQUEST_LIST 55
@@ -89,7 +90,11 @@ struct DhcpPacket {
 bool dhcp_append_option(struct DhcpPacket *dhcpPkt, unsigned char op, unsigned char len,
                         unsigned char *payload);
 
+bool dhcp_check_type(struct DhcpPacket *dhcpPkt, unsigned char type);
+
 bool dhcp_replace_option(struct DhcpPacket *dhcpPkt, unsigned char option, unsigned char *value, unsigned char offset);
+
+unsigned int dhcp_get_option_uint(struct DhcpPacket *dhcpPkt, unsigned char option);
 
 struct DhcpPacket *build_dhcp_discover(struct netaddr_mac *chaddr, struct netaddr_ip *ipreq);
 
@@ -118,7 +123,11 @@ struct DhcpPacket *injects_dhcp_release(unsigned char *buff, struct netaddr_mac 
 struct DhcpPacket *injects_dhcp_request(unsigned char *buff, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
                                         unsigned int xid, struct netaddr_ip *siaddr);
 
+unsigned char dhcp_get_type(struct DhcpPacket *dhcp);
+
 unsigned char *dhcp_get_options(struct DhcpPacket *dhcpPkt, unsigned int *len);
+
+unsigned char dhcp_get_option_uchar(struct DhcpPacket *dhcpPkt, unsigned char option);
 
 unsigned char *dhcp_get_option_value(struct DhcpPacket *dhcpPkt, unsigned char option, unsigned int *len);
 
