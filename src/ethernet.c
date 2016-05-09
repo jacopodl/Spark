@@ -19,6 +19,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <netinet/in.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include "datatype.h"
 #include "ethernet.h"
@@ -121,10 +123,10 @@ void rndhwaddr(struct netaddr_mac *mac) {
 /* The lsb of the MSB can not be set,
  * because those are multicast mac addr!
  */
-    memset(mac, 0x00, sizeof(struct netaddr_mac));
-    FILE *urandom;
-    urandom = fopen("/dev/urandom", "r");
-    fread(mac->mac, 1, ETHHWASIZE, urandom);
+    int urandom = open("/dev/urandom", O_RDONLY);
+    if (urandom == -1)
+        return;
+    read(urandom, mac->mac, ETHHWASIZE);
     mac->mac[0] &= ((char) 0xFE);
-    fclose(urandom);
+    close(urandom);
 }

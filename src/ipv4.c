@@ -20,6 +20,8 @@
 #include <stdbool.h>
 #include <arpa/inet.h>
 #include <time.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include "datatype.h"
 #include "ipv4.h"
@@ -49,7 +51,8 @@ char *get_stripv4(unsigned int *addr, bool _static) {
     return ipstr;
 }
 
-struct Ipv4Header *build_ipv4_packet(struct netaddr_ip *src, struct netaddr_ip *dst, unsigned char ihl, unsigned short len,
+struct Ipv4Header *build_ipv4_packet(struct netaddr_ip *src, struct netaddr_ip *dst, unsigned char ihl,
+                                     unsigned short len,
                                      unsigned short id, unsigned char ttl, unsigned char proto, unsigned long paysize,
                                      unsigned char *payload) {
     unsigned long size = IPV4HDRSIZE + paysize;
@@ -63,7 +66,8 @@ struct Ipv4Header *build_ipv4_packet(struct netaddr_ip *src, struct netaddr_ip *
     return ret;
 }
 
-struct Ipv4Header *injects_ipv4_header(unsigned char *buff, struct netaddr_ip *src, struct netaddr_ip *dst, unsigned char ihl,
+struct Ipv4Header *injects_ipv4_header(unsigned char *buff, struct netaddr_ip *src, struct netaddr_ip *dst,
+                                       unsigned char ihl,
                                        unsigned short len, unsigned short id, unsigned char ttl, unsigned char proto) {
     struct Ipv4Header *ipv4 = (struct Ipv4Header *) buff;
     memset(ipv4, 0x00, IPV4HDRSIZE);
@@ -80,7 +84,7 @@ struct Ipv4Header *injects_ipv4_header(unsigned char *buff, struct netaddr_ip *s
 }
 
 inline unsigned short build_ipv4id() {
-    srand((unsigned int) time(NULL));
+    srand((unsigned int) clock());
     return ((uint16_t) rand());
 }
 
@@ -113,8 +117,9 @@ void increment_ipv4addr(struct netaddr_ip *addr) {
 }
 
 void rndipv4addr(struct netaddr_ip *addr) {
-    FILE *urandom;
-    urandom = fopen("/dev/urandom", "r");
-    fread(&addr->ip, IPV4ADDRLEN, 1, urandom);
-    fclose(urandom);
+    int urandom = open("/dev/urandom", O_RDONLY);
+    if (urandom == -1)
+        return;
+    read(urandom, (unsigned char *) &addr->ip, IPV4ADDRLEN);
+    close(urandom);
 }

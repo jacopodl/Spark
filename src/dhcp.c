@@ -228,8 +228,8 @@ unsigned char *dhcp_get_option_value(struct DhcpPacket *dhcpPkt, unsigned char o
     return data;
 }
 
-unsigned int dhcp_mkxid() {
-    srand((unsigned int) time(NULL));
+inline unsigned int dhcp_mkxid() {
+    srand((unsigned int) clock());
     return (unsigned int) rand();
 }
 
