@@ -111,7 +111,7 @@ struct DhcpPacket *injects_dhcp_discover(unsigned char *buff, struct netaddr_mac
     buff_client_id[0] = DHCP_HTYPE_ETHER;
     memcpy(buff_client_id + 1, chaddr->mac, IFHWADDRLEN);
 
-    dhcp_append_option(dhcpPkt, DHCP_CLIENT_IDENTIFIER, IFHWADDRLEN + 1, buff_client_id);
+    //dhcp_append_option(dhcpPkt, DHCP_CLIENT_IDENTIFIER, IFHWADDRLEN + 1, buff_client_id);
     if (ipreq != NULL)
         dhcp_append_option(dhcpPkt, DHCP_REQUESTED_ADDRESS, IPV4ADDRLEN, (unsigned char *) &(ipreq->ip));
     unsigned char buff_parameter_request[] = {DHCP_REQ_SUBMASK, DHCP_REQ_ROUTERS, DHCP_REQ_DOMAIN_NAME, DHCP_REQ_DNS};
