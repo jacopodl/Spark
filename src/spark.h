@@ -14,6 +14,11 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file spark.h
+ * @brief This IS THE SPARK LIBRARY!
+ */
+
 #ifndef SPARK_H
 #define SPARK_H
 
