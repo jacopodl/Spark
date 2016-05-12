@@ -14,6 +14,11 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file tcp.h
+ * @brief Provides useful functions for build and manage TCP packet.
+ */
+
 #ifndef SPARK_TCP_H
 #define SPARK_TCP_H
 
@@ -47,10 +52,15 @@
 #define TCPOPT_USERTOUT 28
 #define TCPOPT_TCPAO    29
 
+/// @brief This structure rappresents an TCP packet.
 struct TcpHeader {
+    /// @brief Source port.
     unsigned short src;
+    /// @brief Destination port.
     unsigned short dst;
+    /// @brief Sequence number.
     unsigned int seqn;
+    /// @brief Acknowledged sequence number.
     unsigned int ackn;
 #if __BYTE_ORDER == __LITTLE_ENDIAN
     unsigned char ecn_n:1;
@@ -103,22 +113,60 @@ struct TcpHeader {
         unsigned char fin:1;
     };
 #endif
+    /// @brief TCP widnow size.
     unsigned short window;
+    /// @brief TCP checksum.
     unsigned short checksum;
+    /// @brief Urgent pointer.
     unsigned short urp;
+    /// @brief TCP payload.
     unsigned char data[];
 };
 
+/**
+ * @brief Built a new TCP packet.
+ *
+ * If `payload` is not NULL, the functions copies all byte from payload buffer in the new TCP packet and calculates the checksum.
+ * @param src Source port.
+ * @param dst Destination port.
+ * @param seqn Sequence number.
+ * @param ackn Acknowledged sequence number.
+ * @param flags TCP flags.
+ * @param window Window size.
+ * @param urgp Urgent pointer.
+ * @param __IN__ipv4Header Pointer to ipv4 header.
+ * @param paysize Length of payload.
+ * @param payload TCP payload.
+ * @return On success returns the pointer to new TCP packet of size equal to paysize + TCPHDRSIZE, otherwise return NULL.
+ */
 struct TcpHeader *build_tcp_packet(unsigned short src, unsigned short dst, unsigned int seqn,
                                    unsigned int ackn, unsigned char flags,
                                    unsigned short window, unsigned short urgp, struct Ipv4Header *ipv4Header,
                                    unsigned long paysize,
                                    unsigned char *payload);
 
+/**
+ * @brief Injects TCP packet into a buffer pointed by `buff`.
+ * @param __OUT__buff Pointer to remote buffer.
+ * @param src Source port.
+ * @param dst Destination port.
+ * @param seqn Sequence number.
+ * @param ackn Acknowledged sequence number.
+ * @param flags TCP flags.
+ * @param window Window size.
+ * @param urgp Urgent pointer.
+ * @return The function returns the pointer to TCP packet.
+ */
 struct TcpHeader *injects_tcp_header(unsigned char *buff, unsigned short src, unsigned short dst, unsigned int seqn,
                                      unsigned int ackn, unsigned char flags,
                                      unsigned short window, unsigned short urgp);
 
+/**
+ * @brief Computes the TCP checksum.
+ * @param __IN__TcpHeader Pointer to remote TCP packet.
+ * @param __IN__ipv4Header Pointer to ipv4 header.
+ * @return The function returns the checksum.
+ */
 unsigned short tcp_checksum4(struct TcpHeader *TcpHeader, struct Ipv4Header *ipv4Header);
 
 #endif
