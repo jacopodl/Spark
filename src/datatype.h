@@ -14,18 +14,45 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file datatype.h
+ * @brief This file contains the data structures used by spark.
+ */
+
 #ifndef SPARK_DATATYPE_H
 #define SPARK_DATATYPE_H
 
+/// @brief Generic addresses container.
 struct netaddr {
+	/// @brief Generic address array.
     unsigned char na_data[20];
 };
 
+/**
+ * @brief This structure contains mac addresses.
+ *
+ * You can fill the structure in this way, for example:
+ * @code
+ * struct netaddr_mac mac;
+ * parse_hwaddr("AA:BB:CC:00:0E:1A",&mac,false);
+ * @endcode
+ */
 struct netaddr_mac {
+	/// @brief Mac address array.
     unsigned char mac[6];
 };
 
+/**
+ * @brief This structure contains IpV4 addresses.
+ *
+ * You can fill the structure in this way, for example:
+ * @code
+ * struct netaddr_ip ip;
+ * parse_ipv4addr("192.168.1.254", &ip.ip)
+ * @endcode
+ */
 struct netaddr_ip {
+	/// @brief IpV4 integer.
     unsigned int ip;
 };
 
