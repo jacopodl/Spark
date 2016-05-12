@@ -100,8 +100,8 @@ char *get_stripv4(unsigned int *addr, bool _static);
  * @param __IN__payload IPv4 payload.
  * @return On success returns the pointer to new IPv4 packet of size equal to paysize + IPV4HDRSIZE, otherwise return NULL.
  */
-struct Ipv4Header *build_ipv4_packet(struct netaddr_ip *src, struct netaddr_ip *dst, unsigned char ihl, unsigned short len,
-                                     unsigned short id, unsigned char ttl, unsigned char proto, unsigned long paysize,
+struct Ipv4Header *build_ipv4_packet(struct netaddr_ip *src, struct netaddr_ip *dst, unsigned char ihl,
+                                     unsigned short id, unsigned char ttl, unsigned char proto, unsigned short paysize,
                                      unsigned char *payload);
 
 /**
@@ -116,7 +116,8 @@ struct Ipv4Header *build_ipv4_packet(struct netaddr_ip *src, struct netaddr_ip *
  * @param proto Type of the protocol in the payload field.
  * @return The function returns the pointer to IPv4 packet.
  */
-struct Ipv4Header *injects_ipv4_header(unsigned char *buff, struct netaddr_ip *src, struct netaddr_ip *dst, unsigned char ihl,
+struct Ipv4Header *injects_ipv4_header(unsigned char *buff, struct netaddr_ip *src, struct netaddr_ip *dst,
+                                       unsigned char ihl,
                                        unsigned short len, unsigned short id, unsigned char ttl, unsigned char proto);
 
 /**

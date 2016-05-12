@@ -39,8 +39,8 @@
 struct llOptions {
 	/// @brief Contains interface name, Eg: eno1, wlo1...
     char iface_name[IFNAMSIZ];
-	/// @brief Contains the path of the BPF device used.	
-    char bsd_bind[BPFPATHMAXLEN];
+	/// @brief Contains the path of the BPF device in used.
+    char bpf_path[BPFPATHMAXLEN];
 	/// @brief Socket descriptor.
     int sfd;
 	/// @brief Buffer length for the read operations.

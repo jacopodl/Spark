@@ -167,8 +167,8 @@ int llsocket(struct llOptions *llo, char *iface_name, unsigned int buffl) {
 int llsocket(struct llOptions *llo, char *iface_name, unsigned int buffl) {
     int sock = -1, var;
     for (int i = 0; i < BPFMAXDEV; i++) {
-        sprintf(llo->bsd_bind, "/dev/bpf%i", i);
-        if ((sock = open(llo->bsd_bind, O_RDWR)) != -1)
+        sprintf(llo->bpf_path, "/dev/bpf%i", i);
+        if ((sock = open(llo->bpf_path, O_RDWR)) != -1)
             break;
     }
     if (sock == -1) {

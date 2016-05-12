@@ -52,14 +52,13 @@ char *get_stripv4(unsigned int *addr, bool _static) {
 }
 
 struct Ipv4Header *build_ipv4_packet(struct netaddr_ip *src, struct netaddr_ip *dst, unsigned char ihl,
-                                     unsigned short len,
-                                     unsigned short id, unsigned char ttl, unsigned char proto, unsigned long paysize,
+                                     unsigned short id, unsigned char ttl, unsigned char proto, unsigned short paysize,
                                      unsigned char *payload) {
     unsigned long size = IPV4HDRSIZE + paysize;
     struct Ipv4Header *ret = (struct Ipv4Header *) malloc(size);
     if (ret == NULL)
         return NULL;
-    injects_ipv4_header((unsigned char *) ret, src, dst, ihl, len, id, ttl, proto);
+    injects_ipv4_header((unsigned char *) ret, src, dst, ihl, paysize, id, ttl, proto);
     if (payload != NULL)
         memcpy(ret->data, payload, paysize);
     ret->checksum = ipv4_checksum(ret);

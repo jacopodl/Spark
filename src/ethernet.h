@@ -61,6 +61,7 @@ bool ethcmp(struct netaddr_mac *mac1, struct netaddr_mac *mac2);
  * @brief Parse string contains a mac address in the form `XX:XX:XX:XX:XX:XX`.
  * @param hwstr String contains mac address in the form `XX:XX:XX:XX:XX:XX`.
  * @param __OUT__ret_hwaddr Pointer to netaddr_mac structure.
+ * @param bcast Allow broadcast addresses.
  * @return Function returns true if the address has been converted, false otherwise.
  */
 bool parse_hwaddr(char *hwstr, struct netaddr_mac *ret_hwaddr, bool bcast);
@@ -104,7 +105,7 @@ struct EthHeader *build_ethernet_packet(struct netaddr_mac *src, struct netaddr_
                                         unsigned long paysize, unsigned char *payload);
 
 /**
- * @brief Injects Ethernet frame into a buffer pointed by `buff`.
+ * @brief Injects Ethernet header into a buffer pointed by `buff`.
  * @param __OUT__buff Pointer to remote buffer.
  * @param __IN__src Pointer to netaddr_mac structure contains source mac address.
  * @param __IN__dst Pointer to netaddr_mac structure contains destination mac address.

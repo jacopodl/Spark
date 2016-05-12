@@ -21,17 +21,16 @@
 #include "ipv4.h"
 #include "udp.h"
 
-struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, unsigned short len,
-                                   struct Ipv4Header *ipv4Header, unsigned long paysize,
-                                   unsigned char *payload) {
+struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, struct Ipv4Header *ipv4Header,
+                                   unsigned short paysize, unsigned char *payload) {
     unsigned long size = UDPHDRSIZE + paysize;
     struct UdpHeader *ret = (struct UdpHeader *) malloc(size);
     if (ret == NULL)
         return NULL;
-    injects_udp_header((unsigned char *) ret, srcp, dstp, len);
+    injects_udp_header((unsigned char *) ret, srcp, dstp, paysize);
     if (payload != NULL) {
         memcpy(ret->data, payload, paysize);
-        ret->checksum = udp_checksum4(ret,ipv4Header);
+        ret->checksum = udp_checksum4(ret, ipv4Header);
     }
     return ret;
 }

@@ -30,7 +30,7 @@
 
 /// @brief This structure rappresents an UDP packet.
 struct UdpHeader {
-	/// @brief UDP source port.
+    /// @brief UDP source port.
     unsigned short srcport;
     /// @brief UDP destination port.
     unsigned short dstport;
@@ -53,12 +53,11 @@ struct UdpHeader {
  * @param payload UDP payload.
  * @return On success returns the pointer to new UDP packet of size equal to paysize + UDPHDRSIZE, otherwise return NULL.
  */
-struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, unsigned short len,
-                                   struct Ipv4Header *ipv4Header, unsigned long paysize,
-                                   unsigned char *payload);
+struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, struct Ipv4Header *ipv4Header,
+                                   unsigned short paysize, unsigned char *payload);
 
 /**
- * @brief Injects UDP packet into a buffer pointed by `buff`.
+ * @brief Injects UDP header into a buffer pointed by `buff`.
  * @param __OUT__buff Pointer to remote buffer.
  * @param srcp Source port.
  * @param dstp Destination port.
