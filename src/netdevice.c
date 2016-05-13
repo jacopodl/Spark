@@ -42,7 +42,7 @@
 
 #if defined(__linux__)
 
-int get_burnedin_mac(int sd, char *iface_name, struct netaddr_mac *hwa) {
+int get_burnedin_mac(int sd, char *iface_name, struct netaddr_mac *mac) {
 
     /* struct ethtool_perm_addr{
         __u32   cmd;
@@ -58,7 +58,7 @@ int get_burnedin_mac(int sd, char *iface_name, struct netaddr_mac *hwa) {
     epa->cmd = ETHTOOL_GPERMADDR;
     epa->size = ETHHWASIZE;
 
-    memset(hwa, 0x00, sizeof(struct netaddr_mac));
+    memset(mac, 0x00, sizeof(struct netaddr_mac));
     memset(&req, 0x00, sizeof(struct ifreq));
     strcpy(req.ifr_name, iface_name);
     req.ifr_data = (caddr_t) epa;
@@ -68,14 +68,14 @@ int get_burnedin_mac(int sd, char *iface_name, struct netaddr_mac *hwa) {
         return NETD_UNSUCCESS;
     }
     else
-        memcpy(hwa->mac, epa->data, ETHHWASIZE);
+        memcpy(mac->mac, epa->data, ETHHWASIZE);
     free(epa);
     return NETD_SUCCESS;
 }
 
 #else
 #pragma message("get_burnedin_mac not supported on OS! :( ")
-int get_burnedin_mac(int sd, char *iface_name, struct netaddr_mac *hwa){
+int get_burnedin_mac(int sd, char *iface_name, struct netaddr_mac *mac){
     // Stub
     return NETD_NOTSUPPORTED;
 }
@@ -94,19 +94,19 @@ int get_flags(int sd, char *iface_name, short *flags) {
 
 #if defined(__linux__)
 
-int get_hwaddr(int sd, char *iface_name, struct netaddr_mac *hwaddr) {
+int get_device_mac(int sd, char *iface_name, struct netaddr_mac *mac) {
     /* Get the hardware address of a device using ifr_hwaddr. */
     struct ifreq req;
     memset(&req, 0x00, sizeof(struct ifreq));
     strcpy(req.ifr_name, iface_name);
     if (ioctl(sd, SIOCGIFHWADDR, &req) < 0)
         return NETD_UNSUCCESS;
-    memcpy(hwaddr->mac, &req.ifr_hwaddr.sa_data, ETHHWASIZE);
+    memcpy(mac->mac, &req.ifr_hwaddr.sa_data, ETHHWASIZE);
     return NETD_SUCCESS;
 }
 
 #elif defined(__FreeBSD__) || (defined(__APPLE__) && defined(__MACH__))
-int get_hwaddr(int sd, char *iface_name, struct netaddr_mac *hwaddr) {
+int get_device_mac(int sd, char *iface_name, struct netaddr_mac *mac) {
     bool success = NETD_UNSUCCESS;
     struct ifaddrs *ifa = NULL, *curr = NULL;
     if (getifaddrs(&ifa) < 0)
@@ -115,7 +115,7 @@ int get_hwaddr(int sd, char *iface_name, struct netaddr_mac *hwaddr) {
         if (strcmp(curr->ifa_name, iface_name) == 0 && curr->ifa_addr != NULL && curr->ifa_addr->sa_family == AF_LINK) {
             struct sockaddr_dl *sdl = (struct sockaddr_dl *) curr->ifa_addr;
             if (sdl->sdl_alen == ETHHWASIZE) {
-                memcpy(hwaddr->mac, LLADDR(sdl), sdl->sdl_alen);
+                memcpy(mac->mac, LLADDR(sdl), sdl->sdl_alen);
                 success = NETD_SUCCESS;
                 break;
             }
@@ -250,7 +250,7 @@ int set_flags(int sd, char *iface_name, short flags) {
 
 #if defined(__linux__)
 
-int set_hwaddr(int sd, char *iface_name, struct netaddr_mac *hwaddr) {
+int set_device_mac(int sd, char *iface_name, struct netaddr_mac *mac) {
     /*
      * Set the hardware address of a device using ifr_hwaddr.
      * The hardware address is specified in a struct sockaddr.
@@ -260,19 +260,19 @@ int set_hwaddr(int sd, char *iface_name, struct netaddr_mac *hwaddr) {
     struct ifreq req;
     memset(&req, 0x00, sizeof(struct ifreq));
     strcpy(req.ifr_name, iface_name);
-    memcpy(&req.ifr_hwaddr.sa_data, hwaddr->mac, ETHHWASIZE);
+    memcpy(&req.ifr_hwaddr.sa_data, mac->mac, ETHHWASIZE);
     req.ifr_hwaddr.sa_family = (unsigned short) 0x01;
     return ioctl(sd, SIOCSIFHWADDR, &req) != -1 ? NETD_SUCCESS : NETD_UNSUCCESS;
 }
 
 #elif defined(__FreeBSD__) || (defined(__APPLE__) && defined(__MACH__))
-int set_hwaddr(int sd, char *iface_name, struct netaddr_mac *hwaddr) {
+int set_device_mac(int sd, char *iface_name, struct netaddr_mac *mac) {
     struct ifreq req;
     memset(&req, 0x00, sizeof(struct ifreq));
     strcpy(req.ifr_name, iface_name);
-    memcpy(&req.ifr_addr.sa_data, hwaddr->mac, ETHHWASIZE);
+    memcpy(&req.ifr_addr.sa_data, mac->mac, ETHHWASIZE);
     req.ifr_addr.sa_len = ETHHWASIZE;
-    return ioctl(sd, SIOCSIFLLADDR, &req) != -1?NETD_SUCCESS:NETD_UNSUCCESS;
+    return ioctl(sd, SIOCSIFLLADDR, &req) != -1 ? NETD_SUCCESS : NETD_UNSUCCESS;
 }
 
 #endif

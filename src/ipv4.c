@@ -26,7 +26,7 @@
 #include "datatype.h"
 #include "ipv4.h"
 
-bool parse_ipv4addr(char *ipstr, unsigned int *ret_addr) {
+bool parse_ipv4addr(char *ipstr, unsigned int *ip) {
     unsigned int ipaddr[IPV4ADDRLEN];
     if (strlen(ipstr) >= IPV4STRLEN)
         return false;
@@ -34,20 +34,20 @@ bool parse_ipv4addr(char *ipstr, unsigned int *ret_addr) {
         return false;
     if (ipaddr[0] > 255 || ipaddr[1] > 255 || ipaddr[2] > 255 || ipaddr[3] > 255)
         return false;
-    if (ret_addr != NULL)
-        *ret_addr = (ipaddr[3] << 24 | ipaddr[2] << 16 | ipaddr[1] << 8 | ipaddr[0]);
+    if (ip != NULL)
+        *ip = (ipaddr[3] << 24 | ipaddr[2] << 16 | ipaddr[1] << 8 | ipaddr[0]);
     return true;
 }
 
-char *get_stripv4(unsigned int *addr, bool _static) {
+char *get_stripv4(unsigned int *ip, bool _static) {
     static char static_buff[IPV4STRLEN];
     char *ipstr = static_buff;
     if (!_static) {
         if ((ipstr = (char *) malloc(IPV4STRLEN)) == NULL)
             return NULL;
     }
-    sprintf(ipstr, "%u.%u.%u.%u", (*addr) & 0xFF, (*addr) >> 8 & 0xFF, (*addr) >> 16 & 0xFF,
-            (*addr) >> 24 & 0xFF);
+    sprintf(ipstr, "%u.%u.%u.%u", (*ip) & 0xFF, (*ip) >> 8 & 0xFF, (*ip) >> 16 & 0xFF,
+            (*ip) >> 24 & 0xFF);
     return ipstr;
 }
 
@@ -96,29 +96,29 @@ unsigned short ipv4_checksum(struct Ipv4Header *ipHeader) {
     return (unsigned short) ~sum;
 }
 
-inline void get_ipv4bcast_addr(struct netaddr_ip *addr, struct netaddr_ip *netmask, struct netaddr_ip *ret_addr) {
-    ret_addr->ip = (~netmask->ip) | addr->ip;
+inline void get_ipv4bcast_addr(struct netaddr_ip *addr, struct netaddr_ip *netmask, struct netaddr_ip *broadcast) {
+    broadcast->ip = (~netmask->ip) | addr->ip;
 }
 
-inline void get_ipv4net_addr(struct netaddr_ip *addr, struct netaddr_ip *netmask, struct netaddr_ip *ret_addr) {
-    ret_addr->ip = addr->ip & netmask->ip;
+inline void get_ipv4net_addr(struct netaddr_ip *addr, struct netaddr_ip *netmask, struct netaddr_ip *net) {
+    net->ip = addr->ip & netmask->ip;
 }
 
 inline void get_ipv4wildcard_mask(struct netaddr_ip *netmask, struct netaddr_ip *ret_wildcard) {
     ret_wildcard->ip = ~netmask->ip;
 }
 
-void increment_ipv4addr(struct netaddr_ip *addr) {
-    unsigned char *byte = (unsigned char *) &addr->ip;
+void increment_ipv4addr(struct netaddr_ip *ip) {
+    unsigned char *byte = (unsigned char *) &ip->ip;
     for (int i = IPV4ADDRLEN - 1; i >= 0; i--)
         if (++byte[i] != 0x00)
             break;
 }
 
-void rndipv4addr(struct netaddr_ip *addr) {
+void rndipv4(struct netaddr_ip *ip) {
     int urandom = open("/dev/urandom", O_RDONLY);
     if (urandom == -1)
         return;
-    read(urandom, (unsigned char *) &addr->ip, IPV4ADDRLEN);
+    read(urandom, (unsigned char *) &ip->ip, IPV4ADDRLEN);
     close(urandom);
 }

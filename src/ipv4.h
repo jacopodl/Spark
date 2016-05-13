@@ -73,18 +73,18 @@ struct Ipv4Header {
 /**
  * @brief Parse string contains a ipv4 address in the form `000.000.000.000`.
  * @param ipstr String contains ipv4 address in the form `000.000.000.000`.
- * @param __OUT__ret_addr Pointer to netaddr_ip structure.
+ * @param __OUT__ip Pointer to netaddr_ip structure.
  * @return Function returns true if the address has been converted, false otherwise.
  */
-bool parse_ipv4addr(char *ipstr, unsigned int *ret_addr);
+bool parse_ipv4addr(char *ipstr, unsigned int *ip);
 
 /**
  * @brief Obtains ipv4 address in the form `000.000.000.000`.
- * @param __IN__addr Pointer to netaddr_ip structure contains ip address.
+ * @param __IN__ip Pointer to netaddr_ip structure contains ip address.
  * @param _static Not allocate new memory, the result will be saved in a static buffer.
  * @return Function returns string contains ip address.
  */
-char *get_stripv4(unsigned int *addr, bool _static);
+char *get_stripv4(unsigned int *ip, bool _static);
 
 /**
  * @brief Built a new IPv4 packet.
@@ -137,17 +137,17 @@ unsigned short ipv4_checksum(struct Ipv4Header *ipHeader);
  * @brief Obtains broadcast IPv4 address.
  * @brief __IN__addr Pointer to netaddr_ip structure contains ip address.
  * @brief __IN__netmask Pointer to netaddr_ip structure contains the subnet mask.
- * @param __OUT__ret_addr Pointer to netaddr_ip structure.
+ * @param __OUT__broadcast Pointer to netaddr_ip structure.
  */
-void get_ipv4bcast_addr(struct netaddr_ip *addr, struct netaddr_ip *netmask, struct netaddr_ip *ret_addr);
+void get_ipv4bcast_addr(struct netaddr_ip *addr, struct netaddr_ip *netmask, struct netaddr_ip *broadcast);
 
 /**
  * @brief Obtains network address.
  * @brief __IN__addr Pointer to netaddr_ip structure contains ip address.
  * @brief __IN__netmask Pointer to netaddr_ip structure contains the subnet mask.
- * @param __OUT__ret_addr Pointer to netaddr_ip structure.
+ * @param __OUT__net Pointer to netaddr_ip structure.
  */
-void get_ipv4net_addr(struct netaddr_ip *addr, struct netaddr_ip *netmask, struct netaddr_ip *ret_addr);
+void get_ipv4net_addr(struct netaddr_ip *addr, struct netaddr_ip *netmask, struct netaddr_ip *net);
 
 /**
  * @brief Obtains wildcard mask.
@@ -158,14 +158,14 @@ void get_ipv4wildcard_mask(struct netaddr_ip *netmask, struct netaddr_ip *ret_wi
 
 /**
  * @brief Obtains the next IPv4 address.
- * @brief __IN__OUT__addr Pointer to netaddr_ip structure contains the ip address.
+ * @brief __IN__OUT__ip Pointer to netaddr_ip structure contains the ip address.
  */
-void increment_ipv4addr(struct netaddr_ip *addr);
+void increment_ipv4addr(struct netaddr_ip *ip);
 
 /**
  * @brief Obtains a random IPv4 address.
- * @param __OUT__addr Pointer to netaddr_ip structure.
+ * @param __OUT__ip Pointer to netaddr_ip structure.
  */
-void rndipv4addr(struct netaddr_ip *addr);
+void rndipv4(struct netaddr_ip *ip);
 
 #endif

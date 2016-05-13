@@ -59,12 +59,12 @@ struct ifList {
  * @brief Obtains device burned-in mac address.
  * @param sd Socket descriptor.
  * @param iface_name Interface name.
- * @param __OUT__hwa Pointer to netaddr_mac structure.
- * @return The get_burnedin_mac and get_hwaddr functions returns NETD_SUCCESS and fill hwa with mac address.
+ * @param __OUT__mac Pointer to netaddr_mac structure.
+ * @return The get_burnedin_mac and get_device_mac functions returns NETD_SUCCESS and fill hwa with mac address.
  * On error, NETD_UNSUCCESS is returned. If function is not supported NETD_NOTSUPPORTED is returned.
  * @warning On BSD systems this function returns always NETD_NOTSUPPORTED.
  */
-int get_burnedin_mac(int sd, char *iface_name, struct netaddr_mac *hwa);
+int get_burnedin_mac(int sd, char *iface_name, struct netaddr_mac *mac);
 
 /**
  * @brief Get the active flag word of the device.
@@ -80,11 +80,11 @@ int get_flags(int sd, char *iface_name, short *flag);
  * @brief Obtains current device mac address.
  * @param sd Socket descriptor.
  * @param iface_name Interface name.
- * @param __OUT__hwaddr Pointer to netaddr_mac structure.
- * @return The get_burnedin_mac and get_hwaddr functions returns NETD_SUCCESS and fill hwaddr with mac address.
+ * @param __OUT__mac Pointer to netaddr_mac structure.
+ * @return The get_burnedin_mac and get_device_mac functions returns NETD_SUCCESS and fill hwaddr with mac address.
  * On error, NETD_UNSUCCESS is returned.
  */
-int get_hwaddr(int sd, char *iface_name, struct netaddr_mac *hwaddr);
+int get_device_mac(int sd, char *iface_name, struct netaddr_mac *mac);
 
 /**
  * @brief Close raw socket.
@@ -121,11 +121,11 @@ int set_flags(int sd, char *iface_name, short flags);
  * @brief Set new mac address.
  * @param sd Socket descriptor.
  * @param iface_name Interface name.
- * @param __IN__hwaddr Pointer to netaddr_mac structure contains new mac address.
+ * @param __IN__mac Pointer to netaddr_mac structure contains new mac address.
  * @return On success NETD_SUCCESS is returned. 
  * Otherwise, NETD_UNSUCCESS is returned, and errno is set appropriately.
  */
-int set_hwaddr(int sd, char *iface_name, struct netaddr_mac *hwaddr);
+int set_device_mac(int sd, char *iface_name, struct netaddr_mac *mac);
 
 /**
  * @brief Receive data from the raw socket.

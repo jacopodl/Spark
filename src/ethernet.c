@@ -32,7 +32,7 @@ bool ethcmp(struct netaddr_mac *mac1, struct netaddr_mac *mac2) {
     return true;
 }
 
-bool parse_hwaddr(char *hwstr, struct netaddr_mac *ret_hwaddr, bool bcast) {
+bool parse_mac(char *hwstr, struct netaddr_mac *mac, bool bcast) {
     if (strlen(hwstr) >= MACSTRSIZE)
         return false;
     unsigned int hwaddr[ETHHWASIZE];
@@ -40,47 +40,45 @@ bool parse_hwaddr(char *hwstr, struct netaddr_mac *ret_hwaddr, bool bcast) {
         return false;
     if (!bcast && hwaddr[0] & ~0xFE)
         return false;
-    if (ret_hwaddr != NULL)
+    if (mac != NULL)
         for (int i = 0; i < ETHHWASIZE; i++)
-            ret_hwaddr->mac[i] = (char) hwaddr[i];
+            mac->mac[i] = (char) hwaddr[i];
     return true;
 }
 
-char *get_strhwaddr(struct netaddr_mac *hwa, bool _static) {
+char *get_strmac(struct netaddr_mac *mac, bool _static) {
     static char static_buff[MACSTRSIZE];
-    char *mac = static_buff;
+    char *smac = static_buff;
     if (!_static) {
-        if ((mac = (char *) malloc(MACSTRSIZE)) == NULL)
+        if ((smac = (char *) malloc(MACSTRSIZE)) == NULL)
             return NULL;
     }
-    sprintf(mac, "%.2X:%.2X:%.2X:%.2X:%.2X:%.2X",
-            hwa->mac[0], hwa->mac[1],
-            hwa->mac[2], hwa->mac[3],
-            hwa->mac[4], hwa->mac[5]);
-    return mac;
+    sprintf(smac, "%.2X:%.2X:%.2X:%.2X:%.2X:%.2X",
+            mac->mac[0], mac->mac[1],
+            mac->mac[2], mac->mac[3],
+            mac->mac[4], mac->mac[5]);
+    return smac;
 }
 
-char *get_serial(struct netaddr_mac *hwa, bool _static) {
+char *get_serial(struct netaddr_mac *mac, bool _static) {
     static char static_buff[MACSTRHLFSIZE];
     char *serial = static_buff;
     if (!_static) {
         if ((serial = (char *) malloc(MACSTRHLFSIZE)) == NULL)
             return NULL;
     }
-    sprintf(serial, "%.2X:%.2X:%.2X", (unsigned char) hwa->mac[3], (unsigned char) hwa->mac[4],
-            (unsigned char) hwa->mac[5]);
+    sprintf(serial, "%.2X:%.2X:%.2X", mac->mac[3], mac->mac[4], mac->mac[5]);
     return serial;
 }
 
-char *get_vendor(struct netaddr_mac *hwa, bool _static) {
+char *get_vendor(struct netaddr_mac *mac, bool _static) {
     static char static_buff[MACSTRHLFSIZE];
     char *vendor = static_buff;
     if (!_static) {
         if ((vendor = (char *) malloc(MACSTRHLFSIZE)) == NULL)
             return NULL;
     }
-    sprintf(vendor, "%.2X:%.2X:%.2X", (unsigned char) hwa->mac[0], (unsigned char) hwa->mac[1],
-            (unsigned char) hwa->mac[2]);
+    sprintf(vendor, "%.2X:%.2X:%.2X", mac->mac[0], mac->mac[1], mac->mac[2]);
     return vendor;
 }
 
@@ -106,20 +104,20 @@ struct EthHeader *injects_ethernet_header(unsigned char *buff, struct netaddr_ma
     return ret;
 }
 
-inline void build_ethbroad_addr(struct netaddr_mac *addr) {
-    memset(addr->mac, 0xFF, ETHHWASIZE);
+inline void build_ethbroad_addr(struct netaddr_mac *mac) {
+    memset(mac->mac, 0xFF, ETHHWASIZE);
 }
 
-void build_ethmulti_addr(struct netaddr_mac *hw, struct netaddr_ip *ip) {
-    memset(hw->mac, 0x00, ETHHWASIZE);
-    *((int *) hw->mac) = htonl(0x01005E00);
-    hw->mac[5] = *(((unsigned char *) &ip->ip) + 3);
-    hw->mac[4] = *(((unsigned char *) &ip->ip) + 2);
-    hw->mac[3] = *(((unsigned char *) &ip->ip) + 1) & (char) 0x7F;
+void build_ethmulti_addr(struct netaddr_mac *mac, struct netaddr_ip *ip) {
+    memset(mac->mac, 0x00, ETHHWASIZE);
+    *((int *) mac->mac) = htonl(0x01005E00);
+    mac->mac[5] = *(((unsigned char *) &ip->ip) + 3);
+    mac->mac[4] = *(((unsigned char *) &ip->ip) + 2);
+    mac->mac[3] = *(((unsigned char *) &ip->ip) + 1) & (char) 0x7F;
     return;
 }
 
-void rndhwaddr(struct netaddr_mac *mac) {
+void rndmac(struct netaddr_mac *mac) {
 /* The lsb of the MSB can not be set,
  * because those are multicast mac addr!
  */

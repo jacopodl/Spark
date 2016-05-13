@@ -39,7 +39,7 @@
 
 /// @brief This structure rappresents an Ethernet frame.
 struct EthHeader {
-	/// @brief Destination hardware address.
+    /// @brief Destination hardware address.
     unsigned char dhwaddr[ETHHWASIZE];
     /// @brief Source hardware address.
     unsigned char shwaddr[ETHHWASIZE];
@@ -60,35 +60,35 @@ bool ethcmp(struct netaddr_mac *mac1, struct netaddr_mac *mac2);
 /**
  * @brief Parse string contains a mac address in the form `XX:XX:XX:XX:XX:XX`.
  * @param hwstr String contains mac address in the form `XX:XX:XX:XX:XX:XX`.
- * @param __OUT__ret_hwaddr Pointer to netaddr_mac structure.
+ * @param __OUT__mac Pointer to netaddr_mac structure.
  * @param bcast Allow broadcast addresses.
  * @return Function returns true if the address has been converted, false otherwise.
  */
-bool parse_hwaddr(char *hwstr, struct netaddr_mac *ret_hwaddr, bool bcast);
+bool parse_mac(char *hwstr, struct netaddr_mac *mac, bool bcast);
 
 /**
  * @brief Obtains mac address in the form `XX:XX:XX:XX:XX:XX`.
- * @param __IN__hwa Pointer to netaddr_mac structure contains mac address.
+ * @param __IN__mac Pointer to netaddr_mac structure contains mac address.
  * @param _static Not allocate new memory, the result will be saved in a static buffer.
  * @return Function returns string contains mac address.
  */
-char *get_strhwaddr(struct netaddr_mac *hwa, bool _static);
+char *get_strmac(struct netaddr_mac *mac, bool _static);
 
 /**
  * @brief Obtains mac address serial(S) `VV:VV:VV:SS:SS:SS`.
- * @param __IN__hwa Pointer to netaddr_mac structure contains mac address.
+ * @param __IN__mac Pointer to netaddr_mac structure contains mac address.
  * @param _static Not allocate new memory, the result will be saved in a static buffer.
  * @return Function returns string contains serial.
  */
-char *get_serial(struct netaddr_mac *hwa, bool _static);
+char *get_serial(struct netaddr_mac *mac, bool _static);
 
 /**
  * @brief Obtains mac address vendor(V) `VV:VV:VV:SS:SS:SS`.
- * @param __IN__hwa Pointer to netaddr_mac structure contains mac address.
+ * @param __IN__mac Pointer to netaddr_mac structure contains mac address.
  * @param _static Not allocate new memory, the result will be saved in a static buffer.
  * @return Function returns string contains vendor.
  */
-char *get_vendor(struct netaddr_mac *hwa, bool _static);
+char *get_vendor(struct netaddr_mac *mac, bool _static);
 
 /**
  * @brief Built a new Ethernet frames.
@@ -117,16 +117,16 @@ struct EthHeader *injects_ethernet_header(unsigned char *buff, struct netaddr_ma
 
 /**
  * @brief Builds broadcast mac address.
- * @param __OUT__addr Pointer to netaddr_mac structure.
+ * @param __OUT__mac Pointer to netaddr_mac structure.
  */
-void build_ethbroad_addr(struct netaddr_mac *addr);
+void build_ethbroad_addr(struct netaddr_mac *mac);
 
 /**
  * @brief Builds multicast mac address.
- * @param __OUT__hw Pointer to netaddr_mac structure.
+ * @param __OUT__mac Pointer to netaddr_mac structure.
  * @param __IN__ip Pointer to netaddr_ip structure.
  */
-void build_ethmulti_addr(struct netaddr_mac *hw, struct netaddr_ip *ip);
+void build_ethmulti_addr(struct netaddr_mac *mac, struct netaddr_ip *ip);
 
 /**
  * @brief Obtains a random mac address.
@@ -134,6 +134,6 @@ void build_ethmulti_addr(struct netaddr_mac *hw, struct netaddr_ip *ip);
  * The mac address returned is never a broadcast or multicast address!
  * @param __OUT__mac Pointer to netaddr_mac structure.
  */
-void rndhwaddr(struct netaddr_mac *mac);
+void rndmac(struct netaddr_mac *mac);
 
 #endif
