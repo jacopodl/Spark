@@ -14,6 +14,11 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file arp.h
+ * @brief Provides useful functions for build and manage ARP packets, also contains a micro implementation of ARP resolver.
+ */
+
 #ifndef SPARK_ARP_H
 #define SPARK_ARP_H
 
@@ -41,25 +46,90 @@
 #define ARPOP_REVREP    4
 
 #define ARPHDRSIZE          8
-#define ARPPKTETHIP4SIZE    (ARPHDRSIZE + ((ETHHWASIZE+IPV4ADDRLEN)*2))
+#define ARPETHIPLEN    (ARPHDRSIZE + ((ETHHWASIZE+IPV4ADDRLEN)*2))
 
-struct ArpHeader {
+/// @brief This structure rappresents an ARP packet.
+struct ArpPacket {
+    /// @brif Hardware type.
     unsigned short hw_type;
+    /// @brif Specifies the internetwork protocol Eg: IPv4.
     unsigned short proto;
+    /// @brif Length of a hardware address.
     unsigned char hwalen;
+    /// @brif Length of addresses used in the upper layer protocol.
     unsigned char pralen;
+    /// @brief Specifies the operation that the sender is performing.
     unsigned short opcode;
+    /// @brief Sender hardware address + Sender protocol address + Target hardware address + Target protocol address.
     unsigned char data[];
 };
 
-struct ArpHeader *injects_arp_packet(unsigned char *buff, unsigned char hwalen, unsigned char pralen,
+/**
+ * @brief Built a new generic ARP packet.
+ * @param hwlen Length of a hardware address.
+ * @param pralen Length of addresses used in the upper layer protocol.
+ * @param opcode Specifies the operation that the sender is performing.
+ * @param __IN__shwaddr Sender hardware address.
+ * @param __IN__spraddr Sender protocol address.
+ * @param __IN__dhwaddr Target hardware address.
+ * @param __IN__dpraddr Target protocol address.
+ * @return On success returns the pointer to new generic ARP packet, otherwise return NULL.
+ */
+struct ArpPacket *build_arp_packet(unsigned char hwalen, unsigned char pralen, unsigned short opcode,
+                                   struct netaddr *shwaddr, struct netaddr *spraddr, struct netaddr *dhwaddr,
+                                   struct netaddr *dpraddr);
+
+/**
+ * @brief Injects generic ARP packet into a buffer pointed by `buff`.
+ * @param __OUT__buff Pointer to remote buffer.
+ * @param hwlen Length of a hardware address.
+ * @param pralen Length of addresses used in the upper layer protocol.
+ * @param opcode Specifies the operation that the sender is performing.
+ * @param __IN__shwaddr Sender hardware address.
+ * @param __IN__spraddr Sender protocol address.
+ * @param __IN__dhwaddr Target hardware address.
+ * @param __IN__dpraddr Target protocol address.
+ * @return The function returns the pointer to generic ARP packet.
+ */
+struct ArpPacket *injects_arp_packet(unsigned char *buff, unsigned char hwalen, unsigned char pralen,
                                      unsigned short opcode, struct netaddr *shwaddr, struct netaddr *spraddr,
                                      struct netaddr *dhwaddr, struct netaddr *dpraddr);
 
-struct ArpHeader *injects_arp_ethip4_packet(unsigned char *buff, unsigned short opcode, struct netaddr_mac *shwaddr,
-                                            struct netaddr_ip *spraddr, struct netaddr_mac *dhwaddr,
-                                            struct netaddr_ip *dpraddr);
+/**
+ * @brief Injects ARP replay packet into a buffer pointed by `buff`.
+ * @param __OUT__buff Pointer to remote buffer.
+ * @param __IN__shwaddr Sender hardware address.
+ * @param __IN__spraddr Sender protocol address.
+ * @param __IN__dhwaddr Target hardware address.
+ * @param __IN__dpraddr Target protocol address.
+ * @return The function returns the pointer to ARP replay packet.
+ */
+struct ArpPacket *injects_arp_reply(unsigned char *buff, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
+                                    struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr);
 
-bool arp_ethip4_resolver(struct llOptions *llo, unsigned short opcode, struct netaddr_mac *shwaddr,
-                         struct netaddr_ip *spraddr, struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr);
+/**
+ * @brief Injects ARP request packet into a buffer pointed by `buff`.
+ * @param __OUT__buff Pointer to remote buffer.
+ * @param __IN__shwaddr Sender hardware address.
+ * @param __IN__spraddr Sender protocol address.
+ * @param __IN__dhwaddr Target hardware address.
+ * @param __IN__dpraddr Target protocol address.
+ * @return The function returns the pointer to ARP request packet.
+ */
+struct ArpPacket *injects_arp_request(unsigned char *buff, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
+                                      struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr);
+
+/**
+ * @brief Obtains mac or ip address of remote device.
+ * @param __IN__llo Pointer to llOptions structure which handles the active raw socket.
+ * @param opcode Specifies the operation that the sender is performing.
+ * @param __IN__shwaddr Sender mac address.
+ * @param __IN__spraddr Sender ip address.
+ * @param __INOUT__dhwaddr Get or set target mac address.
+ * @param __INOUT__dpraddr Get or set target ip address.
+ * @return The function returns true if the ARP request was successful, otherwise return false.
+ */
+bool arp_resolver(struct llOptions *llo, unsigned short opcode, struct netaddr_mac *shwaddr,
+                  struct netaddr_ip *spraddr, struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr);
+
 #endif
