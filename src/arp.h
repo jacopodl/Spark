@@ -23,6 +23,7 @@
 #define SPARK_ARP_H
 
 #include "datatype.h"
+#include "netdevice.h"
 #include "ethernet.h"
 #include "ipv4.h"
 
