@@ -19,12 +19,36 @@
 #include <string.h>
 #include <stdbool.h>
 #include <arpa/inet.h>
+#include <net/if.h>
 #include <time.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/ioctl.h>
 
 #include "datatype.h"
 #include "ipv4.h"
+
+bool get_device_ipv4(int sd, char *iface_name, struct netaddr_ip *ip) {
+    struct ifreq req;
+    memset(&req, 0x00, sizeof(struct ifreq));
+    strcpy(req.ifr_name, iface_name);
+    req.ifr_addr.sa_family = AF_INET;
+    if (ioctl(sd, SIOCGIFADDR, &req) < 0)
+        return false;
+    ip->ip = ((struct sockaddr_in *) &req.ifr_addr)->sin_addr.s_addr;
+    return true;
+}
+
+bool get_device_netmask(int sd, char *iface_name, struct netaddr_ip *netmask) {
+    struct ifreq req;
+    memset(&req, 0x00, sizeof(struct ifreq));
+    strcpy(req.ifr_name, iface_name);
+    req.ifr_addr.sa_family = AF_INET;
+    if (ioctl(sd, SIOCGIFNETMASK, &req) < 0)
+        return false;
+    netmask->ip = ((struct sockaddr_in *) &req.ifr_addr)->sin_addr.s_addr;
+    return true;
+}
 
 bool parse_ipv4addr(char *ipstr, unsigned int *ip) {
     unsigned int ipaddr[IPV4ADDRLEN];

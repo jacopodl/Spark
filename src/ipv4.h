@@ -71,6 +71,24 @@ struct Ipv4Header {
 };
 
 /**
+ * @brief Obtains the IPv4 address of device called `iface_name`.
+ * @param sd Socket descriptor.
+ * @param iface_name Interface name.
+ * @param __OUT__ip Pointer to netaddr_ip structure.
+ * @return Function returns true if the address has been obtained, false otherwise.
+ */
+bool get_device_ipv4(int sd, char *iface_name, struct netaddr_ip *ip);
+
+/**
+ * @brief Obtains the IPv4 netmask of device called `iface_name`.
+ * @param sd Socket descriptor.
+ * @param iface_name Interface name.
+ * @param __OUT__netmask Pointer to netaddr_ip structure.
+ * @return Function returns true if the netmask has been obtained, false otherwise.
+ */
+bool get_device_netmask(int sd, char *iface_name, struct netaddr_ip *netmask);
+
+/**
  * @brief Parse string contains a ipv4 address in the form `000.000.000.000`.
  * @param ipstr String contains ipv4 address in the form `000.000.000.000`.
  * @param __OUT__ip Pointer to netaddr_ip structure.
