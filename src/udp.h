@@ -28,7 +28,7 @@
 #define UDPMINSIZE  (UDPHDRSIZE + 0)                            // UDP min len
 #define UDP4MAXSIZE (ETHMAXPAYL - (IPV4HDRSIZE + UDPHDRSIZE))   // UDP over IPv4 max len
 
-/// @brief This structure rappresents an UDP packet.
+/// @brief This structure rapresents an UDP packet.
 struct UdpHeader {
     /// @brief UDP source port.
     unsigned short srcport;

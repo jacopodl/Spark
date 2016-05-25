@@ -23,7 +23,6 @@
 #define SPARK_ARP_H
 
 #include "datatype.h"
-#include "netdevice.h"
 #include "ethernet.h"
 #include "ipv4.h"
 
@@ -49,7 +48,7 @@
 #define ARPHDRSIZE          8
 #define ARPETHIPLEN    (ARPHDRSIZE + ((ETHHWASIZE+IPV4ADDRLEN)*2))
 
-/// @brief This structure rappresents an ARP packet.
+/// @brief This structure rapresents an ARP packet.
 struct ArpPacket {
     /// @brif Hardware type.
     unsigned short hw_type;
