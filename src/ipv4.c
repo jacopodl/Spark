@@ -21,8 +21,6 @@
 #include <arpa/inet.h>
 #include <net/if.h>
 #include <time.h>
-#include <unistd.h>
-#include <fcntl.h>
 #include <sys/ioctl.h>
 
 #include "datatype.h"
@@ -83,9 +81,10 @@ struct Ipv4Header *build_ipv4_packet(struct netaddr_ip *src, struct netaddr_ip *
     if (ret == NULL)
         return NULL;
     injects_ipv4_header((unsigned char *) ret, src, dst, ihl, paysize, id, ttl, proto);
-    if (payload != NULL)
+    if (payload != NULL) {
         memcpy(ret->data, payload, paysize);
-    ret->checksum = ipv4_checksum(ret);
+        ret->checksum = ipv4_checksum(ret);
+    }
     return ret;
 }
 
@@ -102,7 +101,6 @@ struct Ipv4Header *injects_ipv4_header(unsigned char *buff, struct netaddr_ip *s
     ipv4->protocol = proto;
     ipv4->saddr = src->ip;
     ipv4->daddr = dst->ip;
-    ipv4->checksum = ipv4_checksum(ipv4);
     return ipv4;
 }
 
@@ -113,8 +111,9 @@ inline unsigned short build_ipv4id() {
 
 unsigned short ipv4_checksum(struct Ipv4Header *ipHeader) {
     unsigned short *buff = (unsigned short *) ipHeader;
+    ipHeader->checksum = 0;
     register unsigned int sum = 0;
-    for (int i = 0; i < IPV4HDRSIZE; sum += buff[i], i++);
+    for (int i = 0; i < IPV4HDRSIZE; sum += *buff++, i += 2);
     sum = (sum >> 16) + (sum & 0xffff);
     sum += (sum >> 16);
     return (unsigned short) ~sum;
@@ -140,9 +139,6 @@ void increment_ipv4addr(struct netaddr_ip *ip) {
 }
 
 void rndipv4(struct netaddr_ip *ip) {
-    int urandom = open("/dev/urandom", O_RDONLY);
-    if (urandom == -1)
-        return;
-    read(urandom, (unsigned char *) &ip->ip, IPV4ADDRLEN);
-    close(urandom);
+    srand((unsigned int) clock());
+    ip->ip = (unsigned int) rand();
 }
