@@ -37,7 +37,7 @@
 #define ETHTYPE_ARP     0X0806
 #define ETHTYPE_RARP    0X8035
 
-/// @brief This structure rappresents an Ethernet frame.
+/// @brief This structure rapresents an Ethernet frame.
 struct EthHeader {
     /// @brief Destination hardware address.
     unsigned char dhwaddr[ETHHWASIZE];
