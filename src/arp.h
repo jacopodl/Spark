@@ -23,6 +23,7 @@
 #define SPARK_ARP_H
 
 #include "datatype.h"
+#include "netdevice.h"
 #include "ethernet.h"
 #include "ipv4.h"
 
@@ -47,6 +48,11 @@
 
 #define ARPHDRSIZE          8
 #define ARPETHIPLEN    (ARPHDRSIZE + ((ETHHWASIZE+IPV4ADDRLEN)*2))
+
+#define ARPRESOLVER_ATTEMPTS       3
+#define ARPRESOLVER_PACKETS        50
+#define ARPRESOLVER_TIMEOUT_SEC    1
+#define ARPRESOLVER_TIMEOUT_USEC   (200 * 1000)
 
 /// @brief This structure rapresents an ARP packet.
 struct ArpPacket {
@@ -120,16 +126,16 @@ struct ArpPacket *injects_arp_request(unsigned char *buff, struct netaddr_mac *s
                                       struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr);
 
 /**
- * @brief Obtains mac or ip address of remote device.
+ * @brief Obtains MAC address of remote device.
  * @param __IN__llo Pointer to llOptions structure which handles the active raw socket.
- * @param opcode Specifies the operation that the sender is performing.
  * @param __IN__shwaddr Sender mac address.
  * @param __IN__spraddr Sender ip address.
- * @param __INOUT__dhwaddr Get or set target mac address.
- * @param __INOUT__dpraddr Get or set target ip address.
- * @return The function returns true if the ARP request was successful, otherwise return false.
+ * @param __OUT__dhwaddr Target mac address.
+ * @param __IN__dpraddr Set target ip address.
+ * @return The function returns 1 if the ARP request was successful, otherwise, 0 is  returned.
+ * On error -1 is returned and errno set to indicate the error.
  */
-bool arp_resolver(struct llOptions *llo, unsigned short opcode, struct netaddr_mac *shwaddr,
-                  struct netaddr_ip *spraddr, struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr);
+int arp_resolver(struct llOptions *llo, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
+                 struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr);
 
 #endif

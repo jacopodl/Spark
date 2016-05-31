@@ -71,49 +71,59 @@ struct ArpPacket *injects_arp_request(unsigned char *buff, struct netaddr_mac *s
                               (struct netaddr *) spraddr, (struct netaddr *) dhwaddr, (struct netaddr *) dpraddr);
 }
 
-bool arp_resolver(struct llOptions *llo, unsigned short opcode, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
-                  struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr) {
+int arp_resolver(struct llOptions *llo, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
+                 struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr) {
+    unsigned char wbuff[ETHHDRSIZE + ARPETHIPLEN];
     struct EthHeader *eth, *r_eth;
     struct ArpPacket *arp, *r_arp;
     struct netaddr_mac ethbroad;
-    int ttry = 0;
+    struct timeval tv;
+    int success = 0;
+    int packet = 0;
+    int attempts = ARPRESOLVER_ATTEMPTS;
+    fd_set fdset;
     build_ethbroad_addr(&ethbroad);
-    eth = build_ethernet_packet(shwaddr, &ethbroad, ETHTYPE_ARP, ARPETHIPLEN, NULL);
-    if (eth == NULL)
-        return NULL;
-    r_eth = (struct EthHeader *) malloc(ETHHDRSIZE + ETHMAXPAYL);
-    if (r_eth == NULL) {
-        free(eth);
-        return NULL;
-    }
-    arp = injects_arp_packet(eth->data, ETHHWASIZE, IPV4ADDRLEN, opcode, (struct netaddr *) shwaddr,
-                             (opcode == ARPOP_REVREQ ? NULL : (struct netaddr *) spraddr),
-                             (opcode == ARPOP_REQUEST ? NULL : (struct netaddr *) dhwaddr),
-                             (opcode == ARPOP_REVREQ ? NULL : (struct netaddr *) dpraddr));
-    llsend(eth, ETHHDRSIZE + ARPETHIPLEN, llo);
-    while (ttry < 10) {
-        ttry++;
-        if (llrecv(r_eth, llo) > 0) {
-            if (memcmp(r_eth->dhwaddr, eth->shwaddr, ETHHWASIZE) != 0 || r_eth->eth_type != htons(ETHTYPE_ARP))
-                continue;
-            r_arp = (struct ArpPacket *) r_eth->data;
-            if (memcmp((arp->data + ETHHWASIZE), (r_arp->data + (ETHHWASIZE + IPV4ADDRLEN + ETHHWASIZE)),
-                       IPV4ADDRLEN) != 0)
-                continue;
-            switch (ntohs(r_arp->opcode)) {
-                case ARPOP_REPLY:
-                    memcpy(dhwaddr->mac, r_arp->data, ETHHWASIZE);
-                    break;
-                case ARPOP_REVREP:
-                    dpraddr->ip = *((unsigned int *) (r_arp->data + ETHHWASIZE + IPV4ADDRLEN + ETHHWASIZE));
-                    break;
-                default:
-                    break;
+    eth = injects_ethernet_header(wbuff, shwaddr, &ethbroad, ETHTYPE_ARP);
+    if ((r_eth = (struct EthHeader *) malloc(llo->buffl)) == NULL)
+        return -1;
+    arp = injects_arp_packet(eth->data, ETHHWASIZE, IPV4ADDRLEN, ARPOP_REQUEST, (struct netaddr *) shwaddr,
+                             (struct netaddr *) spraddr, NULL, (struct netaddr *) dpraddr);
+
+    while (attempts-- > 0) {
+        if (llsend(eth, ETHHDRSIZE + ARPETHIPLEN, llo) < 0) {
+            free(r_eth);
+            return -1;
+        }
+        packet = ARPRESOLVER_PACKETS;
+        tv.tv_sec = ARPRESOLVER_TIMEOUT_SEC;
+        tv.tv_usec = ARPRESOLVER_TIMEOUT_USEC;
+        while (packet-- > 0) {
+            FD_ZERO(&fdset);
+            FD_SET(llo->sfd, &fdset);
+            if ((success = select(llo->sfd + 1, &fdset, NULL, NULL, &tv)) < 0) {
+                free(r_eth);
+                return -1;
             }
-            break;
+            if (success) {
+                if (llrecv(r_eth, llo) < 0) {
+                    free(r_eth);
+                    return -1;
+                }
+                if (memcmp(r_eth->dhwaddr, eth->shwaddr, ETHHWASIZE) != 0 || r_eth->eth_type != htons(ETHTYPE_ARP))
+                    continue;
+                r_arp = (struct ArpPacket *) r_eth->data;
+                if (memcmp(arp->data, (r_arp->data + (ETHHWASIZE + IPV4ADDRLEN)), ETHHWASIZE) != 0)
+                    continue;
+                if (ntohs(r_arp->opcode) == ARPOP_REPLY) {
+                    memcpy(dhwaddr->mac, r_arp->data, ETHHWASIZE);
+                    free(r_eth);
+                    return 1;
+                }
+            }
+            else
+                break;
         }
     }
-    free(eth);
     free(r_eth);
-    return ttry < 10;
+    return 0;
 }
