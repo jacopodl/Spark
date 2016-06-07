@@ -31,7 +31,9 @@
 #include "arp.h"
 #include "ipv4.h"
 #include "icmp4.h"
+#include "routev4.h"
 #include "tcp.h"
 #include "udp.h"
+#include "dhcp.h"
 
 #endif

@@ -81,10 +81,8 @@ struct Ipv4Header *build_ipv4_packet(struct netaddr_ip *src, struct netaddr_ip *
     if (ret == NULL)
         return NULL;
     injects_ipv4_header((unsigned char *) ret, src, dst, ihl, paysize, id, ttl, proto);
-    if (payload != NULL) {
+    if (payload != NULL)
         memcpy(ret->data, payload, paysize);
-        ret->checksum = ipv4_checksum(ret);
-    }
     return ret;
 }
 
@@ -101,6 +99,7 @@ struct Ipv4Header *injects_ipv4_header(unsigned char *buff, struct netaddr_ip *s
     ipv4->protocol = proto;
     ipv4->saddr = src->ip;
     ipv4->daddr = dst->ip;
+    ipv4->checksum = ipv4_checksum(ipv4);
     return ipv4;
 }
 
