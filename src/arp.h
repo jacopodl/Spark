@@ -51,8 +51,8 @@
 
 #define ARPRESOLVER_ATTEMPTS       3
 #define ARPRESOLVER_PACKETS        1500
-#define ARPRESOLVER_TIMEOUT_SEC    2
-#define ARPRESOLVER_TIMEOUT_USEC   (200 * 1000)
+#define ARPRESOLVER_TIMEOUT_SEC    1
+#define ARPRESOLVER_TIMEOUT_USEC   (500 * 1000)
 
 /// @brief This structure rapresents an ARP packet.
 struct ArpPacket {

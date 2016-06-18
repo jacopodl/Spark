@@ -34,7 +34,7 @@ Check out the latest version with::
 
   $ git clone http://github.com/jacopodl/spark
 
-or download .zip from `here <https://github.com/jacopodl/Spark/archive/spark.zip>`_.
+or download .zip from `here <https://github.com/jacopodl/Spark/archive/master.zip>`_.
 
 Building library:
 -----------------
@@ -56,7 +56,7 @@ If the build finishes without errors, the compiled library will be located in th
 =======
 License
 =======
-    Copyright (C) <2015-2016>  <Jacopo De Luca>
+    Copyright (C) 2015-2016 Jacopo De Luca
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

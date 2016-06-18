@@ -73,35 +73,46 @@ struct ArpPacket *injects_arp_request(unsigned char *buff, struct netaddr_mac *s
 int arp_resolver(struct llSockInfo *llsi, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
                  struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr) {
     unsigned char wbuff[ETHHDRSIZE + ARPETHIPLEN];
-    unsigned char rbuff[ETHHDRSIZE + ARPETHIPLEN];
-    struct EthHeader *eth, *r_eth;
-    struct ArpPacket *arp, *r_arp;
+    struct EthHeader *eth;
+    struct EthHeader *r_eth;
+    struct ArpPacket *arp;
+    struct ArpPacket *r_arp;
     struct netaddr_mac ethbroad;
+
     struct timeval tv;
     int success = 0;
     int packet = 0;
     int attempts = ARPRESOLVER_ATTEMPTS;
+
     fd_set fdset;
+
     build_ethbroad_addr(&ethbroad);
     eth = injects_ethernet_header(wbuff, shwaddr, &ethbroad, ETHTYPE_ARP);
-    r_eth = (struct EthHeader *) rbuff;
+    if ((r_eth = (struct EthHeader *) malloc(llsi->buffl)) == NULL)
+        return -1;
     arp = injects_arp_packet(eth->data, ETHHWASIZE, IPV4ADDRLEN, ARPOP_REQUEST, (struct netaddr *) shwaddr,
                              (struct netaddr *) spraddr, NULL, (struct netaddr *) dpraddr);
 
     while (attempts-- > 0) {
-        if (llsend(eth, ETHHDRSIZE + ARPETHIPLEN, llsi) < 0)
+        if (llsend(eth, ETHHDRSIZE + ARPETHIPLEN, llsi) < 0) {
+            free(r_eth);
             return -1;
+        }
         packet = ARPRESOLVER_PACKETS;
         tv.tv_sec = ARPRESOLVER_TIMEOUT_SEC;
         tv.tv_usec = ARPRESOLVER_TIMEOUT_USEC;
         while (packet-- > 0) {
             FD_ZERO(&fdset);
             FD_SET(llsi->sfd, &fdset);
-            if ((success = select(llsi->sfd + 1, &fdset, NULL, NULL, &tv)) < 0)
+            if ((success = select(llsi->sfd + 1, &fdset, NULL, NULL, &tv)) < 0) {
+                free(r_eth);
                 return -1;
+            }
             if (success) {
-                if (llrecv3(r_eth, ETHHDRSIZE + ARPETHIPLEN, llsi) < 0)
+                if (llrecv2(r_eth, llsi) < 0) {
+                    free(r_eth);
                     return -1;
+                }
                 if (memcmp(r_eth->dhwaddr, eth->shwaddr, ETHHWASIZE) != 0 || r_eth->eth_type != htons(ETHTYPE_ARP))
                     continue;
                 r_arp = (struct ArpPacket *) r_eth->data;
@@ -109,6 +120,7 @@ int arp_resolver(struct llSockInfo *llsi, struct netaddr_mac *shwaddr, struct ne
                     continue;
                 if (ntohs(r_arp->opcode) == ARPOP_REPLY) {
                     memcpy(dhwaddr->mac, r_arp->data, ETHHWASIZE);
+                    free(r_eth);
                     return 1;
                 }
             }
@@ -116,5 +128,6 @@ int arp_resolver(struct llSockInfo *llsi, struct netaddr_mac *shwaddr, struct ne
                 break;
         }
     }
+    free(r_eth);
     return 0;
 }
