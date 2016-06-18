@@ -1,8 +1,8 @@
 /*
-* <routev4, part of Spark.>
-* Copyright (C) <2015-2016> <Jacopo De Luca>
+* routev4, part of Spark.
+* Copyright (C) 2015-2016 Jacopo De Luca
 *
-* This program is free software: you can redistribute it and/or modify
+* This program is free library: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
@@ -21,6 +21,8 @@
 #include <fcntl.h>
 
 #include "routev4.h"
+
+#if defined(__linux__)
 
 bool get_defgateway(char *iface_name, struct netaddr_ip *gateway) {
     char buff[1024];
@@ -55,3 +57,12 @@ bool get_defgateway(char *iface_name, struct netaddr_ip *gateway) {
     close(fd);
     return false;
 }
+
+#elif defined(__FreeBSD__) || (defined(__APPLE__) && defined(__MACH__))
+#pragma message("get_defgateway not implemented yet! :( ")
+bool get_defgateway(char *iface_name, struct netaddr_ip *gateway) {
+    // STUB
+    return false;
+}
+
+#endif

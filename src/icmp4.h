@@ -1,8 +1,8 @@
 /*
-* <icmp, part of Spark.>
-* Copyright (C) <2015-2016> <Jacopo De Luca>
+* icmp, part of Spark.
+* Copyright (C) 2015-2016 Jacopo De Luca
 *
-* This program is free software: you can redistribute it and/or modify
+* This program is free library: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
@@ -13,6 +13,11 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
+
+/**
+ * @file icmp4.h
+ * @brief Provides functions for build and manage ICMPv4 packets.
+ */
 
 #ifndef SPARK_ICMP_H
 #define SPARK_ICMP_H
@@ -40,6 +45,7 @@
 
 #define ICMP4HDRSIZE    8
 
+/// @brief This structure represents an IPv4 packet.
 struct IcmpHeader {
     unsigned char type;
     unsigned char code;
@@ -58,25 +64,56 @@ struct IcmpHeader {
     unsigned char data[];
 };
 
-struct IcmpHeader *build_icmp4_packet(unsigned char type, unsigned char code, struct Ipv4Header *ipv4Header,
-                                      unsigned long paysize,
-                                      unsigned char *payload);
-
-struct IcmpHeader *build_icmp4_echo_request(unsigned char *buff, unsigned short id, unsigned short seqn,
-                                            struct Ipv4Header *ipv4Header, unsigned long paysize,
+/**
+ * @brief Built a new ICMP echo request packet.
+ *
+ * If `payload` is not NULL, the functions copies all byte from payload buffer in the new ICMP packet, otherwise the icmp packet will be filled with random data of size equals of paysize.
+ * @param id Packet identifier.
+ * @param seqn Packet sequence.
+ * @param paysize Lenght of paylod.
+ * @param __IN__payload ICMP payload.
+ * @return On success returns the pointer to new ICMP packet of size equal to paysize + ICMP4HDRSIZE, otherwise return NULL.
+ */
+struct IcmpHeader *build_icmp4_echo_request(unsigned short id, unsigned short seqn, unsigned short paysize,
                                             unsigned char *payload);
 
+/**
+ * @brief Built a new ICMP packet.
+ *
+ * If `payload` is not NULL, the functions copies all byte from payload buffer in the new ICMP packet.
+ * @param type Message type.
+ * @param code Message code.
+ * @param paysize Lenght of paylod.
+ * @param __IN__payload ICMP payload.
+ * @return On success returns the pointer to new ICMP packet of size equal to paysize + ICMP4HDRSIZE, otherwise return NULL.
+ */
+struct IcmpHeader *build_icmp4_packet(unsigned char type, unsigned char code, unsigned short paysize,
+                                      unsigned char *payload);
+
+/**
+ * @brief Injects ICMP header into a buffer pointed by `buff`.
+ * @param __OUT__buff Pointer to remote buffer.
+ * @param id Packet identifier.
+ * @param seqn Packet sequence.
+ * @return The function returns the pointer to ICMP packet.
+ */
+struct IcmpHeader *injects_icmp4_echo_request(unsigned char *buff, unsigned short id, unsigned short seqn);
+
+/**
+ * @brief Injects ICMP header into a buffer pointed by `buff`.
+ * @param __OUT__buff Pointer to remote buffer.
+ * @param type Message type.
+ * @param code Message code.
+ * @return The function returns the pointer to ICMP packet.
+ */
 struct IcmpHeader *injects_icmp4_header(unsigned char *buff, unsigned char type, unsigned char code);
 
-struct IcmpHeader *injects_icmp4_echo_request(unsigned char *buff, unsigned short id, unsigned short seqn,
-                                              struct Ipv4Header *ipv4Header, unsigned long paysize,
-                                              unsigned char *payload);
-
-static struct IcmpHeader *buinj_icmp4_echo_request(unsigned char *buff, bool memalloc, unsigned short id,
-                                                   unsigned short seqn,
-                                                   struct Ipv4Header *ipv4Header, unsigned long paysize,
-                                                   unsigned char *payload);
-
-unsigned short icmp4_checksum(struct IcmpHeader *icmpHeader, struct Ipv4Header *ipv4Header);
+/**
+ * @brief Computes the ICMP checksum.
+ * @param __IN__icmpHeader Pointer to remote ICMP packet.
+ * @param len Size of ICMP packet.
+ * @return The function returns the checksum.
+ */
+unsigned short icmp4_checksum(struct IcmpHeader *icmpHeader, unsigned short len);
 
 #endif

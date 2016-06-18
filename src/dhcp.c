@@ -1,8 +1,8 @@
 /*
-* <dhcp, part of Spark.>
-* Copyright (C) <2015-2016> <Jacopo De Luca>
+* dhcp, part of Spark.
+* Copyright (C) 2015-2016 Jacopo De Luca
 *
-* This program is free software: you can redistribute it and/or modify
+* This program is free library: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
@@ -26,7 +26,7 @@
 bool dhcp_append_option(struct DhcpPacket *dhcpPkt, unsigned char op, unsigned char len, unsigned char *payload) {
     int i = 0;
     for (i; i < DHCP_OPTLEN && dhcpPkt->options[i] != 0xFF; i++);
-    if (i == DHCP_OPTLEN)
+    if (i == DHCP_OPTLEN || (DHCP_OPTLEN - i) < 2 + len)
         return false;
     dhcpPkt->options[i++] = op;
     dhcpPkt->options[i++] = len;
@@ -36,19 +36,8 @@ bool dhcp_append_option(struct DhcpPacket *dhcpPkt, unsigned char op, unsigned c
     return true;
 }
 
-inline bool dhcp_check_type(struct DhcpPacket *dhcpPkt, unsigned char type) {
+inline bool dhcp_type_equals(struct DhcpPacket *dhcpPkt, unsigned char type) {
     return dhcp_get_type(dhcpPkt) == type;
-}
-
-bool dhcp_replace_option(struct DhcpPacket *dhcpPkt, unsigned char option, unsigned char *value, unsigned char offset) {
-    unsigned char *buffopt = dhcpPkt->options;
-    for (unsigned int i = 0; i < DHCP_OPTLEN && buffopt[i] != 0xFF; i += buffopt[i + 1] + 2) {
-        if (buffopt[i] == option) {
-            memcpy((buffopt + (i + 2)) + offset, value, buffopt[i + 1] - offset);
-            return true;
-        }
-    }
-    return false;
 }
 
 unsigned int dhcp_get_option_uint(struct DhcpPacket *dhcpPkt, unsigned char option) {
@@ -59,7 +48,7 @@ unsigned int dhcp_get_option_uint(struct DhcpPacket *dhcpPkt, unsigned char opti
     return 0;
 }
 
-struct DhcpPacket *build_dhcp_raw(unsigned char *buff, unsigned char op, unsigned char htype, unsigned char hlen,
+struct DhcpPacket *build_dhcp_raw(unsigned char op, unsigned char htype, unsigned char hlen,
                                   unsigned char hops, unsigned int xid,
                                   unsigned short secs, unsigned short flags, struct netaddr_ip *ciaddr,
                                   struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr, struct netaddr_ip *giaddr,

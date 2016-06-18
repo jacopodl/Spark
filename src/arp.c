@@ -1,8 +1,8 @@
 /*
-* <arp, part of Spark.>
-* Copyright (C) <2015-2016> <Jacopo De Luca>
+* arp, part of Spark.
+* Copyright (C) 2015-2016 Jacopo De Luca
 *
-* This program is free software: you can redistribute it and/or modify
+* This program is free library: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
@@ -18,8 +18,7 @@
 #include <stdlib.h>
 
 #include "datatype.h"
-#include "netdevice.h"
-#include "ethernet.h"
+#include "llsock.h"
 #include "arp.h"
 
 struct ArpPacket *build_arp_packet(unsigned char hwalen, unsigned char pralen, unsigned short opcode,
@@ -71,9 +70,10 @@ struct ArpPacket *injects_arp_request(unsigned char *buff, struct netaddr_mac *s
                               (struct netaddr *) spraddr, (struct netaddr *) dhwaddr, (struct netaddr *) dpraddr);
 }
 
-int arp_resolver(struct llOptions *llo, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
+int arp_resolver(struct llSockInfo *llsi, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
                  struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr) {
     unsigned char wbuff[ETHHDRSIZE + ARPETHIPLEN];
+    unsigned char rbuff[ETHHDRSIZE + ARPETHIPLEN];
     struct EthHeader *eth, *r_eth;
     struct ArpPacket *arp, *r_arp;
     struct netaddr_mac ethbroad;
@@ -84,31 +84,24 @@ int arp_resolver(struct llOptions *llo, struct netaddr_mac *shwaddr, struct neta
     fd_set fdset;
     build_ethbroad_addr(&ethbroad);
     eth = injects_ethernet_header(wbuff, shwaddr, &ethbroad, ETHTYPE_ARP);
-    if ((r_eth = (struct EthHeader *) malloc(llo->buffl)) == NULL)
-        return -1;
+    r_eth = (struct EthHeader *) rbuff;
     arp = injects_arp_packet(eth->data, ETHHWASIZE, IPV4ADDRLEN, ARPOP_REQUEST, (struct netaddr *) shwaddr,
                              (struct netaddr *) spraddr, NULL, (struct netaddr *) dpraddr);
 
     while (attempts-- > 0) {
-        if (llsend(eth, ETHHDRSIZE + ARPETHIPLEN, llo) < 0) {
-            free(r_eth);
+        if (llsend(eth, ETHHDRSIZE + ARPETHIPLEN, llsi) < 0)
             return -1;
-        }
         packet = ARPRESOLVER_PACKETS;
         tv.tv_sec = ARPRESOLVER_TIMEOUT_SEC;
         tv.tv_usec = ARPRESOLVER_TIMEOUT_USEC;
         while (packet-- > 0) {
             FD_ZERO(&fdset);
-            FD_SET(llo->sfd, &fdset);
-            if ((success = select(llo->sfd + 1, &fdset, NULL, NULL, &tv)) < 0) {
-                free(r_eth);
+            FD_SET(llsi->sfd, &fdset);
+            if ((success = select(llsi->sfd + 1, &fdset, NULL, NULL, &tv)) < 0)
                 return -1;
-            }
             if (success) {
-                if (llrecv(r_eth, llo) < 0) {
-                    free(r_eth);
+                if (llrecv3(r_eth, ETHHDRSIZE + ARPETHIPLEN, llsi) < 0)
                     return -1;
-                }
                 if (memcmp(r_eth->dhwaddr, eth->shwaddr, ETHHWASIZE) != 0 || r_eth->eth_type != htons(ETHTYPE_ARP))
                     continue;
                 r_arp = (struct ArpPacket *) r_eth->data;
@@ -116,7 +109,6 @@ int arp_resolver(struct llOptions *llo, struct netaddr_mac *shwaddr, struct neta
                     continue;
                 if (ntohs(r_arp->opcode) == ARPOP_REPLY) {
                     memcpy(dhwaddr->mac, r_arp->data, ETHHWASIZE);
-                    free(r_eth);
                     return 1;
                 }
             }
@@ -124,6 +116,5 @@ int arp_resolver(struct llOptions *llo, struct netaddr_mac *shwaddr, struct neta
                 break;
         }
     }
-    free(r_eth);
     return 0;
 }

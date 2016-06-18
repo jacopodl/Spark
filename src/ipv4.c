@@ -1,8 +1,8 @@
 /*
-* <ipv4, part of Spark.>
-* Copyright (C) <2015-2016> <Jacopo De Luca>
+* ipv4, part of Spark.
+* Copyright (C) 2015-2016 Jacopo De Luca
 *
-* This program is free software: you can redistribute it and/or modify
+* This program is free library: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
@@ -22,30 +22,49 @@
 #include <net/if.h>
 #include <time.h>
 #include <sys/ioctl.h>
+#include <unistd.h>
 
 #include "datatype.h"
 #include "ipv4.h"
 
-bool get_device_ipv4(int sd, char *iface_name, struct netaddr_ip *ip) {
+bool get_device_ipv4(char *iface_name, struct netaddr_ip *ip) {
+    bool ret;
+    int ctl_sock;
     struct ifreq req;
+
     memset(&req, 0x00, sizeof(struct ifreq));
     strcpy(req.ifr_name, iface_name);
     req.ifr_addr.sa_family = AF_INET;
-    if (ioctl(sd, SIOCGIFADDR, &req) < 0)
-        return false;
-    ip->ip = ((struct sockaddr_in *) &req.ifr_addr)->sin_addr.s_addr;
-    return true;
+
+    ret = false;
+    if ((ctl_sock = socket(AF_INET, SOCK_DGRAM, 0)) >= 0) {
+        if (ioctl(ctl_sock, SIOCGIFADDR, &req) >= 0) {
+            ip->ip = ((struct sockaddr_in *) &req.ifr_addr)->sin_addr.s_addr;
+            ret = true;
+        }
+        close(ctl_sock);
+    }
+    return ret;
 }
 
-bool get_device_netmask(int sd, char *iface_name, struct netaddr_ip *netmask) {
+bool get_device_netmask(char *iface_name, struct netaddr_ip *netmask) {
+    bool ret;
+    int ctl_sock;
     struct ifreq req;
+
     memset(&req, 0x00, sizeof(struct ifreq));
     strcpy(req.ifr_name, iface_name);
     req.ifr_addr.sa_family = AF_INET;
-    if (ioctl(sd, SIOCGIFNETMASK, &req) < 0)
-        return false;
-    netmask->ip = ((struct sockaddr_in *) &req.ifr_addr)->sin_addr.s_addr;
-    return true;
+
+    ret = false;
+    if ((ctl_sock = socket(AF_INET, SOCK_DGRAM, 0)) >= 0) {
+        if (ioctl(ctl_sock, SIOCGIFNETMASK, &req) >= 0) {
+            netmask->ip = ((struct sockaddr_in *) &req.ifr_addr)->sin_addr.s_addr;
+            ret = true;
+        }
+        close(ctl_sock);
+    }
+    return ret;
 }
 
 bool parse_ipv4addr(char *ipstr, unsigned int *ip) {
@@ -80,15 +99,15 @@ struct Ipv4Header *build_ipv4_packet(struct netaddr_ip *src, struct netaddr_ip *
     struct Ipv4Header *ret = (struct Ipv4Header *) malloc(size);
     if (ret == NULL)
         return NULL;
-    injects_ipv4_header((unsigned char *) ret, src, dst, ihl, paysize, id, ttl, proto);
+    injects_ipv4_header((unsigned char *) ret, src, dst, ihl, id, paysize, ttl, proto);
     if (payload != NULL)
         memcpy(ret->data, payload, paysize);
     return ret;
 }
 
 struct Ipv4Header *injects_ipv4_header(unsigned char *buff, struct netaddr_ip *src, struct netaddr_ip *dst,
-                                       unsigned char ihl,
-                                       unsigned short len, unsigned short id, unsigned char ttl, unsigned char proto) {
+                                       unsigned char ihl, unsigned short id, unsigned short len, unsigned char ttl,
+                                       unsigned char proto) {
     struct Ipv4Header *ipv4 = (struct Ipv4Header *) buff;
     memset(ipv4, 0x00, IPV4HDRSIZE);
     ipv4->version = IPV4VERSION;
@@ -103,11 +122,6 @@ struct Ipv4Header *injects_ipv4_header(unsigned char *buff, struct netaddr_ip *s
     return ipv4;
 }
 
-inline unsigned short build_ipv4id() {
-    srand((unsigned int) clock());
-    return ((uint16_t) rand());
-}
-
 unsigned short ipv4_checksum(struct Ipv4Header *ipHeader) {
     unsigned short *buff = (unsigned short *) ipHeader;
     ipHeader->checksum = 0;
@@ -116,6 +130,11 @@ unsigned short ipv4_checksum(struct Ipv4Header *ipHeader) {
     sum = (sum >> 16) + (sum & 0xffff);
     sum += (sum >> 16);
     return (unsigned short) ~sum;
+}
+
+inline unsigned short ipv4_mkid() {
+    srand((unsigned int) clock());
+    return ((uint16_t) rand());
 }
 
 inline void get_ipv4bcast_addr(struct netaddr_ip *addr, struct netaddr_ip *netmask, struct netaddr_ip *broadcast) {

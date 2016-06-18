@@ -1,8 +1,8 @@
 /*
-* <tcp, part of Spark.>
-* Copyright (C) <2015-2016> <Jacopo De Luca>
+* tcp, part of Spark.
+* Copyright (C) 2015-2016 Jacopo De Luca
 *
-* This program is free software: you can redistribute it and/or modify
+* This program is free library: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
@@ -21,20 +21,16 @@
 #include "ipv4.h"
 #include "tcp.h"
 
-struct TcpHeader *build_tcp_packet(unsigned short src, unsigned short dst, unsigned int seqn,
-                                   unsigned int ackn, unsigned char flags,
-                                   unsigned short window, unsigned short urgp, struct Ipv4Header *ipv4Header,
-                                   unsigned long paysize,
-                                   unsigned char *payload) {
+struct TcpHeader *build_tcp_packet(unsigned short src, unsigned short dst, unsigned int seqn, unsigned int ackn,
+                                   unsigned char flags, unsigned short window, unsigned short urgp,
+                                   unsigned long paysize, unsigned char *payload) {
     unsigned long size = TCPHDRSIZE + paysize;
     struct TcpHeader *ret = NULL;
     if ((ret = (struct TcpHeader *) malloc(size)) == NULL)
         return NULL;
     injects_tcp_header((unsigned char *) ret, src, dst, seqn, ackn, flags, window, urgp);
-    if (payload != NULL) {
+    if (payload != NULL)
         memcpy(ret->data, payload, paysize);
-        ret->checksum = tcp_checksum4(ret,ipv4Header);
-    }
     return ret;
 }
 

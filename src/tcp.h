@@ -1,8 +1,8 @@
 /*
-* <tcp, part of Spark.>
-* Copyright (C) <2015-2016> <Jacopo De Luca>
+* tcp, part of Spark.
+* Copyright (C) 2015-2016 Jacopo De Luca
 *
-* This program is free software: you can redistribute it and/or modify
+* This program is free library: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
@@ -126,7 +126,7 @@ struct TcpHeader {
 /**
  * @brief Built a new TCP packet.
  *
- * If `payload` is not NULL, the functions copies all byte from payload buffer in the new TCP packet and calculates the checksum.
+ * If `payload` is not NULL, the functions copies all byte from payload buffer in the new TCP packet.
  * @param src Source port.
  * @param dst Destination port.
  * @param seqn Sequence number.
@@ -134,16 +134,13 @@ struct TcpHeader {
  * @param flags TCP flags.
  * @param window Window size.
  * @param urgp Urgent pointer.
- * @param __IN__ipv4Header Pointer to ipv4 header.
  * @param paysize Length of payload.
  * @param payload TCP payload.
  * @return On success returns the pointer to new TCP packet of size equal to paysize + TCPHDRSIZE, otherwise return NULL.
  */
-struct TcpHeader *build_tcp_packet(unsigned short src, unsigned short dst, unsigned int seqn,
-                                   unsigned int ackn, unsigned char flags,
-                                   unsigned short window, unsigned short urgp, struct Ipv4Header *ipv4Header,
-                                   unsigned long paysize,
-                                   unsigned char *payload);
+struct TcpHeader *build_tcp_packet(unsigned short src, unsigned short dst, unsigned int seqn, unsigned int ackn,
+                                   unsigned char flags, unsigned short window, unsigned short urgp,
+                                   unsigned long paysize, unsigned char *payload);
 
 /**
  * @brief Injects TCP packet into a buffer pointed by `buff`.

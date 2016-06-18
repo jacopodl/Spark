@@ -1,8 +1,8 @@
 /*
-* <arp, part of Spark.>
-* Copyright (C) <2015-2016> <Jacopo De Luca>
+* arp, part of Spark.
+* Copyright (C) 2015-2016 Jacopo De Luca
 *
-* This program is free software: you can redistribute it and/or modify
+* This program is free library: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
@@ -50,8 +50,8 @@
 #define ARPETHIPLEN    (ARPHDRSIZE + ((ETHHWASIZE+IPV4ADDRLEN)*2))
 
 #define ARPRESOLVER_ATTEMPTS       3
-#define ARPRESOLVER_PACKETS        50
-#define ARPRESOLVER_TIMEOUT_SEC    1
+#define ARPRESOLVER_PACKETS        1500
+#define ARPRESOLVER_TIMEOUT_SEC    2
 #define ARPRESOLVER_TIMEOUT_USEC   (200 * 1000)
 
 /// @brief This structure rapresents an ARP packet.
@@ -127,7 +127,7 @@ struct ArpPacket *injects_arp_request(unsigned char *buff, struct netaddr_mac *s
 
 /**
  * @brief Obtains MAC address of remote device.
- * @param __IN__llo Pointer to llOptions structure which handles the active raw socket.
+ * @param __IN__llo Pointer to llSockInfo structure which handles the active raw socket.
  * @param __IN__shwaddr Sender mac address.
  * @param __IN__spraddr Sender ip address.
  * @param __OUT__dhwaddr Target mac address.
@@ -135,7 +135,7 @@ struct ArpPacket *injects_arp_request(unsigned char *buff, struct netaddr_mac *s
  * @return The function returns 1 if the ARP request was successful, otherwise, 0 is  returned.
  * On error -1 is returned and errno set to indicate the error.
  */
-int arp_resolver(struct llOptions *llo, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
+int arp_resolver(struct llSockInfo *llsi, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
                  struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr);
 
 #endif

@@ -1,8 +1,8 @@
 /*
-* <ipv4, part of Spark.>
-* Copyright (C) <2015-2016> <Jacopo De Luca>
+* ipv4, part of Spark.
+* Copyright (C) 2015-2016 Jacopo De Luca
 *
-* This program is free software: you can redistribute it and/or modify
+* This program is free library: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
@@ -73,21 +73,19 @@ struct Ipv4Header {
 
 /**
  * @brief Obtains the IPv4 address of device called `iface_name`.
- * @param sd Socket descriptor.
  * @param iface_name Interface name.
  * @param __OUT__ip Pointer to netaddr_ip structure.
  * @return Function returns true if the address has been obtained, false otherwise.
  */
-bool get_device_ipv4(int sd, char *iface_name, struct netaddr_ip *ip);
+bool get_device_ipv4(char *iface_name, struct netaddr_ip *ip);
 
 /**
  * @brief Obtains the IPv4 netmask of device called `iface_name`.
- * @param sd Socket descriptor.
  * @param iface_name Interface name.
  * @param __OUT__netmask Pointer to netaddr_ip structure.
  * @return Function returns true if the netmask has been obtained, false otherwise.
  */
-bool get_device_netmask(int sd, char *iface_name, struct netaddr_ip *netmask);
+bool get_device_netmask(char *iface_name, struct netaddr_ip *netmask);
 
 /**
  * @brief Parse string contains a ipv4 address in the form `000.000.000.000`.
@@ -129,21 +127,15 @@ struct Ipv4Header *build_ipv4_packet(struct netaddr_ip *src, struct netaddr_ip *
  * @param __IN__src Pointer to netaddr_ip structure contains source ip address.
  * @param __IN__dst Pointer to netaddr_ip structure contains destination ip address.
  * @param ihl Specifies the size of the header.
- * @param len Length of payload.
  * @param id Packet identifier.
+ * @param len Length of payload.
  * @param ttl Time to live.
  * @param proto Type of the protocol in the payload field.
  * @return The function returns the pointer to IPv4 packet.
  */
 struct Ipv4Header *injects_ipv4_header(unsigned char *buff, struct netaddr_ip *src, struct netaddr_ip *dst,
-                                       unsigned char ihl,
-                                       unsigned short len, unsigned short id, unsigned char ttl, unsigned char proto);
-
-/**
- * @brief Builds a random ID.
- * @return The function returns a random ID.
- */
-unsigned short build_ipv4id();
+                                       unsigned char ihl, unsigned short id, unsigned short len, unsigned char ttl,
+                                       unsigned char proto);
 
 /**
  * @brief Computes the IPv4 checksum.
@@ -151,6 +143,12 @@ unsigned short build_ipv4id();
  * @return The function returns the checksum.
  */
 unsigned short ipv4_checksum(struct Ipv4Header *ipHeader);
+
+/**
+ * @brief Builds a random ID.
+ * @return The function returns a random ID.
+ */
+unsigned short ipv4_mkid();
 
 /**
  * @brief Obtains broadcast IPv4 address.

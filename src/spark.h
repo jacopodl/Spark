@@ -1,8 +1,8 @@
 /*
-* <Spark.>
-* Copyright (C) <2015-2016> <Jacopo De Luca>
+* Spark: A tiny raw socket library for Linux/BSD.
+* Copyright (C) 2015-2016 Jacopo De Luca
 *
-* This program is free software: you can redistribute it and/or modify
+* This program is free library: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
@@ -22,11 +22,13 @@
 #ifndef SPARK_H
 #define SPARK_H
 
+#define SPARK_VERSION_NAME  @VERSION_NAME@
 #define SPARK_VERSION_MAJOR @VERSION_MAJOR@
 #define SPARK_VERSION_MINOR	@VERSION_MINOR@
 
 #include "datatype.h"
 #include "netdevice.h"
+#include "llsock.h"
 #include "ethernet.h"
 #include "arp.h"
 #include "ipv4.h"

@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(LibSpark)
 
+set (VERSION_NAME  "\"Novirec\"")
 set (VERSION_MAJOR 1)
 set (VERSION_MINOR 0)
 

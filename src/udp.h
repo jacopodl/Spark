@@ -1,8 +1,8 @@
 /*
-* <udp, part of Spark.>
-* Copyright (C) <2015-2016> <Jacopo De Luca>
+* udp, part of Spark.
+* Copyright (C) 2015-2016 Jacopo De Luca
 *
-* This program is free software: you can redistribute it and/or modify
+* This program is free library: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
@@ -45,16 +45,15 @@ struct UdpHeader {
 /**
  * @brief Built a new UDP packet.
  *
- * If `payload` is not NULL, the functions copies all byte from payload buffer in the new UDP packet and calculates the checksum.
+ * If `payload` is not NULL, the functions copies all byte from payload buffer in the new UDP packet.
  * @param srcp Source port.
  * @param dstp Destination port.
- * @param __IN__ipv4Header Pointer to ipv4 header.
  * @param paysize Length of payload.
  * @param payload UDP payload.
  * @return On success returns the pointer to new UDP packet of size equal to paysize + UDPHDRSIZE, otherwise return NULL.
  */
-struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, struct Ipv4Header *ipv4Header,
-                                   unsigned short paysize, unsigned char *payload);
+struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, unsigned short paysize,
+                                   unsigned char *payload);
 
 /**
  * @brief Injects UDP header into a buffer pointed by `buff`.

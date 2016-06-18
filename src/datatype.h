@@ -2,7 +2,7 @@
 * <datatype, part of Spark.>
 * Copyright (C) <2015-2016> <Jacopo De Luca>
 *
-* This program is free software: you can redistribute it and/or modify
+* This program is free library: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
@@ -31,10 +31,10 @@ struct netaddr {
 /**
  * @brief This structure contains mac addresses.
  *
- * You can fill the structure in this way, for example:
+ * You can fill the structure in this way:
  * @code
  * struct netaddr_mac mac;
- * parse_hwaddr("AA:BB:CC:00:0E:1A",&mac,false);
+ * parse_hwaddr("A0:BB:CC:00:0E:1A",&mac,false);
  * @endcode
  */
 struct netaddr_mac {
@@ -45,7 +45,7 @@ struct netaddr_mac {
 /**
  * @brief This structure contains IpV4 addresses.
  *
- * You can fill the structure in this way, for example:
+ * You can fill the structure in this way:
  * @code
  * struct netaddr_ip ip;
  * parse_ipv4addr("192.168.1.254", &ip.ip)

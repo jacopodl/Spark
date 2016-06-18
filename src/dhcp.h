@@ -1,8 +1,8 @@
 /*
-* <dhcp, part of Spark.>
-* Copyright (C) <2015-2016> <Jacopo De Luca>
+* dhcp, part of Spark.
+* Copyright (C) 2015-2016 Jacopo De Luca
 *
-* This program is free software: you can redistribute it and/or modify
+* This program is free library: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
@@ -13,6 +13,11 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
+
+/**
+ * @file dhcp.h
+ * @brief Provides functions for manage DHCP message.
+ */
 
 #ifndef SPARK_DHCP_H
 #define SPARK_DHCP_H
@@ -66,65 +71,199 @@
 #define DHCP_FILELEN    (128)
 #define DHCP_OPTLEN     (308)
 
+/// @brief This structure rapresents an DHCP message.
 struct DhcpPacket {
+    /// @brief opcode.
     unsigned char op;
+    /// @brief Hardware type Eg: Ethernet.
     unsigned char htype;
+    /// @brief Hardware address length.
     unsigned char hlen;
+    /// @brief Hop count.
     unsigned char hops;
+    /// @brief Transaction ID.
     unsigned int xid;
+    /// @brief Number of seconds.
     unsigned short secs;
+    /// @brief Flags
     unsigned short flags;
-    /* unused */
+    /// @brief Client IP address.
     unsigned int ciaddr;
+    /// @brief Your IP address.
     unsigned int yiaddr;
+    /// @brief Server IP address.
     unsigned int siaddr;
+    /// @brief Gateway IP address.
     unsigned int giaddr;
+    /// @brief Client hardware address.
     unsigned char chaddr[DHCP_CHADDRLEN];
+    /// @brief Server host name.
     unsigned char sname[DHCP_SNAMELEN];
+    /// @brief Boot filename.
     unsigned char file[DHCP_FILELEN];
+    /// @brief Contains always DHCP MAGIC COOKIE 0x63825363.
     unsigned int option;
-    /* MAGIC COOKIE */
+    /// @brief Miscellaneous options.
     unsigned char options[DHCP_OPTLEN];
 };
 
-bool dhcp_append_option(struct DhcpPacket *dhcpPkt, unsigned char op, unsigned char len,
-                        unsigned char *payload);
+/**
+ * @brief Append the new option at the end of DHCP message.
+ *
+ * @param __OUT__dhcpPkt Pointer to remote DHCP packet.
+ * @param op Option.
+ * @param len Option length.
+ * @param __IN__payload Option payload.
+ * @return On success returns true, if there is not enough space at the end of the message, false is returned.
+ */
+bool dhcp_append_option(struct DhcpPacket *dhcpPkt, unsigned char op, unsigned char len, unsigned char *payload);
 
-bool dhcp_check_type(struct DhcpPacket *dhcpPkt, unsigned char type);
+/**
+ * @brief Checks the type of the DHCP message.
+ *
+ * @param __IN__dhcpPkt Pointer to remote DHCP packet.
+ * @param type Requested type.
+ * @return If the requested type corresponds with the type of the DHCP message, this function returns true, otherwise false is returned.
+ */
+bool dhcp_type_equals(struct DhcpPacket *dhcpPkt, unsigned char type);
 
-bool dhcp_replace_option(struct DhcpPacket *dhcpPkt, unsigned char option, unsigned char *value, unsigned char offset);
-
+/**
+ * @brief Obatins the uint value of DHCP option.
+ *
+ * @param __IN__dhcpPkt Pointer to remote DHCP packet.
+ * @param options DHCP option.
+ * @return On success this function returns the value of the DHCP option, otherwise 0 is returned.
+ */
 unsigned int dhcp_get_option_uint(struct DhcpPacket *dhcpPkt, unsigned char option);
 
-struct DhcpPacket *build_dhcp_raw(unsigned char *buff, unsigned char op, unsigned char htype, unsigned char hlen,
-                                  unsigned char hops, unsigned int xid,
-                                  unsigned short secs, unsigned short flags, struct netaddr_ip *ciaddr,
-                                  struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr, struct netaddr_ip *giaddr,
-                                  struct netaddr *chaddr, char *sname);
+/**
+ * @brief Built a new DHCP raw packet.
+ *
+ * @param op Opcode.
+ * @param htype Hardware type Eg: Ethernet.
+ * @param hlen Hardware address length.
+ * @param hops Number of hop.
+ * @param xid Transaction ID.
+ * @param secs Number of seconds.
+ * @param flags Flags.
+ * @param __IN__ciaddr Client IP address.
+ * @param __IN__yiaddr Your IP address.
+ * @param __IN__siaddr Server IP address.
+ * @param __IN__giaddr Gateway IP address.
+ * @param __IN__chaddr Client hardware address.
+ * @param __IN__sname Server host name.
+ * @return On success returns the pointer to new DHCP packet, otherwise return NULL.
+ */
+struct DhcpPacket *build_dhcp_raw(unsigned char op, unsigned char htype, unsigned char hlen, unsigned char hops,
+                                  unsigned int xid, unsigned short secs, unsigned short flags,
+                                  struct netaddr_ip *ciaddr, struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr,
+                                  struct netaddr_ip *giaddr, struct netaddr *chaddr, char *sname);
 
+/**
+ * @brief Injects DHCP discover message into a buffer pointed by `buff`.
+ *
+ * @param __OUT__buff Pointer to remote buffer.
+ * @param __IN__chaddr Client hardware address.
+ * @param __IN__ipreq Requested IP address, maybe NULL.
+ * @param flags Flags.
+ * @return The function returns the pointer to DHCP discover packet.
+ */
 struct DhcpPacket *injects_dhcp_discover(unsigned char *buff, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
                                          unsigned short flags);
 
+/**
+ * @brief Injects DHCP raw packet into a buffer pointed by `buff`.
+ *
+ * @param __OUT__buff Pointer to remote buffer.
+ * @param op Opcode.
+ * @param htype Hardware type Eg: Ethernet.
+ * @param hlen Hardware address length.
+ * @param hops Number of hop.
+ * @param xid Transaction ID.
+ * @param secs Number of seconds.
+ * @param flags Flags.
+ * @param __IN__ciaddr Client IP address.
+ * @param __IN__yiaddr Your IP address.
+ * @param __IN__siaddr Server IP address.
+ * @param __IN__giaddr Gateway IP address.
+ * @param __IN__chaddr Client hardware address.
+ * @param __IN__sname Server host name.
+ * @return The function returns the pointer to DHCP packet.
+ */
 struct DhcpPacket *injects_dhcp_raw(unsigned char *buff, unsigned char op, unsigned char htype, unsigned char hlen,
-                                    unsigned char hops, unsigned int xid,
-                                    unsigned short secs, unsigned short flags, struct netaddr_ip *ciaddr,
-                                    struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr, struct netaddr_ip *giaddr,
-                                    struct netaddr *chaddr, char *sname);
+                                    unsigned char hops, unsigned int xid, unsigned short secs, unsigned short flags,
+                                    struct netaddr_ip *ciaddr, struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr,
+                                    struct netaddr_ip *giaddr, struct netaddr *chaddr, char *sname);
 
+/**
+ * @brief Injects DHCP release message into a buffer pointed by `buff`.
+ *
+ * @param __OUT__buff Pointer to remote buffer.
+ * @param __IN__chaddr Client hardware address.
+ * @param __IN__ciaddr Client IP address.
+ * @param __IN__server DHCP server ip address.
+ * @param flags Flags.
+ * @return The function returns the pointer to DHCP release packet.
+ */
 struct DhcpPacket *injects_dhcp_release(unsigned char *buff, struct netaddr_mac *chaddr, struct netaddr_ip *ciaddr,
                                         struct netaddr_ip *server, unsigned short flags);
 
+/**
+ * @brief Injects DHCP request message into a buffer pointed by `buff`.
+ *
+ * @param __OUT__buff Pointer to remote buffer.
+ * @param __IN__chaddr Client hardware address.
+ * @param __IN__ipreq Requested IP address.
+ * @param xid Transaction ID.
+ * @param __IN__siaddr DHCP server ip address.
+ * @param flags Flags.
+ * @return The function returns the pointer to DHCP request packet.
+ */
 struct DhcpPacket *injects_dhcp_request(unsigned char *buff, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
                                         unsigned int xid, struct netaddr_ip *siaddr, unsigned short flags);
 
+/**
+ * @brief Obtains DHCP message type.
+ *
+ * @param __IN__dhcpPkt Pointer to remote DHCP packet.
+ * @return DHCP message type.
+ */
 unsigned char dhcp_get_type(struct DhcpPacket *dhcp);
 
+/**
+ * @brief Obatins options list.
+ *
+ * @param __IN__dhcpPkt Pointer to remote DHCP packet.
+ * @param __OUT__len Length of options list.
+ * @return On success this function returns an array with all options contained in the DHCP messge, otherwise NULL is returned.
+ * @warning The returned array doesn't contains the null terminator!
+ */
 unsigned char *dhcp_get_options(struct DhcpPacket *dhcpPkt, unsigned int *len);
 
+/**
+ * @brief Obatins the uchar value of DHCP option.
+ *
+ * @param __IN__dhcpPkt Pointer to remote DHCP packet.
+ * @param options DHCP option.
+ * @return On success this function returns the value of the DHCP option, otherwise 0 is returned.
+ */
 unsigned char dhcp_get_option_uchar(struct DhcpPacket *dhcpPkt, unsigned char option);
 
+/**
+ * @brief Obatins the value of DHCP option.
+ *
+ * @param __IN__dhcpPkt Pointer to remote DHCP packet.
+ * @param options DHCP option.
+ * @param __OUT__len Option length.
+ * @return On success this function returns an array with the value of the DHCP option, otherwise NULL is returned.
+ * @warning The returned array doesn't contains the null terminator!
+ */
 unsigned char *dhcp_get_option_value(struct DhcpPacket *dhcpPkt, unsigned char option, unsigned int *len);
 
+/**
+ * @brief Obtains a random ID for DHCP message.
+ * @return Random transaction ID.
+ */
 unsigned int dhcp_mkxid();
 
 #endif
