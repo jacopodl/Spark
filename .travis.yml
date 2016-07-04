@@ -1,9 +1,12 @@
 sudo: false
 language: c
+os:
+ - linux
+ - osx
 compiler:
  - gcc
 install:
- - export CC=gcc-4.8
+ - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CC=gcc-4.8 ; fi
 addons:
  apt:
   sources:
