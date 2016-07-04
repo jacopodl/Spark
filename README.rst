@@ -6,6 +6,7 @@
    :alt: GPLv3 License
 
 .. image:: https://img.shields.io/badge/version-1.0-green.svg
+.. image:: https://travis-ci.org/jacopodl/Spark.svg?branch=master
 
 =====
 Spark
