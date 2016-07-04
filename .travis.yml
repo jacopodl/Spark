@@ -1,0 +1,15 @@
+sudo: false
+language: c
+compiler:
+ - gcc
+install:
+ - export CC=gcc-4.8
+addons:
+ apt:
+  sources:
+   - ubuntu-toolchain-r-test
+  packages:
+   - gcc-4.8
+before_script:
+ - cmake .
+script: make
