@@ -27,6 +27,18 @@
 #include "datatype.h"
 #include "ipv4.h"
 
+inline bool ipv4cmp(struct netaddr_ip *ip1, struct netaddr_ip *ip2) {
+    return ip1->ip == ip2->ip;
+}
+
+inline bool ismcast_ipv4(struct netaddr_ip *ip) {
+    return (((unsigned char *) (&ip->ip))[3] & 0xE0) == 0xE0;
+}
+
+inline bool issame_subnet(struct netaddr_ip *addr1, struct netaddr_ip *addr2, struct netaddr_ip *netmask) {
+    return (addr1->ip & netmask->ip) == (addr2->ip & netmask->ip);
+}
+
 bool get_device_ipv4(char *iface_name, struct netaddr_ip *ip) {
     bool ret;
     int ctl_sock;

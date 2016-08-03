@@ -72,6 +72,30 @@ struct Ipv4Header {
 };
 
 /**
+ * @brief Compare two IPv4 address.
+ * @param ip1 Pointer to netaddr_ip structure contains first ip address.
+ * @param ip2 Pointer to netaddr_ip structure contains seconds ip address.
+ * @return Function returns true if ip1 is equals to ip2, false otherwise.
+ */
+bool ipv4cmp(struct netaddr_ip *ip1, struct netaddr_ip *ip2);
+
+/**
+ * @brief Checks if is a multicast(class D) IPv4 address.
+ * @param ip Pointer to netaddr_ip structure contains ip address.
+ * @return Function returns true if is a class D address, false otherwise.
+ */
+bool ismcast_ipv4(struct netaddr_ip *ip);
+
+/**
+ * @brief Check if they are addresses on the same subnet.
+ * @param addr1 Pointer to netaddr_ip structure contains first ip address.
+ * @param addr2 Pointer to netaddr_ip structure contains seconds ip address.
+ * @param netmask Pointer to netaddr_ip structure contains netmask.
+ * @return Function returns true if the addr1 and addr2 are on the same subnet, false otherwise.
+ */
+bool issame_subnet(struct netaddr_ip *addr1, struct netaddr_ip *addr2, struct netaddr_ip *netmask);
+
+/**
  * @brief Obtains the IPv4 address of device called `iface_name`.
  * @param iface_name Interface name.
  * @param __OUT__ip Pointer to netaddr_ip structure.
