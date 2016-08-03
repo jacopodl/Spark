@@ -32,6 +32,14 @@ bool ethcmp(struct netaddr_mac *mac1, struct netaddr_mac *mac2) {
     return true;
 }
 
+inline bool isbcast_mac(struct netaddr_mac *mac) {
+    return (mac->mac[0] + mac->mac[1] + mac->mac[2] + mac->mac[3] + mac->mac[4] + mac->mac[5]) == 0x5FA;
+}
+
+inline bool isempty_mac(struct netaddr_mac *mac) {
+    return (mac->mac[0] + mac->mac[1] + mac->mac[2] + mac->mac[3] + mac->mac[4] + mac->mac[5]) == 0x00;
+}
+
 bool parse_mac(char *hwstr, struct netaddr_mac *mac, bool bcast) {
     if (strlen(hwstr) >= MACSTRSIZE)
         return false;
@@ -83,10 +91,8 @@ char *get_vendor(struct netaddr_mac *mac, bool _static) {
 }
 
 struct EthHeader *build_ethernet_packet(struct netaddr_mac *src, struct netaddr_mac *dst, unsigned short type,
-                                        unsigned long paysize, unsigned char *payload)
-{
-    if(paysize<ETHMINPAYL || paysize >ETHMAXPAYL)
-    {
+                                        unsigned long paysize, unsigned char *payload) {
+    if (paysize < ETHMINPAYL || paysize > ETHMAXPAYL) {
         errno = EINVAL;
         return NULL;
     }

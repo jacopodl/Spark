@@ -58,6 +58,20 @@ struct EthHeader {
 bool ethcmp(struct netaddr_mac *mac1, struct netaddr_mac *mac2);
 
 /**
+ * @brief Checks if is a broadcast mac address.
+ * @param mac Pointer to netaddr_mac structure contains mac address.
+ * @return Function returns true if is a broadcast mac address, false otherwise.
+ */
+bool isbcast_mac(struct netaddr_mac *mac);
+
+/**
+ * @brief Checks if is a empty mac address (All byte are zero!).
+ * @param mac Pointer to netaddr_mac structure contains mac address.
+ * @return Function returns true if is a empty mac address, false otherwise.
+ */
+bool isempty_mac(struct netaddr_mac *mac);
+
+/**
  * @brief Parse string contains a mac address in the form `XX:XX:XX:XX:XX:XX`.
  * @param hwstr String contains mac address in the form `XX:XX:XX:XX:XX:XX`.
  * @param __OUT__mac Pointer to netaddr_mac structure.
