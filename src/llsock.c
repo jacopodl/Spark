@@ -91,8 +91,11 @@ int llsocket(struct llSockInfo *llsi, char *iface_name, unsigned int buffl) {
         return -1;
     }
 
+    memset(llsi, 0x00, sizeof(struct llSockInfo));
     memset(&bound_if, 0x00, sizeof(struct ifreq));
-    strcpy(bound_if.ifr_name, llsi->iface_name);
+
+    memcpy(llsi->iface_name, iface_name, IFNAMSIZ);
+    memcpy(bound_if.ifr_name, iface_name, IFNAMSIZ);
 
     for (int i = 0; i < LLSOCK_BPFMAXDEV; i++) {
         sprintf(llsi->bpf_path, "/dev/bpf%i", i);
