@@ -27,7 +27,7 @@
 #include "datatype.h"
 #include "ethernet.h"
 
-#define LLSOCK_DEFRBUF  (ETHHDRSIZE + ETHMAXPAYL)
+#define LLSOCK_DEFRBUF  (ETHFRAME)
 #define LLSOCK_BPFPATHMAXLEN   11
 #define LLSOCK_BPFMAXDEV       99
 

@@ -28,8 +28,10 @@
 #define ETHHWASIZE      6       // Ethernet addr byte len
 #define MACSTRSIZE      18      // Mac addr string size
 #define MACSTRHLFSIZE   9       // Mac addr string half size
+
+#define ETHFRAME        1518    // ETHMAXPAYL + FCS field
 #define ETHHDRSIZE      14      // Ethernet header size
-#define ETHMINPAYL      64      // Ethernet min payload
+#define ETHMINPAYL      46      // Ethernet min payload
 #define ETHMAXPAYL      1500    // Ethernet max payload
 
 #define ETHTYPE_PUP     0X0200

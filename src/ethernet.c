@@ -92,7 +92,7 @@ char *get_vendor(struct netaddr_mac *mac, bool _static) {
 
 struct EthHeader *build_ethernet_packet(struct netaddr_mac *src, struct netaddr_mac *dst, unsigned short type,
                                         unsigned long paysize, unsigned char *payload) {
-    if (paysize < ETHMINPAYL || paysize > ETHMAXPAYL) {
+    if (paysize > ETHMAXPAYL) {
         errno = EINVAL;
         return NULL;
     }
