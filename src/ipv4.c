@@ -126,6 +126,7 @@ struct Ipv4Header *injects_ipv4_header(unsigned char *buff, struct netaddr_ip *s
     ipv4->ihl = ihl;
     ipv4->len = htons((unsigned short) IPV4HDRSIZE + len);
     ipv4->id = id;
+    ipv4->frag_off = htons(IPV4_FLAGS_DONTFRAG);
     ipv4->ttl = ttl;
     ipv4->protocol = proto;
     ipv4->saddr = src->ip;

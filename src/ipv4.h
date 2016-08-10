@@ -56,13 +56,9 @@ struct Ipv4Header {
 #endif
     unsigned short len;
     unsigned short id;
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-    unsigned int frag_off:13;
-    unsigned char flags:3;
-#elif __BYTE_ORDER == __BIG_ENDIAN
-    unsigned char flags:3;
-    unsigned int frag_off:13;
-#endif
+#define IPV4_FLAGS_DONTFRAG 0x4000
+#define IPV4_FLAGS_MOREFRAG 0x2000
+    unsigned short frag_off;
     unsigned char ttl;
     unsigned char protocol;
     unsigned short checksum;
