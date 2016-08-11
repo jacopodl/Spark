@@ -66,7 +66,6 @@ struct TcpHeader {
     unsigned char ecn_n:1;
     unsigned char rsv:3;
     unsigned char offset:4;
-    union {
 #define TCPCWR      0x80
 #define TCPECNE     0x40
 #define TCPURG      0x20
@@ -75,23 +74,11 @@ struct TcpHeader {
 #define TCPRST      0x04
 #define TCPSYN      0x02
 #define TCPFIN      0x01
-        unsigned char flags;
-        // Control Bits
-        unsigned char fin:1;
-        unsigned char syn:1;
-        unsigned char rst:1;
-        unsigned char psh:1;
-        unsigned char ack:1;
-        unsigned char urg:1;
-        // Explicit Congestion Notification
-        unsigned char ecn_e:1;
-        unsigned char ecn_c:1;
-    };
+    unsigned char flags;
 #elif __BYTE_ORDER == __BIG_ENDIAN
     unsigned char offset:4;
     unsigned char rsv:3;
     unsigned char ecn_n:1;
-    union {
 #define TCPCWR      0x01
 #define TCPECNE     0x02
 #define TCPURG      0x04
@@ -101,17 +88,6 @@ struct TcpHeader {
 #define TCPSYN      0x40
 #define TCPFIN      0x80
         unsigned char flags;
-        // Explicit Congestion Notification
-        unsigned char ecn_c:1;
-        unsigned char ecn_e:1;
-        // Control Bits
-        unsigned char urg:1;
-        unsigned char ack:1;
-        unsigned char psh:1;
-        unsigned char rst:1;
-        unsigned char syn:1;
-        unsigned char fin:1;
-    };
 #endif
     /// @brief TCP widnow size.
     unsigned short window;
