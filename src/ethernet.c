@@ -61,11 +61,15 @@ char *get_strmac(struct netaddr_mac *mac, bool _static) {
         if ((smac = (char *) malloc(MACSTRSIZE)) == NULL)
             return NULL;
     }
-    sprintf(smac, "%.2X:%.2X:%.2X:%.2X:%.2X:%.2X",
+    return get_strmac_r(mac, smac);
+}
+
+char *get_strmac_r(struct netaddr_mac *mac, char *macstr) {
+    sprintf(macstr, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
             mac->mac[0], mac->mac[1],
             mac->mac[2], mac->mac[3],
             mac->mac[4], mac->mac[5]);
-    return smac;
+    return macstr;
 }
 
 char *get_serial(struct netaddr_mac *mac, bool _static) {
@@ -75,8 +79,12 @@ char *get_serial(struct netaddr_mac *mac, bool _static) {
         if ((serial = (char *) malloc(MACSTRHLFSIZE)) == NULL)
             return NULL;
     }
-    sprintf(serial, "%.2X:%.2X:%.2X", mac->mac[3], mac->mac[4], mac->mac[5]);
-    return serial;
+    return get_serial_r(mac, serial);
+}
+
+char *get_serial_r(struct netaddr_mac *mac, char *sstr) {
+    sprintf(sstr, "%.2x:%.2x:%.2x", mac->mac[3], mac->mac[4], mac->mac[5]);
+    return sstr;
 }
 
 char *get_vendor(struct netaddr_mac *mac, bool _static) {
@@ -86,8 +94,12 @@ char *get_vendor(struct netaddr_mac *mac, bool _static) {
         if ((vendor = (char *) malloc(MACSTRHLFSIZE)) == NULL)
             return NULL;
     }
-    sprintf(vendor, "%.2X:%.2X:%.2X", mac->mac[0], mac->mac[1], mac->mac[2]);
-    return vendor;
+    return get_vendor_r(mac, vendor);
+}
+
+char *get_vendor_r(struct netaddr_mac *mac, char *vstr) {
+    sprintf(vstr, "%.2x:%.2x:%.2x", mac->mac[0], mac->mac[1], mac->mac[2]);
+    return vstr;
 }
 
 struct EthHeader *build_ethernet_packet(struct netaddr_mac *src, struct netaddr_mac *dst, unsigned short type,

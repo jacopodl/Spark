@@ -3,7 +3,7 @@ project(LibSpark)
 
 set (VERSION_NAME  "\"Novirec\"")
 set (VERSION_MAJOR 1)
-set (VERSION_MINOR 0)
+set (VERSION_MINOR 1)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --std=gnu11 --pedantic")
 

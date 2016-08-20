@@ -117,11 +117,19 @@ bool parse_ipv4addr(char *ipstr, unsigned int *ip);
 
 /**
  * @brief Obtains ipv4 address in the form `000.000.000.000`.
- * @param __IN__ip Pointer to netaddr_ip structure contains ip address.
- * @param _static Not allocate new memory, the result will be saved in a static buffer.
+ * @param __IN__ip Pointer to integer(32bit) contains IPv4.
+ * @param _static Not allocate new memory, the result will be saved in internal static buffer.
  * @return Function returns string contains ip address.
  */
 char *get_stripv4(unsigned int *ip, bool _static);
+
+/**
+ * @brief Obtains ipv4 address in the form `000.000.000.000`.
+ * @param __IN__ip Pointer to integer(32bit) contains IPv4.
+ * @param __OUT__ipstr Pointer to string of dimension IPV4STRLEN.
+ * @return Function returns string contains ip address.
+ */
+char *get_stripv4_r(unsigned int *ip, char *ipstr);
 
 /**
  * @brief Built a new IPv4 packet.

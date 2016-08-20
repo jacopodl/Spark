@@ -91,6 +91,14 @@ bool parse_mac(char *hwstr, struct netaddr_mac *mac, bool bcast);
 char *get_strmac(struct netaddr_mac *mac, bool _static);
 
 /**
+ * @brief Obtains mac address in the form `XX:XX:XX:XX:XX:XX`.
+ * @param __IN__mac Pointer to netaddr_mac structure contains mac address.
+ * @param __OUT__macstr Pointer to string of dimension MACSTRSIZE.
+ * @return Function returns string contains mac address.
+ */
+char *get_strmac_r(struct netaddr_mac *mac, char *macstr);
+
+/**
  * @brief Obtains mac address serial(S) `VV:VV:VV:SS:SS:SS`.
  * @param __IN__mac Pointer to netaddr_mac structure contains mac address.
  * @param _static Not allocate new memory, the result will be saved in a static buffer.
@@ -99,12 +107,28 @@ char *get_strmac(struct netaddr_mac *mac, bool _static);
 char *get_serial(struct netaddr_mac *mac, bool _static);
 
 /**
+ * @brief Obtains mac address serial(S) `VV:VV:VV:SS:SS:SS`.
+ * @param __IN__mac Pointer to netaddr_mac structure contains mac address.
+ * @param __OUT__sstr Pointer to string of dimension MACSTRHLFSIZE.
+ * @return Function returns string contains serial.
+ */
+char *get_serial_r(struct netaddr_mac *mac, char *sstr);
+
+/**
  * @brief Obtains mac address vendor(V) `VV:VV:VV:SS:SS:SS`.
  * @param __IN__mac Pointer to netaddr_mac structure contains mac address.
  * @param _static Not allocate new memory, the result will be saved in a static buffer.
  * @return Function returns string contains vendor.
  */
 char *get_vendor(struct netaddr_mac *mac, bool _static);
+
+/**
+ * @brief Obtains mac address vendor(V) `VV:VV:VV:SS:SS:SS`.
+ * @param __IN__mac Pointer to netaddr_mac structure contains mac address.
+ * @param __OUT__vstr Pointer to string of dimension MACSTRHLFSIZE.
+ * @return Function returns string contains vendor.
+ */
+char *get_vendor_r(struct netaddr_mac *mac, char *vstr);
 
 /**
  * @brief Built a new Ethernet frames.

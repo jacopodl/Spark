@@ -99,8 +99,11 @@ char *get_stripv4(unsigned int *ip, bool _static) {
         if ((ipstr = (char *) malloc(IPV4STRLEN)) == NULL)
             return NULL;
     }
-    sprintf(ipstr, "%u.%u.%u.%u", (*ip) & 0xFF, (*ip) >> 8 & 0xFF, (*ip) >> 16 & 0xFF,
-            (*ip) >> 24 & 0xFF);
+    return get_stripv4_r(ip, ipstr);
+}
+
+inline char *get_stripv4_r(unsigned int *ip, char *ipstr) {
+    sprintf(ipstr, "%u.%u.%u.%u", (*ip) & 0xFF, (*ip) >> 8 & 0xFF, (*ip) >> 16 & 0xFF, (*ip) >> 24 & 0xFF);
     return ipstr;
 }
 
