@@ -76,6 +76,20 @@ struct Ipv4Header {
 bool ipv4cmp(struct netaddr_ip *ip1, struct netaddr_ip *ip2);
 
 /**
+ * @brief Checks if is a broadcast(255.255.255.255) IPv4 address.
+ * @param ip Pointer to netaddr_ip structure contains ip address.
+ * @return Function returns true if is a broadcast address, false otherwise.
+ */
+bool isbcast_ipv4(struct netaddr_ip *ip);
+
+/**
+ * @brief Checks if is a empty IPv4 address (All byte are zero!).
+ * @param ip Pointer to netaddr_ip structure contains ip address.
+ * @return Function returns true if is empty IPv4 address, false otherwise.
+ */
+bool isempty_ipv4(struct netaddr_ip *ip);
+
+/**
  * @brief Checks if is a multicast(class D) IPv4 address.
  * @param ip Pointer to netaddr_ip structure contains ip address.
  * @return Function returns true if is a class D address, false otherwise.

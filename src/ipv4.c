@@ -31,8 +31,18 @@ inline bool ipv4cmp(struct netaddr_ip *ip1, struct netaddr_ip *ip2) {
     return ip1->ip == ip2->ip;
 }
 
+inline bool isbcast_ipv4(struct netaddr_ip *ip) {
+    unsigned char *byte = (((unsigned char *) (&ip->ip)));
+    return (byte[0] == 0xFF) && (byte[1] == 0xFF) && (byte[2] == 0xFF) && (byte[3] == 0xFF);
+}
+
+inline bool isempty_ipv4(struct netaddr_ip *ip) {
+    return ip->ip == 0x00;
+}
+
 inline bool ismcast_ipv4(struct netaddr_ip *ip) {
-    return (((unsigned char *) (&ip->ip))[3] & 0xE0) == 0xE0;
+    unsigned char fbyte = *(((unsigned char *) (&ip->ip)));
+    return ((fbyte >= 0xE0) && (fbyte <= 0xEF));
 }
 
 inline bool issame_subnet(struct netaddr_ip *addr1, struct netaddr_ip *addr2, struct netaddr_ip *netmask) {
