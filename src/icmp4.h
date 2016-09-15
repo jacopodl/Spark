@@ -111,9 +111,9 @@ struct IcmpHeader *injects_icmp4_header(unsigned char *buff, unsigned char type,
 /**
  * @brief Computes the ICMP checksum.
  * @param __IN__icmpHeader Pointer to remote ICMP packet.
- * @param len Size of ICMP packet.
+ * @param paysize Size of ICMP payload.
  * @return The function returns the checksum.
  */
-unsigned short icmp4_checksum(struct IcmpHeader *icmpHeader, unsigned short len);
+unsigned short icmp4_checksum(struct IcmpHeader *icmpHeader, unsigned short paysize);
 
 #endif

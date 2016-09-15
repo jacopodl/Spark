@@ -51,10 +51,8 @@ struct IcmpHeader *build_icmp4_packet(unsigned char type, unsigned char code, un
     if (ret == NULL)
         return NULL;
     injects_icmp4_header((unsigned char *) ret, type, code);
-    if (payload != NULL) {
+    if (payload != NULL)
         memcpy(ret->data, payload, paysize);
-        ret->chksum = icmp4_checksum(ret, paysize);
-    }
     return ret;
 }
 
@@ -73,11 +71,11 @@ struct IcmpHeader *injects_icmp4_header(unsigned char *buff, unsigned char type,
     return ret;
 }
 
-unsigned short icmp4_checksum(struct IcmpHeader *icmpHeader, unsigned short len) {
+unsigned short icmp4_checksum(struct IcmpHeader *icmpHeader, unsigned short paysize) {
     unsigned short *buf = (unsigned short *) icmpHeader;
     register unsigned int sum = 0;
     icmpHeader->chksum = 0;
-    for (int i = 0; i < (ICMP4HDRSIZE + len); i += 2)
+    for (int i = 0; i < (ICMP4HDRSIZE + paysize); i += 2)
         sum += *buf++;
     sum = (sum >> 16) + (sum & 0xffff);
     sum += (sum >> 16);
