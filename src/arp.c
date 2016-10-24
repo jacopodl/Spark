@@ -123,11 +123,34 @@ int arp_resolver(struct llSockInfo *llsi, struct netaddr_mac *shwaddr, struct ne
                     free(r_eth);
                     return 1;
                 }
-            }
-            else
+            } else
                 break;
         }
     }
     free(r_eth);
     return 0;
+}
+
+struct netaddr_ip arp_getaddr_d(struct ArpPacket *ap) {
+    struct netaddr_ip ip;
+    ip.ip = *((unsigned int *) (ap->data + ap->hwalen + ap->pralen + ap->hwalen));
+    return ip;
+}
+
+struct netaddr_ip arp_getaddr_s(struct ArpPacket *ap) {
+    struct netaddr_ip ip;
+    ip.ip = *((unsigned int *) (ap->data + ap->hwalen));
+    return ip;
+}
+
+struct netaddr_mac arp_gethwaddr_d(struct ArpPacket *ap) {
+    struct netaddr_mac mac;
+    memcpy(mac.mac, (ap->data + ap->hwalen + ap->pralen), ap->hwalen);
+    return mac;
+}
+
+struct netaddr_mac arp_gethwaddr_s(struct ArpPacket *ap) {
+    struct netaddr_mac mac;
+    memcpy(mac.mac, ap->data, ap->hwalen);
+    return mac;
 }

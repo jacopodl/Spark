@@ -138,4 +138,32 @@ struct ArpPacket *injects_arp_request(unsigned char *buff, struct netaddr_mac *s
 int arp_resolver(struct llSockInfo *llsi, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
                  struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr);
 
+/**
+ * @brief Obtains dest IP address from ArpPacket.
+ * @param __IN__ap Pointer to ArpPacket.
+ * @return The function returns netaddr_ip.
+ */
+struct netaddr_ip arp_getaddr_d(struct ArpPacket *ap);
+
+/**
+ * @brief Obtains src IP address from ArpPacket.
+ * @param __IN__ap Pointer to ArpPacket.
+ * @return The function returns netaddr_ip.
+ */
+struct netaddr_ip arp_getaddr_s(struct ArpPacket *ap);
+
+/**
+ * @brief Obtains dest MAC address from ArpPacket.
+ * @param __IN__ap Pointer to ArpPacket.
+ * @return The function returns netaddr_mac.
+ */
+struct netaddr_mac arp_gethwaddr_d(struct ArpPacket *ap);
+
+/**
+ * @brief Obtains src MAC address from ArpPacket.
+ * @param __IN__ap Pointer to ArpPacket.
+ * @return The function returns netaddr_mac.
+ */
+struct netaddr_mac arp_gethwaddr_s(struct ArpPacket *ap);
+
 #endif

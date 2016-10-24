@@ -5,7 +5,7 @@
    :target: http://www.gnu.org/licenses/gpl-3.0.html
    :alt: GPLv3 License
 
-.. image:: https://img.shields.io/badge/version-1.2-green.svg
+.. image:: https://img.shields.io/badge/version-1.3.0-green.svg
 .. image:: https://travis-ci.org/jacopodl/Spark.svg?branch=master
 
 =====

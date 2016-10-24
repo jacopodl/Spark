@@ -25,6 +25,7 @@
 #define SPARK_VERSION_NAME  @VERSION_NAME@
 #define SPARK_VERSION_MAJOR @VERSION_MAJOR@
 #define SPARK_VERSION_MINOR	@VERSION_MINOR@
+#define SPARK_VERSION_PATCH	@VERSION_PATCH@
 
 #include "datatype.h"
 #include "netdevice.h"
