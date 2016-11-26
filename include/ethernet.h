@@ -1,17 +1,23 @@
 /*
-* ethernet, part of Spark.
-* Copyright (C) 2015-2016 Jacopo De Luca
-*
-* This program is free library: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (c) 2016 Jacopo De Luca
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
 */
 
 /**
@@ -26,8 +32,8 @@
 #include "datatype.h"
 
 #define ETHHWASIZE      6       // Ethernet addr byte len
-#define MACSTRSIZE      18      // Mac addr string size
-#define MACSTRHLFSIZE   9       // Mac addr string half size
+#define MACSTRLEN       18      // Mac address string size
+#define MACSTRHLFLEN    9       // Mac address string half size
 
 #define ETHFRAME        1518    // ETHMAXPAYL + FCS field
 #define ETHHDRSIZE      14      // Ethernet header size
@@ -85,7 +91,7 @@ bool parse_mac(char *hwstr, struct netaddr_mac *mac, bool bcast);
 /**
  * @brief Obtains mac address in the form `XX:XX:XX:XX:XX:XX`.
  * @param __IN__mac Pointer to netaddr_mac structure contains mac address.
- * @param _static Not allocate new memory, the result will be saved in a static buffer.
+ * @param _static Not allocate new memory, the result will be saved in a static bufer.
  * @return Function returns string contains mac address.
  */
 char *get_strmac(struct netaddr_mac *mac, bool _static);
@@ -93,7 +99,7 @@ char *get_strmac(struct netaddr_mac *mac, bool _static);
 /**
  * @brief Obtains mac address in the form `XX:XX:XX:XX:XX:XX`.
  * @param __IN__mac Pointer to netaddr_mac structure contains mac address.
- * @param __OUT__macstr Pointer to string of dimension MACSTRSIZE.
+ * @param __OUT__macstr Pointer to string of dimension MACSTRLEN.
  * @return Function returns string contains mac address.
  */
 char *get_strmac_r(struct netaddr_mac *mac, char *macstr);
@@ -101,7 +107,7 @@ char *get_strmac_r(struct netaddr_mac *mac, char *macstr);
 /**
  * @brief Obtains mac address serial(S) `VV:VV:VV:SS:SS:SS`.
  * @param __IN__mac Pointer to netaddr_mac structure contains mac address.
- * @param _static Not allocate new memory, the result will be saved in a static buffer.
+ * @param _static Not allocate new memory, the result will be saved in a static bufer.
  * @return Function returns string contains serial.
  */
 char *get_serial(struct netaddr_mac *mac, bool _static);
@@ -109,7 +115,7 @@ char *get_serial(struct netaddr_mac *mac, bool _static);
 /**
  * @brief Obtains mac address serial(S) `VV:VV:VV:SS:SS:SS`.
  * @param __IN__mac Pointer to netaddr_mac structure contains mac address.
- * @param __OUT__sstr Pointer to string of dimension MACSTRHLFSIZE.
+ * @param __OUT__sstr Pointer to string of dimension MACSTRHLFLEN.
  * @return Function returns string contains serial.
  */
 char *get_serial_r(struct netaddr_mac *mac, char *sstr);
@@ -117,7 +123,7 @@ char *get_serial_r(struct netaddr_mac *mac, char *sstr);
 /**
  * @brief Obtains mac address vendor(V) `VV:VV:VV:SS:SS:SS`.
  * @param __IN__mac Pointer to netaddr_mac structure contains mac address.
- * @param _static Not allocate new memory, the result will be saved in a static buffer.
+ * @param _static Not allocate new memory, the result will be saved in a static bufer.
  * @return Function returns string contains vendor.
  */
 char *get_vendor(struct netaddr_mac *mac, bool _static);
@@ -125,7 +131,7 @@ char *get_vendor(struct netaddr_mac *mac, bool _static);
 /**
  * @brief Obtains mac address vendor(V) `VV:VV:VV:SS:SS:SS`.
  * @param __IN__mac Pointer to netaddr_mac structure contains mac address.
- * @param __OUT__vstr Pointer to string of dimension MACSTRHLFSIZE.
+ * @param __OUT__vstr Pointer to string of dimension MACSTRHLFLEN.
  * @return Function returns string contains vendor.
  */
 char *get_vendor_r(struct netaddr_mac *mac, char *vstr);
@@ -133,7 +139,7 @@ char *get_vendor_r(struct netaddr_mac *mac, char *vstr);
 /**
  * @brief Built a new Ethernet frames.
  *
- * If `payload` is not NULL, the functions copies all byte from payload buffer in the new Ethernet frame.
+ * If `payload` is not NULL, the functions copies all byte from payload bufer in the new Ethernet frame.
  * @param __IN__src Pointer to netaddr_mac structure contains source mac address.
  * @param __IN__dst Pointer to netaddr_mac structure contains destination mac address.
  * @param type Ethernet frame type.
@@ -145,14 +151,14 @@ struct EthHeader *build_ethernet_packet(struct netaddr_mac *src, struct netaddr_
                                         unsigned long paysize, unsigned char *payload);
 
 /**
- * @brief Injects Ethernet header into a buffer pointed by `buff`.
- * @param __OUT__buff Pointer to remote buffer.
+ * @brief Injects Ethernet header into a bufer pointed by `buf`.
+ * @param __OUT__buf Pointer to remote bufer.
  * @param __IN__src Pointer to netaddr_mac structure contains source mac address.
  * @param __IN__dst Pointer to netaddr_mac structure contains destination mac address.
  * @param type Ethernet frame type.
  * @return The function returns the pointer to Ethernet frame.
  */
-struct EthHeader *injects_ethernet_header(unsigned char *buff, struct netaddr_mac *src, struct netaddr_mac *dst,
+struct EthHeader *injects_ethernet_header(unsigned char *buf, struct netaddr_mac *src, struct netaddr_mac *dst,
                                           unsigned short type);
 
 /**

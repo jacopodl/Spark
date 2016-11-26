@@ -1,17 +1,23 @@
 /*
-* ethernet, part of Spark.
-* Copyright (C) 2015-2016 Jacopo De Luca
-*
-* This program is free library: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (c) 2016 Jacopo De Luca
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
 */
 
 #include <stdbool.h>
@@ -22,8 +28,8 @@
 #include <netinet/in.h>
 #include <time.h>
 
-#include "datatype.h"
-#include "ethernet.h"
+#include <datatype.h>
+#include <ethernet.h>
 
 bool ethcmp(struct netaddr_mac *mac1, struct netaddr_mac *mac2) {
     for (int i = 0; i < ETHHWASIZE; i++)
@@ -41,7 +47,7 @@ inline bool isempty_mac(struct netaddr_mac *mac) {
 }
 
 bool parse_mac(char *hwstr, struct netaddr_mac *mac, bool bcast) {
-    if (strlen(hwstr) >= MACSTRSIZE)
+    if (strlen(hwstr) >= MACSTRLEN)
         return false;
     unsigned int hwaddr[ETHHWASIZE];
     if (sscanf(hwstr, "%x:%x:%x:%x:%x:%x", hwaddr, hwaddr + 1, hwaddr + 2, hwaddr + 3, hwaddr + 4, hwaddr + 5) != 6)
@@ -55,10 +61,10 @@ bool parse_mac(char *hwstr, struct netaddr_mac *mac, bool bcast) {
 }
 
 char *get_strmac(struct netaddr_mac *mac, bool _static) {
-    static char static_buff[MACSTRSIZE];
-    char *smac = static_buff;
+    static char static_buf[MACSTRLEN];
+    char *smac = static_buf;
     if (!_static) {
-        if ((smac = (char *) malloc(MACSTRSIZE)) == NULL)
+        if ((smac = (char *) malloc(MACSTRLEN)) == NULL)
             return NULL;
     }
     return get_strmac_r(mac, smac);
@@ -73,10 +79,10 @@ char *get_strmac_r(struct netaddr_mac *mac, char *macstr) {
 }
 
 char *get_serial(struct netaddr_mac *mac, bool _static) {
-    static char static_buff[MACSTRHLFSIZE];
-    char *serial = static_buff;
+    static char static_buf[MACSTRHLFLEN];
+    char *serial = static_buf;
     if (!_static) {
-        if ((serial = (char *) malloc(MACSTRHLFSIZE)) == NULL)
+        if ((serial = (char *) malloc(MACSTRHLFLEN)) == NULL)
             return NULL;
     }
     return get_serial_r(mac, serial);
@@ -88,10 +94,10 @@ char *get_serial_r(struct netaddr_mac *mac, char *sstr) {
 }
 
 char *get_vendor(struct netaddr_mac *mac, bool _static) {
-    static char static_buff[MACSTRHLFSIZE];
-    char *vendor = static_buff;
+    static char static_buf[MACSTRHLFLEN];
+    char *vendor = static_buf;
     if (!_static) {
-        if ((vendor = (char *) malloc(MACSTRHLFSIZE)) == NULL)
+        if ((vendor = (char *) malloc(MACSTRHLFLEN)) == NULL)
             return NULL;
     }
     return get_vendor_r(mac, vendor);
@@ -118,9 +124,9 @@ struct EthHeader *build_ethernet_packet(struct netaddr_mac *src, struct netaddr_
     return ret;
 }
 
-struct EthHeader *injects_ethernet_header(unsigned char *buff, struct netaddr_mac *src, struct netaddr_mac *dst,
+struct EthHeader *injects_ethernet_header(unsigned char *buf, struct netaddr_mac *src, struct netaddr_mac *dst,
                                           unsigned short type) {
-    struct EthHeader *ret = (struct EthHeader *) buff;
+    struct EthHeader *ret = (struct EthHeader *) buf;
     memset(ret, 0x00, ETHHDRSIZE);
     memcpy(ret->dhwaddr, dst->mac, ETHHWASIZE);
     memcpy(ret->shwaddr, src->mac, ETHHWASIZE);

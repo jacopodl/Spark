@@ -1,17 +1,23 @@
 /*
-* ipv4, part of Spark.
-* Copyright (C) 2015-2016 Jacopo De Luca
-*
-* This program is free library: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (c) 2016 Jacopo De Luca
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
 */
 
 /**
@@ -34,8 +40,8 @@
 #define IPV4MINSIZE (IPV4HDRSIZE + 0)   // IPv4 min size
 #define IPV4MAXSIZE 65535               // IPv4 max size
 
-#define IPV4ADDRLEN 4                   // IP addr length
-#define IPV4STRLEN  16                  // IPV4 string length
+#define IPV4ADDRSIZE    4                   // IP address length
+#define IPV4STRLEN      16                  // IPV4 string length
 
 /// @brief This structure represents an IPv4 packet.
 struct Ipv4Header {
@@ -132,7 +138,7 @@ bool parse_ipv4addr(char *ipstr, unsigned int *ip);
 /**
  * @brief Obtains ipv4 address in the form `000.000.000.000`.
  * @param __IN__ip Pointer to integer(32bit) contains IPv4.
- * @param _static Not allocate new memory, the result will be saved in internal static buffer.
+ * @param _static Not allocate new memory, the result will be saved in internal static bufer.
  * @return Function returns string contains ip address.
  */
 char *get_stripv4(unsigned int *ip, bool _static);
@@ -148,7 +154,7 @@ char *get_stripv4_r(unsigned int *ip, char *ipstr);
 /**
  * @brief Built a new IPv4 packet.
  *
- * If `payload` is not NULL, the functions copies all byte from payload buffer in the new IPv4 packet.
+ * If `payload` is not NULL, the functions copies all byte from payload bufer in the new IPv4 packet.
  * @param __IN__src Pointer to netaddr_ip structure contains source ip address.
  * @param __IN__dst Pointer to netaddr_ip structure contains destination ip address.
  * @param ihl Specifies the size of the header.
@@ -164,8 +170,8 @@ struct Ipv4Header *build_ipv4_packet(struct netaddr_ip *src, struct netaddr_ip *
                                      unsigned char *payload);
 
 /**
- * @brief Injects IPv4 header into a buffer pointed by `buff`.
- * @param __OUT__buff Pointer to remote buffer.
+ * @brief Injects IPv4 header into a bufer pointed by `buf`.
+ * @param __OUT__buf Pointer to remote bufer.
  * @param __IN__src Pointer to netaddr_ip structure contains source ip address.
  * @param __IN__dst Pointer to netaddr_ip structure contains destination ip address.
  * @param ihl Specifies the size of the header.
@@ -175,7 +181,7 @@ struct Ipv4Header *build_ipv4_packet(struct netaddr_ip *src, struct netaddr_ip *
  * @param proto Type of the protocol in the payload field.
  * @return The function returns the pointer to IPv4 packet.
  */
-struct Ipv4Header *injects_ipv4_header(unsigned char *buff, struct netaddr_ip *src, struct netaddr_ip *dst,
+struct Ipv4Header *injects_ipv4_header(unsigned char *buf, struct netaddr_ip *src, struct netaddr_ip *dst,
                                        unsigned char ihl, unsigned short id, unsigned short len, unsigned char ttl,
                                        unsigned char proto);
 

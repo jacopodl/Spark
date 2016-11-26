@@ -1,31 +1,37 @@
 /*
-* ipv4, part of Spark.
-* Copyright (C) 2015-2016 Jacopo De Luca
-*
-* This program is free library: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (c) 2016 Jacopo De Luca
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
 */
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-#include <arpa/inet.h>
+#include <netinet/in.h>
 #include <net/if.h>
 #include <time.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#include "datatype.h"
-#include "ipv4.h"
+#include <datatype.h>
+#include <ipv4.h>
 
 inline bool ipv4cmp(struct netaddr_ip *ip1, struct netaddr_ip *ip2) {
     return ip1->ip == ip2->ip;
@@ -90,7 +96,7 @@ bool get_device_netmask(char *iface_name, struct netaddr_ip *netmask) {
 }
 
 bool parse_ipv4addr(char *ipstr, unsigned int *ip) {
-    unsigned int ipaddr[IPV4ADDRLEN];
+    unsigned int ipaddr[IPV4ADDRSIZE];
     if (strlen(ipstr) >= IPV4STRLEN)
         return false;
     if (sscanf(ipstr, "%u.%u.%u.%u", ipaddr, ipaddr + 1, ipaddr + 2, ipaddr + 3) != 4)
@@ -103,8 +109,8 @@ bool parse_ipv4addr(char *ipstr, unsigned int *ip) {
 }
 
 char *get_stripv4(unsigned int *ip, bool _static) {
-    static char static_buff[IPV4STRLEN];
-    char *ipstr = static_buff;
+    static char static_buf[IPV4STRLEN];
+    char *ipstr = static_buf;
     if (!_static) {
         if ((ipstr = (char *) malloc(IPV4STRLEN)) == NULL)
             return NULL;
@@ -130,10 +136,10 @@ struct Ipv4Header *build_ipv4_packet(struct netaddr_ip *src, struct netaddr_ip *
     return ret;
 }
 
-struct Ipv4Header *injects_ipv4_header(unsigned char *buff, struct netaddr_ip *src, struct netaddr_ip *dst,
+struct Ipv4Header *injects_ipv4_header(unsigned char *buf, struct netaddr_ip *src, struct netaddr_ip *dst,
                                        unsigned char ihl, unsigned short id, unsigned short len, unsigned char ttl,
                                        unsigned char proto) {
-    struct Ipv4Header *ipv4 = (struct Ipv4Header *) buff;
+    struct Ipv4Header *ipv4 = (struct Ipv4Header *) buf;
     memset(ipv4, 0x00, IPV4HDRSIZE);
     ipv4->version = IPV4VERSION;
     ipv4->ihl = ihl;
@@ -149,10 +155,10 @@ struct Ipv4Header *injects_ipv4_header(unsigned char *buff, struct netaddr_ip *s
 }
 
 unsigned short ipv4_checksum(struct Ipv4Header *ipHeader) {
-    unsigned short *buff = (unsigned short *) ipHeader;
+    unsigned short *buf = (unsigned short *) ipHeader;
     ipHeader->checksum = 0;
     register unsigned int sum = 0;
-    for (int i = 0; i < IPV4HDRSIZE; sum += *buff++, i += 2);
+    for (int i = 0; i < IPV4HDRSIZE; sum += *buf++, i += 2);
     sum = (sum >> 16) + (sum & 0xffff);
     sum += (sum >> 16);
     return (unsigned short) ~sum;
@@ -177,7 +183,7 @@ inline void get_ipv4wildcard_mask(struct netaddr_ip *netmask, struct netaddr_ip 
 
 void increment_ipv4addr(struct netaddr_ip *ip) {
     unsigned char *byte = (unsigned char *) &ip->ip;
-    for (int i = IPV4ADDRLEN - 1; i >= 0; i--)
+    for (int i = IPV4ADDRSIZE - 1; i >= 0; i--)
         if (++byte[i] != 0x00)
             break;
 }

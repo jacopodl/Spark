@@ -1,17 +1,23 @@
 /*
-* dhcp, part of Spark.
-* Copyright (C) 2015-2016 Jacopo De Luca
-*
-* This program is free library: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (c) 2016 Jacopo De Luca
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
 */
 
 /**
@@ -65,7 +71,7 @@
 #define DHCP_RELEASE     7
 #define DHCP_INFORM      8
 
-#define DHCPPKTLEN      548
+#define DHCPPKTSIZE     548
 #define DHCP_CHADDRLEN  (16)
 #define DHCP_SNAMELEN   (64)
 #define DHCP_FILELEN    (128)
@@ -160,21 +166,21 @@ struct DhcpPacket *build_dhcp_raw(unsigned char op, unsigned char htype, unsigne
                                   struct netaddr_ip *giaddr, struct netaddr *chaddr, char *sname);
 
 /**
- * @brief Injects DHCP discover message into a buffer pointed by `buff`.
+ * @brief Injects DHCP discover message into a bufer pointed by `buf`.
  *
- * @param __OUT__buff Pointer to remote buffer.
+ * @param __OUT__buf Pointer to remote bufer.
  * @param __IN__chaddr Client hardware address.
  * @param __IN__ipreq Requested IP address, maybe NULL.
  * @param flags Flags.
  * @return The function returns the pointer to DHCP discover packet.
  */
-struct DhcpPacket *injects_dhcp_discover(unsigned char *buff, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
+struct DhcpPacket *injects_dhcp_discover(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
                                          unsigned short flags);
 
 /**
- * @brief Injects DHCP raw packet into a buffer pointed by `buff`.
+ * @brief Injects DHCP raw packet into a bufer pointed by `buf`.
  *
- * @param __OUT__buff Pointer to remote buffer.
+ * @param __OUT__buf Pointer to remote bufer.
  * @param op Opcode.
  * @param htype Hardware type Eg: Ethernet.
  * @param hlen Hardware address length.
@@ -190,28 +196,28 @@ struct DhcpPacket *injects_dhcp_discover(unsigned char *buff, struct netaddr_mac
  * @param __IN__sname Server host name.
  * @return The function returns the pointer to DHCP packet.
  */
-struct DhcpPacket *injects_dhcp_raw(unsigned char *buff, unsigned char op, unsigned char htype, unsigned char hlen,
+struct DhcpPacket *injects_dhcp_raw(unsigned char *buf, unsigned char op, unsigned char htype, unsigned char hlen,
                                     unsigned char hops, unsigned int xid, unsigned short secs, unsigned short flags,
                                     struct netaddr_ip *ciaddr, struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr,
                                     struct netaddr_ip *giaddr, struct netaddr *chaddr, char *sname);
 
 /**
- * @brief Injects DHCP release message into a buffer pointed by `buff`.
+ * @brief Injects DHCP release message into a bufer pointed by `buf`.
  *
- * @param __OUT__buff Pointer to remote buffer.
+ * @param __OUT__buf Pointer to remote bufer.
  * @param __IN__chaddr Client hardware address.
  * @param __IN__ciaddr Client IP address.
  * @param __IN__server DHCP server ip address.
  * @param flags Flags.
  * @return The function returns the pointer to DHCP release packet.
  */
-struct DhcpPacket *injects_dhcp_release(unsigned char *buff, struct netaddr_mac *chaddr, struct netaddr_ip *ciaddr,
+struct DhcpPacket *injects_dhcp_release(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ciaddr,
                                         struct netaddr_ip *server, unsigned short flags);
 
 /**
- * @brief Injects DHCP request message into a buffer pointed by `buff`.
+ * @brief Injects DHCP request message into a bufer pointed by `buf`.
  *
- * @param __OUT__buff Pointer to remote buffer.
+ * @param __OUT__buf Pointer to remote bufer.
  * @param __IN__chaddr Client hardware address.
  * @param __IN__ipreq Requested IP address.
  * @param xid Transaction ID.
@@ -219,7 +225,7 @@ struct DhcpPacket *injects_dhcp_release(unsigned char *buff, struct netaddr_mac 
  * @param flags Flags.
  * @return The function returns the pointer to DHCP request packet.
  */
-struct DhcpPacket *injects_dhcp_request(unsigned char *buff, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
+struct DhcpPacket *injects_dhcp_request(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
                                         unsigned int xid, struct netaddr_ip *siaddr, unsigned short flags);
 
 /**

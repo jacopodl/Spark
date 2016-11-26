@@ -1,48 +1,31 @@
 /*
-* icmp, part of Spark.
-* Copyright (C) 2015-2016 Jacopo De Luca
-*
-* This program is free library: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (c) 2016 Jacopo De Luca
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
 */
 
 #include <string.h>
 #include <stdlib.h>
-#include <fcntl.h>
 #include <unistd.h>
 
-#include "ipv4.h"
-#include "icmp4.h"
-
-struct IcmpHeader *build_icmp4_echo_request(unsigned short id, unsigned short seqn, unsigned short paysize,
-                                            unsigned char *payload) {
-    unsigned long size = ICMP4HDRSIZE + paysize;
-    struct IcmpHeader *icmp = (struct IcmpHeader *) malloc(size);
-    if (icmp == NULL)
-        return NULL;
-    injects_icmp4_echo_request((unsigned char *) icmp, id, seqn);
-    if (payload != NULL)
-        memcpy(icmp->data, payload, paysize);
-    else {
-        int urandom = open("/dev/urandom", O_RDONLY);
-        if (urandom == -1) {
-            free(icmp);
-            return NULL;
-        }
-        read(urandom, icmp->data, paysize);
-        close(urandom);
-    }
-    icmp->chksum = icmp4_checksum(icmp, paysize);
-    return icmp;
-}
+#include <ipv4.h>
+#include <icmp4.h>
 
 struct IcmpHeader *build_icmp4_packet(unsigned char type, unsigned char code, unsigned short paysize,
                                       unsigned char *payload) {
@@ -56,15 +39,15 @@ struct IcmpHeader *build_icmp4_packet(unsigned char type, unsigned char code, un
     return ret;
 }
 
-struct IcmpHeader *injects_icmp4_echo_request(unsigned char *buff, unsigned short id, unsigned short seqn) {
-    struct IcmpHeader *icmp = injects_icmp4_header(buff, ICMPTY_ECHO_REQUEST, 0);
+struct IcmpHeader *injects_icmp4_echo_request(unsigned char *buf, unsigned short id, unsigned short seqn) {
+    struct IcmpHeader *icmp = injects_icmp4_header(buf, ICMPTY_ECHO_REQUEST, 0);
     icmp->echo.id = htons(id);
     icmp->echo.sqn = htons(seqn);
     return icmp;
 }
 
-struct IcmpHeader *injects_icmp4_header(unsigned char *buff, unsigned char type, unsigned char code) {
-    struct IcmpHeader *ret = (struct IcmpHeader *) buff;
+struct IcmpHeader *injects_icmp4_header(unsigned char *buf, unsigned char type, unsigned char code) {
+    struct IcmpHeader *ret = (struct IcmpHeader *) buf;
     memset(ret, 0x00, ICMP4HDRSIZE);
     ret->type = type;
     ret->code = code;

@@ -1,17 +1,23 @@
 /*
-* udp, part of Spark.
-* Copyright (C) 2015-2016 Jacopo De Luca
-*
-* This program is free library: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (c) 2016 Jacopo De Luca
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
 */
 
 /**
@@ -26,7 +32,6 @@
 
 #define UDPHDRSIZE  8                                           // Header size
 #define UDPMINSIZE  (UDPHDRSIZE + 0)                            // UDP min len
-#define UDP4MAXSIZE (ETHMAXPAYL - (IPV4HDRSIZE + UDPHDRSIZE))   // UDP over IPv4 max len
 
 /// @brief This structure rapresents an UDP packet.
 struct UdpHeader {
@@ -45,7 +50,7 @@ struct UdpHeader {
 /**
  * @brief Built a new UDP packet.
  *
- * If `payload` is not NULL, the functions copies all byte from payload buffer in the new UDP packet.
+ * If `payload` is not NULL, the functions copies all byte from payload bufer in the new UDP packet.
  * @param srcp Source port.
  * @param dstp Destination port.
  * @param paysize Length of payload.
@@ -56,14 +61,14 @@ struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, uns
                                    unsigned char *payload);
 
 /**
- * @brief Injects UDP header into a buffer pointed by `buff`.
- * @param __OUT__buff Pointer to remote buffer.
+ * @brief Injects UDP header into a bufer pointed by `buf`.
+ * @param __OUT__buf Pointer to remote bufer.
  * @param srcp Source port.
  * @param dstp Destination port.
  * @param len Length of payload.
  * @return The function returns the pointer to UDP packet.
  */
-struct UdpHeader *injects_udp_header(unsigned char *buff, unsigned short srcp, unsigned short dstp, unsigned short len);
+struct UdpHeader *injects_udp_header(unsigned char *buf, unsigned short srcp, unsigned short dstp, unsigned short len);
 
 /**
  * @brief Computes the UDP checksum.

@@ -1,27 +1,33 @@
 /*
-* dhcp, part of Spark.
-* Copyright (C) 2015-2016 Jacopo De Luca
-*
-* This program is free library: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (c) 2016 Jacopo De Luca
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
 */
 
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
-#include "datatype.h"
-#include "ethernet.h"
-#include "ipv4.h"
-#include "dhcp.h"
+#include <datatype.h>
+#include <ethernet.h>
+#include <ipv4.h>
+#include <dhcp.h>
 
 bool dhcp_append_option(struct DhcpPacket *dhcpPkt, unsigned char op, unsigned char len, unsigned char *payload) {
     int i = 0;
@@ -41,10 +47,10 @@ inline bool dhcp_type_equals(struct DhcpPacket *dhcpPkt, unsigned char type) {
 }
 
 unsigned int dhcp_get_option_uint(struct DhcpPacket *dhcpPkt, unsigned char option) {
-    unsigned char *buffopt = dhcpPkt->options;
-    for (unsigned int i = 0; i < DHCP_OPTLEN && buffopt[i] != 0xFF; i += buffopt[i + 1] + 2)
-        if (buffopt[i] == option)
-            return *((unsigned int *) (buffopt + i + 2));
+    unsigned char *bufopt = dhcpPkt->options;
+    for (unsigned int i = 0; i < DHCP_OPTLEN && bufopt[i] != 0xFF; i += bufopt[i + 1] + 2)
+        if (bufopt[i] == option)
+            return *((unsigned int *) (bufopt + i + 2));
     return 0;
 }
 
@@ -53,17 +59,17 @@ struct DhcpPacket *build_dhcp_raw(unsigned char op, unsigned char htype, unsigne
                                   unsigned short secs, unsigned short flags, struct netaddr_ip *ciaddr,
                                   struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr, struct netaddr_ip *giaddr,
                                   struct netaddr *chaddr, char *sname) {
-    struct DhcpPacket *dhcpPkt = (struct DhcpPacket *) malloc(DHCPPKTLEN);
+    struct DhcpPacket *dhcpPkt = (struct DhcpPacket *) malloc(DHCPPKTSIZE);
     if (dhcpPkt == NULL)
         return NULL;
     return injects_dhcp_raw((unsigned char *) dhcpPkt, op, htype, hlen, hops, xid, secs, flags, ciaddr, yiaddr, siaddr,
                             giaddr, chaddr, sname);
 }
 
-struct DhcpPacket *injects_dhcp_discover(unsigned char *buff, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
+struct DhcpPacket *injects_dhcp_discover(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
                                          unsigned short flags) {
 
-    struct DhcpPacket *dhcpPkt = injects_dhcp_raw(buff, DHCP_OP_BOOT_REQUEST, DHCP_HTYPE_ETHER, ETHHWASIZE, 0,
+    struct DhcpPacket *dhcpPkt = injects_dhcp_raw(buf, DHCP_OP_BOOT_REQUEST, DHCP_HTYPE_ETHER, ETHHWASIZE, 0,
                                                   dhcp_mkxid(), 0, flags, NULL, NULL, NULL, NULL,
                                                   (struct netaddr *) chaddr, NULL);
     int optoff = 0;
@@ -73,24 +79,24 @@ struct DhcpPacket *injects_dhcp_discover(unsigned char *buff, struct netaddr_mac
     dhcpPkt->options[optoff++] = DHCP_DISCOVER;
     dhcpPkt->options[optoff] = 0xFF;
 
-    unsigned char buff_client_id[ETHHWASIZE + 1];
-    buff_client_id[0] = DHCP_HTYPE_ETHER;
-    memcpy(buff_client_id + 1, chaddr->mac, ETHHWASIZE);
+    unsigned char buf_client_id[ETHHWASIZE + 1];
+    buf_client_id[0] = DHCP_HTYPE_ETHER;
+    memcpy(buf_client_id + 1, chaddr->mac, ETHHWASIZE);
 
     if (ipreq != NULL)
-        dhcp_append_option(dhcpPkt, DHCP_REQUESTED_ADDRESS, IPV4ADDRLEN, (unsigned char *) &(ipreq->ip));
-    unsigned char buff_parameter_request[] = {DHCP_REQ_SUBMASK, DHCP_REQ_ROUTERS, DHCP_REQ_DOMAIN_NAME, DHCP_REQ_DNS};
-    dhcp_append_option(dhcpPkt, DHCP_PARAMETER_REQUEST_LIST, 0x04, buff_parameter_request);
+        dhcp_append_option(dhcpPkt, DHCP_REQUESTED_ADDRESS, IPV4ADDRSIZE, (unsigned char *) &(ipreq->ip));
+    unsigned char buf_parameter_request[] = {DHCP_REQ_SUBMASK, DHCP_REQ_ROUTERS, DHCP_REQ_DOMAIN_NAME, DHCP_REQ_DNS};
+    dhcp_append_option(dhcpPkt, DHCP_PARAMETER_REQUEST_LIST, 0x04, buf_parameter_request);
     return dhcpPkt;
 }
 
-struct DhcpPacket *injects_dhcp_raw(unsigned char *buff, unsigned char op, unsigned char htype, unsigned char hlen,
+struct DhcpPacket *injects_dhcp_raw(unsigned char *buf, unsigned char op, unsigned char htype, unsigned char hlen,
                                     unsigned char hops, unsigned int xid,
                                     unsigned short secs, unsigned short flags, struct netaddr_ip *ciaddr,
                                     struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr, struct netaddr_ip *giaddr,
                                     struct netaddr *chaddr, char *sname) {
-    struct DhcpPacket *dhcpPkt = (struct DhcpPacket *) buff;
-    memset(dhcpPkt, 0x00, DHCPPKTLEN);
+    struct DhcpPacket *dhcpPkt = (struct DhcpPacket *) buf;
+    memset(dhcpPkt, 0x00, DHCPPKTSIZE);
     dhcpPkt->op = op;
     dhcpPkt->htype = htype;
     dhcpPkt->hlen = hlen;
@@ -115,9 +121,9 @@ struct DhcpPacket *injects_dhcp_raw(unsigned char *buff, unsigned char op, unsig
     return dhcpPkt;
 }
 
-struct DhcpPacket *injects_dhcp_release(unsigned char *buff, struct netaddr_mac *chaddr, struct netaddr_ip *ciaddr,
+struct DhcpPacket *injects_dhcp_release(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ciaddr,
                                         struct netaddr_ip *server, unsigned short flags) {
-    struct DhcpPacket *dhcpPkt = injects_dhcp_raw(buff, DHCP_OP_BOOT_REQUEST, DHCP_HTYPE_ETHER, ETHHWASIZE, 0,
+    struct DhcpPacket *dhcpPkt = injects_dhcp_raw(buf, DHCP_OP_BOOT_REQUEST, DHCP_HTYPE_ETHER, ETHHWASIZE, 0,
                                                   dhcp_mkxid(), 0, flags, ciaddr, NULL, NULL, NULL,
                                                   (struct netaddr *) chaddr, NULL);
     int optoff = 0;
@@ -126,14 +132,14 @@ struct DhcpPacket *injects_dhcp_release(unsigned char *buff, struct netaddr_mac 
     dhcpPkt->options[(optoff)++] = DHCP_RELEASE;
     dhcpPkt->options[(optoff)] = 0xFF;
 
-    dhcp_append_option(dhcpPkt, DHCP_SERVER_IDENTIFIER, IPV4ADDRLEN, (unsigned char *) &server->ip);
+    dhcp_append_option(dhcpPkt, DHCP_SERVER_IDENTIFIER, IPV4ADDRSIZE, (unsigned char *) &server->ip);
     return dhcpPkt;
 }
 
-struct DhcpPacket *injects_dhcp_request(unsigned char *buff, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
+struct DhcpPacket *injects_dhcp_request(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
                                         unsigned int xid, struct netaddr_ip *siaddr,
                                         unsigned short flags) {
-    struct DhcpPacket *dhcpPkt = injects_dhcp_raw(buff, DHCP_OP_BOOT_REQUEST, DHCP_HTYPE_ETHER, ETHHWASIZE, 0, xid, 0,
+    struct DhcpPacket *dhcpPkt = injects_dhcp_raw(buf, DHCP_OP_BOOT_REQUEST, DHCP_HTYPE_ETHER, ETHHWASIZE, 0, xid, 0,
                                                   flags, NULL, NULL, siaddr, NULL, (struct netaddr *) chaddr, NULL);
     int optoff = 0;
     dhcpPkt->options[(optoff)++] = DHCP_MESSAGE_TYPE;
@@ -141,8 +147,8 @@ struct DhcpPacket *injects_dhcp_request(unsigned char *buff, struct netaddr_mac 
     dhcpPkt->options[(optoff)++] = DHCP_REQUEST;
     dhcpPkt->options[(optoff)] = 0xFF;
 
-    dhcp_append_option(dhcpPkt, DHCP_SERVER_IDENTIFIER, IPV4ADDRLEN, (unsigned char *) &siaddr->ip);
-    dhcp_append_option(dhcpPkt, DHCP_REQUESTED_ADDRESS, IPV4ADDRLEN, (unsigned char *) &ipreq->ip);
+    dhcp_append_option(dhcpPkt, DHCP_SERVER_IDENTIFIER, IPV4ADDRSIZE, (unsigned char *) &siaddr->ip);
+    dhcp_append_option(dhcpPkt, DHCP_REQUESTED_ADDRESS, IPV4ADDRSIZE, (unsigned char *) &ipreq->ip);
     return dhcpPkt;
 }
 
@@ -152,39 +158,39 @@ unsigned char dhcp_get_type(struct DhcpPacket *dhcp) {
 
 unsigned char *dhcp_get_options(struct DhcpPacket *dhcpPkt, unsigned int *len) {
     *len = 0;
-    unsigned char *buffopt = dhcpPkt->options;
+    unsigned char *bufopt = dhcpPkt->options;
     unsigned char *olist = NULL;
-    for (unsigned int i = 0; i < DHCP_OPTLEN && buffopt[i] != 0xFF; i += buffopt[i + 1] + 2) {
+    for (unsigned int i = 0; i < DHCP_OPTLEN && bufopt[i] != 0xFF; i += bufopt[i + 1] + 2) {
         unsigned char *tmp = (unsigned char *) realloc(olist, ++(*len));
         if (tmp == NULL) {
             free(olist);
             return NULL;
         }
         olist = tmp;
-        olist[(*len) - 1] = buffopt[i];
+        olist[(*len) - 1] = bufopt[i];
     }
     return olist;
 }
 
 unsigned char dhcp_get_option_uchar(struct DhcpPacket *dhcpPkt, unsigned char option) {
-    unsigned char *buffopt = dhcpPkt->options;
-    for (unsigned int i = 0; i < DHCP_OPTLEN && buffopt[i] != 0xFF; i += buffopt[i + 1] + 2)
-        if (buffopt[i] == option)
-            return buffopt[i + 2];
+    unsigned char *bufopt = dhcpPkt->options;
+    for (unsigned int i = 0; i < DHCP_OPTLEN && bufopt[i] != 0xFF; i += bufopt[i + 1] + 2)
+        if (bufopt[i] == option)
+            return bufopt[i + 2];
     return 0;
 }
 
 unsigned char *dhcp_get_option_value(struct DhcpPacket *dhcpPkt, unsigned char option, unsigned int *len) {
-    unsigned char *buffopt = dhcpPkt->options;
+    unsigned char *bufopt = dhcpPkt->options;
     unsigned char *data = NULL;
     *len = 0;
-    for (unsigned int i = 0; i < DHCP_OPTLEN && buffopt[i] != 0xFF; i += buffopt[i + 1] + 2) {
-        if (buffopt[i] == option) {
-            *len = buffopt[i + 1];
+    for (unsigned int i = 0; i < DHCP_OPTLEN && bufopt[i] != 0xFF; i += bufopt[i + 1] + 2) {
+        if (bufopt[i] == option) {
+            *len = bufopt[i + 1];
             if (*len > 0) {
-                data = (unsigned char *) malloc(buffopt[i + 1]);
+                data = (unsigned char *) malloc(bufopt[i + 1]);
                 if (data != NULL)
-                    memcpy(data, (buffopt + i + 2), buffopt[i + 1]);
+                    memcpy(data, (bufopt + i + 2), bufopt[i + 1]);
             }
             break;
         }

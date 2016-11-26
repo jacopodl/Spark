@@ -1,22 +1,28 @@
 /*
-* arp, part of Spark.
-* Copyright (C) 2015-2016 Jacopo De Luca
-*
-* This program is free library: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (c) 2016 Jacopo De Luca
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
 */
 
 /**
  * @file arp.h
- * @brief Provides useful functions for build and manage ARP packets, also contains a micro implementation of ARP resolver.
+ * @brief Provides useful functions for build and manage ARP packets.
  */
 
 #ifndef SPARK_ARP_H
@@ -46,13 +52,8 @@
 #define ARPOP_REVREQ    3
 #define ARPOP_REVREP    4
 
-#define ARPHDRSIZE          8
-#define ARPETHIPLEN    (ARPHDRSIZE + ((ETHHWASIZE+IPV4ADDRLEN)*2))
-
-#define ARPRESOLVER_ATTEMPTS       3
-#define ARPRESOLVER_PACKETS        1500
-#define ARPRESOLVER_TIMEOUT_SEC    1
-#define ARPRESOLVER_TIMEOUT_USEC   (500 * 1000)
+#define ARPHDRSIZE      8
+#define ARPETHIPSIZE    (ARPHDRSIZE + ((ETHHWASIZE+IPV4ADDRSIZE)*2))
 
 /// @brief This structure rapresents an ARP packet.
 struct ArpPacket {
@@ -86,8 +87,8 @@ struct ArpPacket *build_arp_packet(unsigned char hwalen, unsigned char pralen, u
                                    struct netaddr *dpraddr);
 
 /**
- * @brief Injects generic ARP packet into a buffer pointed by `buff`.
- * @param __OUT__buff Pointer to remote buffer.
+ * @brief Injects generic ARP packet into a bufer pointed by `buf`.
+ * @param __OUT__buf Pointer to remote bufer.
  * @param hwlen Length of a hardware address.
  * @param pralen Length of addresses used in the upper layer protocol.
  * @param opcode Specifies the operation that the sender is performing.
@@ -97,46 +98,33 @@ struct ArpPacket *build_arp_packet(unsigned char hwalen, unsigned char pralen, u
  * @param __IN__dpraddr Target protocol address.
  * @return The function returns the pointer to generic ARP packet.
  */
-struct ArpPacket *injects_arp_packet(unsigned char *buff, unsigned char hwalen, unsigned char pralen,
+struct ArpPacket *injects_arp_packet(unsigned char *buf, unsigned char hwalen, unsigned char pralen,
                                      unsigned short opcode, struct netaddr *shwaddr, struct netaddr *spraddr,
                                      struct netaddr *dhwaddr, struct netaddr *dpraddr);
 
 /**
- * @brief Injects ARP replay packet into a buffer pointed by `buff`.
- * @param __OUT__buff Pointer to remote buffer.
+ * @brief Injects ARP replay packet into a bufer pointed by `buf`.
+ * @param __OUT__buf Pointer to remote bufer.
  * @param __IN__shwaddr Sender hardware address.
  * @param __IN__spraddr Sender protocol address.
  * @param __IN__dhwaddr Target hardware address.
  * @param __IN__dpraddr Target protocol address.
  * @return The function returns the pointer to ARP replay packet.
  */
-struct ArpPacket *injects_arp_reply(unsigned char *buff, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
+struct ArpPacket *injects_arp_reply(unsigned char *buf, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
                                     struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr);
 
 /**
- * @brief Injects ARP request packet into a buffer pointed by `buff`.
- * @param __OUT__buff Pointer to remote buffer.
+ * @brief Injects ARP request packet into a bufer pointed by `buf`.
+ * @param __OUT__buf Pointer to remote bufer.
  * @param __IN__shwaddr Sender hardware address.
  * @param __IN__spraddr Sender protocol address.
  * @param __IN__dhwaddr Target hardware address.
  * @param __IN__dpraddr Target protocol address.
  * @return The function returns the pointer to ARP request packet.
  */
-struct ArpPacket *injects_arp_request(unsigned char *buff, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
+struct ArpPacket *injects_arp_request(unsigned char *buf, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
                                       struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr);
-
-/**
- * @brief Obtains MAC address of remote device.
- * @param __IN__llo Pointer to llSockInfo structure which handles the active raw socket.
- * @param __IN__shwaddr Sender mac address.
- * @param __IN__spraddr Sender ip address.
- * @param __OUT__dhwaddr Target mac address.
- * @param __IN__dpraddr Set target ip address.
- * @return The function returns 1 if the ARP request was successful, otherwise, 0 is  returned.
- * On error -1 is returned and errno set to indicate the error.
- */
-int arp_resolver(struct llSockInfo *llsi, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
-                 struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr);
 
 /**
  * @brief Obtains dest IP address from ArpPacket.
