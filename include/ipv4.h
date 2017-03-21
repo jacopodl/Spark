@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jacopo De Luca
+ * Copyright (c) 2016-2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -87,6 +87,14 @@ bool ipv4cmp(struct netaddr_ip *ip1, struct netaddr_ip *ip2);
  * @return Function returns true if is a broadcast address, false otherwise.
  */
 bool isbcast_ipv4(struct netaddr_ip *ip);
+
+/**
+ * @brief Checks if is a broadcast IPv4 address.
+ * @param ip Pointer to netaddr_ip structure contains ip address.
+ * @param netmask Pointer to netaddr_ip structure contains netmask address.
+ * @return Function returns true if is a broadcast address, false otherwise.
+ */
+bool isbcast2_ipv4(struct netaddr_ip *ip, struct netaddr_ip *netmask);
 
 /**
  * @brief Checks if is a empty IPv4 address (All byte are zero!).

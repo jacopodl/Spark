@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jacopo De Luca
+ * Copyright (c) 2016-2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,6 +40,10 @@ inline bool ipv4cmp(struct netaddr_ip *ip1, struct netaddr_ip *ip2) {
 inline bool isbcast_ipv4(struct netaddr_ip *ip) {
     unsigned char *byte = (((unsigned char *) (&ip->ip)));
     return (byte[0] == 0xFF) && (byte[1] == 0xFF) && (byte[2] == 0xFF) && (byte[3] == 0xFF);
+}
+
+inline bool isbcast2_ipv4(struct netaddr_ip *ip, struct netaddr_ip *netmask) {
+    return ip->ip == ((~netmask->ip) | ip->ip);
 }
 
 inline bool isempty_ipv4(struct netaddr_ip *ip) {
