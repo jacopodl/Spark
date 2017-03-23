@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jacopo De Luca
+ * Copyright (c) 2016-2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -170,6 +170,7 @@ int __ssock_init_socket(struct SpkSock *ssock) {
     if ((ssock->sfd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL))) < 0) {
         switch (errno) {
             case EACCES:
+            case EPERM:
                 return SPKSOCK_EPERM;
             case ENOBUFS:
             case ENOMEM:
@@ -184,13 +185,6 @@ int __ssock_init_socket(struct SpkSock *ssock) {
 
     strcpy(ifr.ifr_name, ssock->iface_name);
 
-    if (ioctl(ssock->sfd, SIOCGIFHWADDR, &ifr) < 0) {
-        close(ssock->sfd);
-        return SPKSOCK_ERROR;
-    }
-
-    __linux_map_dlt(ssock, ifr.ifr_hwaddr.sa_family);
-
     // IFACE BIND
     sll.sll_family = AF_PACKET;
     sll.sll_ifindex = __linux_get_ifindex(ssock);
@@ -200,6 +194,13 @@ int __ssock_init_socket(struct SpkSock *ssock) {
         close(ssock->sfd);
         return SPKSOCK_ENODEV;
     }
+
+    if (ioctl(ssock->sfd, SIOCGIFHWADDR, &ifr) < 0) {
+        close(ssock->sfd);
+        return SPKSOCK_ERROR;
+    }
+
+    __linux_map_dlt(ssock, ifr.ifr_hwaddr.sa_family);
 
     memcpy(ssock->iaddr.mac, ifr.ifr_hwaddr.sa_data, ETHHWASIZE);
     ssock->direction = SPKDIR_BOTH;
