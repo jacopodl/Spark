@@ -141,6 +141,8 @@ static int spksock_linux_write(struct SpkSock *ssock, unsigned char *buf, unsign
 
     if (byte < 0) {
         switch (errno) {
+            case EMSGSIZE:
+                return SPKSOCK_ESIZE;
             case EINTR:
                 return SPKSOCK_EINTR;
             default:

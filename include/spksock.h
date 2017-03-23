@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jacopo De Luca
+ * Copyright (c) 2016-2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -41,6 +41,7 @@
 #define SPKSOCK_EPERM       -5
 #define SPKSOCK_ENODEV      -6
 #define SPKSOCK_EINTR       -7
+#define SPKSOCK_ESIZE       -8
 
 /// @brief Define packets direction.
 enum SpkDirection {

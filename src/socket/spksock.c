@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jacopo De Luca
+ * Copyright (c) 2016-2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,7 +40,8 @@ static const struct ErrorInfo __spk_error_table[] =
                 {SPKSOCK_ENOMEM,     "Out of memory"},
                 {SPKSOCK_EPERM,      "Permission denied"},
                 {SPKSOCK_ENODEV,     "No such device"},
-                {SPKSOCK_EINTR,      "Interrupted system call"}
+                {SPKSOCK_EINTR,      "Interrupted system call"},
+                {SPKSOCK_ESIZE,      "Message too large"}
         };
 
 char *spark_strerror(int error) {
