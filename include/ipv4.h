@@ -135,13 +135,15 @@ bool get_device_ipv4(char *iface_name, struct netaddr_ip *ip);
  */
 bool get_device_netmask(char *iface_name, struct netaddr_ip *netmask);
 
+#ifdef USE_DEPRECATED
+
 /**
  * @brief Parse string contains a ipv4 address in the form `000.000.000.000`.
  * @param ipstr String contains ipv4 address in the form `000.000.000.000`.
- * @param __OUT__ip Pointer to netaddr_ip structure.
+ * @param __OUT__ip Pointer to int(32bit).
  * @return Function returns true if the address has been converted, false otherwise.
  */
-bool parse_ipv4addr(char *ipstr, unsigned int *ip);
+bool parse_ipv4addr(char *ipstr, unsigned int *ip) __attribute__((deprecated));
 
 /**
  * @brief Obtains ipv4 address in the form `000.000.000.000`.
@@ -149,7 +151,7 @@ bool parse_ipv4addr(char *ipstr, unsigned int *ip);
  * @param _static Not allocate new memory, the result will be saved in internal static bufer.
  * @return Function returns string contains ip address.
  */
-char *get_stripv4(unsigned int *ip, bool _static);
+char *get_stripv4(unsigned int *ip, bool _static) __attribute__((deprecated));
 
 /**
  * @brief Obtains ipv4 address in the form `000.000.000.000`.
@@ -157,7 +159,35 @@ char *get_stripv4(unsigned int *ip, bool _static);
  * @param __OUT__ipstr Pointer to string of dimension IPV4STRLEN.
  * @return Function returns string contains ip address.
  */
-char *get_stripv4_r(unsigned int *ip, char *ipstr);
+char *get_stripv4_r(unsigned int *ip, char *ipstr) __attribute__((deprecated));
+
+#else
+
+/**
+ * @brief Parse string contains a ipv4 address in the form `000.000.000.000`.
+ * @param ipstr String contains ipv4 address in the form `000.000.000.000`.
+ * @param __OUT__ip Pointer to netaddr_ip structure.
+ * @return Function returns true if the address has been converted, false otherwise.
+ */
+bool parse_ipv4addr(char *ipstr, struct netaddr_ip *ip);
+
+/**
+ * @brief Obtains ipv4 address in the form `000.000.000.000`.
+ * @param __IN__ip Pointer to netaddr_ip structure.
+ * @param _static Not allocate new memory, the result will be saved in internal static bufer.
+ * @return Function returns string contains ip address.
+ */
+char *get_stripv4(struct netaddr_ip *ip, bool _static);
+
+/**
+ * @brief Obtains ipv4 address in the form `000.000.000.000`.
+ * @param __IN__ip Pointer to netaddr_ip structure.
+ * @param __OUT__ipstr Pointer to string of dimension IPV4STRLEN.
+ * @return Function returns string contains ip address.
+ */
+char *get_stripv4_r(struct netaddr_ip *ip, char *ipstr);
+
+#endif
 
 /**
  * @brief Built a new IPv4 packet.
