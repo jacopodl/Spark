@@ -4,7 +4,7 @@
 .. image:: https://img.shields.io/badge/license-MIT-blue.svg
    :alt: MIT License
 
-.. image:: https://img.shields.io/badge/version-2.2.0-green.svg
+.. image:: https://img.shields.io/badge/version-2.4.0-green.svg
 
 .. image:: https://travis-ci.org/jacopodl/Spark.svg?branch=master
 

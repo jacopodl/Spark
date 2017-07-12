@@ -50,6 +50,20 @@ inline bool isempty_ipv4(struct netaddr_ip *ip) {
     return ip->ip == 0x00;
 }
 
+bool isgreater_ipv4(struct netaddr_ip *ip1, struct netaddr_ip *ip2) {
+    return ((ip1->ip & 0xFF) << 24 | (ip1->ip >> 8 & 0xFF) << 16 | (ip1->ip >> 16 & 0xFF) << 8 |
+            (ip1->ip >> 24 & 0xFF)) >
+           ((ip2->ip & 0xFF) << 24 | (ip2->ip >> 8 & 0xFF) << 16 | (ip2->ip >> 16 & 0xFF) << 8 |
+            (ip2->ip >> 24 & 0xFF));
+}
+
+bool isless_ipv4(struct netaddr_ip *ip1, struct netaddr_ip *ip2) {
+    return ((ip1->ip & 0xFF) << 24 | (ip1->ip >> 8 & 0xFF) << 16 | (ip1->ip >> 16 & 0xFF) << 8 |
+            (ip1->ip >> 24 & 0xFF)) <
+           ((ip2->ip & 0xFF) << 24 | (ip2->ip >> 8 & 0xFF) << 16 | (ip2->ip >> 16 & 0xFF) << 8 |
+            (ip2->ip >> 24 & 0xFF));
+}
+
 inline bool ismcast_ipv4(struct netaddr_ip *ip) {
     unsigned char fbyte = *(((unsigned char *) (&ip->ip)));
     return ((fbyte >= 0xE0) && (fbyte <= 0xEF));

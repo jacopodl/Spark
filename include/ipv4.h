@@ -104,6 +104,22 @@ bool isbcast2_ipv4(struct netaddr_ip *ip, struct netaddr_ip *netmask);
 bool isempty_ipv4(struct netaddr_ip *ip);
 
 /**
+ * @brief Checks if ip1 is greater than ip2.
+ * @param ip1 Pointer to netaddr_ip structure contains ip address.
+ * @param ip2 Pointer to netaddr_ip structure contains ip address.
+ * @return Function returns true if ip1 is greater than ip2, false otherwise.
+ */
+bool isgreater_ipv4(struct netaddr_ip *ip1, struct netaddr_ip *ip2);
+
+/**
+ * @brief Checks if ip1 is less than ip2.
+ * @param ip1 Pointer to netaddr_ip structure contains ip address.
+ * @param ip2 Pointer to netaddr_ip structure contains ip address.
+ * @return Function returns true if ip1 is less than ip2, false otherwise.
+ */
+bool isless_ipv4(struct netaddr_ip *ip1, struct netaddr_ip *ip2);
+
+/**
  * @brief Checks if is a multicast(class D) IPv4 address.
  * @param ip Pointer to netaddr_ip structure contains ip address.
  * @return Function returns true if is a class D address, false otherwise.
