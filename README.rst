@@ -1,11 +1,10 @@
 .. image:: https://img.shields.io/badge/Language-C-orange.svg
    :alt: Language C
-
+   
 .. image:: https://img.shields.io/badge/license-MIT-blue.svg
    :alt: MIT License
-
+   
 .. image:: https://img.shields.io/badge/version-2.4.0-green.svg
-
 .. image:: https://travis-ci.org/jacopodl/Spark.svg?branch=master
 
 =====
@@ -35,7 +34,7 @@ Check out the latest version with::
 
   $ git clone http://github.com/jacopodl/spark
 
-or download .zip from `here <https://github.com/jacopodl/Spark/archive/master.zip>`_.
+or download .zip from `here <https://github.com/jacopodl/Spark/releases/>`_.
 
 Building library:
 -----------------
@@ -59,7 +58,7 @@ License
 =======
     MIT License
 
-    Copyright (c) 2016 Jacopo De Luca
+    Copyright (c) 2016-2017 Jacopo De Luca
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
