@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jacopo De Luca
+ * Copyright (c) 2016 - 2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,6 +33,7 @@
 #include <linux/if_packet.h>
 
 #include <ethernet.h>
+#include <spkerr.h>
 #include <netdevice.h>
 
 int netdev_burnedin_mac(char *iface_name, struct netaddr_mac *mac) {
@@ -53,17 +54,17 @@ int netdev_burnedin_mac(char *iface_name, struct netaddr_mac *mac) {
     strcpy(req.ifr_name, iface_name);
 
     if ((epa = (struct ethtool_perm_addr *) malloc(sizeof(struct ethtool_perm_addr) + ETHHWASIZE)) == NULL)
-        return NETD_FAILURE;
+        return SPKERR_ERROR;
 
     epa->cmd = ETHTOOL_GPERMADDR;
     epa->size = ETHHWASIZE;
     req.ifr_data = (caddr_t) epa;
 
-    ret = NETD_FAILURE;
+    ret = SPKERR_ERROR;
     if ((ctl_sock = socket(AF_INET, SOCK_DGRAM, 0)) >= 0) {
         if ((ioctl(ctl_sock, SIOCETHTOOL, &req) >= 0)) {
             memcpy(mac->mac, epa->data, ETHHWASIZE);
-            ret = NETD_SUCCESS;
+            ret = SPKERR_SUCCESS;
         }
         close(ctl_sock);
     }
@@ -78,12 +79,12 @@ int netdev_get_flags(char *iface_name, short *flags) {
 
     memset(&req, 0x00, sizeof(struct ifreq));
     strcpy(req.ifr_name, iface_name);
-    ret = NETD_FAILURE;
+    ret = SPKERR_ERROR;
 
     if ((ctl_sock = socket(AF_INET, SOCK_DGRAM, 0)) >= 0) {
         if (ioctl(ctl_sock, SIOCGIFFLAGS, &req) >= 0) {
             *flags = req.ifr_flags;
-            ret = NETD_SUCCESS;
+            ret = SPKERR_SUCCESS;
         }
         close(ctl_sock);
     }
@@ -97,12 +98,12 @@ int netdev_get_mac(char *iface_name, struct netaddr_mac *mac) {
 
     memset(&req, 0x00, sizeof(struct ifreq));
     strcpy(req.ifr_name, iface_name);
-    ret = NETD_FAILURE;
+    ret = SPKERR_ERROR;
 
     if ((ctl_sock = socket(AF_INET, SOCK_DGRAM, 0)) >= 0) {
         if (ioctl(ctl_sock, SIOCGIFHWADDR, &req) >= 0) {
             memcpy(mac->mac, &req.ifr_hwaddr.sa_data, ETHHWASIZE);
-            ret = NETD_SUCCESS;
+            ret = SPKERR_SUCCESS;
         }
         close(ctl_sock);
     }
@@ -118,10 +119,10 @@ int netdev_set_flags(char *iface_name, short flags) {
     strcpy(req.ifr_name, iface_name);
     req.ifr_flags = flags;
 
-    ret = NETD_FAILURE;
+    ret = SPKERR_ERROR;
     if ((ctl_sock = socket(AF_INET, SOCK_DGRAM, 0)) >= 0) {
         if (ioctl(ctl_sock, SIOCSIFFLAGS, &req) >= 0)
-            ret = NETD_SUCCESS;
+            ret = SPKERR_SUCCESS;
         close(ctl_sock);
     }
     return ret;
@@ -140,13 +141,13 @@ int netdev_set_mac(char *iface_name, struct netaddr_mac *mac) {
 
     memset(&req, 0x00, sizeof(struct ifreq));
     strcpy(req.ifr_name, iface_name);
-    ret = NETD_FAILURE;
+    ret = SPKERR_ERROR;
 
     if ((ctl_sock = socket(AF_INET, SOCK_DGRAM, 0)) >= 0) {
         memcpy(&req.ifr_hwaddr.sa_data, mac->mac, ETHHWASIZE);
         req.ifr_hwaddr.sa_family = (unsigned short) 0x01;
         if (ioctl(ctl_sock, SIOCSIFHWADDR, &req) >= 0)
-            ret = NETD_SUCCESS;
+            ret = SPKERR_SUCCESS;
         close(ctl_sock);
     }
     return ret;
@@ -160,7 +161,7 @@ struct NetDevList *netdev_get_iflist(unsigned int filter) {
     struct sockaddr_ll *sll = NULL;
 
     if (getifaddrs(&ifa) < 0)
-        return NETD_FAILURE;
+        return NULL;
 
     filter = (filter == 0 ? ~filter : filter);
     for (curr = ifa; curr != NULL; curr = curr->ifa_next) {

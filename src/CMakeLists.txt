@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(LibSpark)
 
 set(LIB_FILE
+        spkerr.c
         socket/spksock.c
         ethernet.c
         arp.c

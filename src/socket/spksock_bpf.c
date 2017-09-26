@@ -48,9 +48,9 @@ static int spksock_bpf_read(struct SpkSock *ssock, unsigned char *buf, struct Sp
                 case EAGAIN:
                     return 0;
                 case EINTR:
-                    return SPKSOCK_EINTR;
+                    return SPKERR_EINTR;
                 default:
-                    return SPKSOCK_ERROR;
+                    return SPKERR_ERROR;
             }
         }
         priv->cursor = priv->buf;
@@ -91,23 +91,23 @@ static int spksock_bpf_setdir(struct SpkSock *ssock, enum SpkDirection direction
             bpfdir = BPF_D_INOUT;
     }
     if (ioctl(ssock->sfd, BIOCSDIRECTION, &bpfdir) < 0)
-        return SPKSOCK_ERROR;
+        return SPKERR_ERROR;
     ssock->direction = direction;
-    return SPKSOCK_SUCCESS;
+    return SPKERR_SUCCESS;
 #elif defined(BIOCSSEESENT)
     switch (direction) {
             case SPKDIR_IN:
                 bpfdir = 0;
                 break;
             case SPKDIR_OUT:
-                return SPKSOCK_ENOSUPPORT;
+                return SPKERR_ENOSUPPORT;
             default:
                 bpfdir = 1;
         }
     if (ioctl(ssock->sfd, BIOCSSEESENT, &bpfdir) < 0)
-            return SPKSOCK_ERROR;
+            return SPKERR_ERROR;
     ssock->direction = direction;
-    return SPKSOCK_SUCCESS;
+    return SPKERR_SUCCESS;
 #endif
 }
 
@@ -120,8 +120,8 @@ static int spksock_bpf_setnblock(struct SpkSock *ssock, bool nonblock) {
         flags ^= O_NONBLOCK;
     }
     if (fcntl(ssock->sfd, F_SETFL, flags) < 0)
-        return SPKSOCK_ERROR;
-    return SPKSOCK_SUCCESS;
+        return SPKERR_ERROR;
+    return SPKERR_SUCCESS;
 }
 
 static int spksock_bpf_setprc(struct SpkSock *ssock, enum SpkTimesPrc prc) {
@@ -133,11 +133,11 @@ static int spksock_bpf_setprc(struct SpkSock *ssock, enum SpkTimesPrc prc) {
     else
         bpfprc = BPF_T_NANOTIME;
     if (ioctl(ssock->sfd, BIOCSTSTAMP, &bpfprc) < 0)
-        return SPKSOCK_ERROR;
+        return SPKERR_ERROR;
     ssock->tsprc = prc;
-    return SPKSOCK_SUCCESS;
+    return SPKERR_SUCCESS;
 #else
-    return SPKSOCK_ENOSUPPORT;
+    return SPKERR_ENOSUPPORT;
 #endif
 }
 
@@ -150,7 +150,7 @@ static int spksock_bpf_setpromisc(struct SpkSock *ssock, bool promisc) {
     strcpy(req.ifr_name, ssock->iface_name);
 
     if (ioctl(priv->sock, SIOCGIFFLAGS, &req) < 0)
-        return SPKSOCK_ERROR;
+        return SPKERR_ERROR;
 #if defined (__FreeBSD__)
     flags = (req.ifr_flags & 0xffff) | (req.ifr_flagshigh << 16);
 
@@ -168,8 +168,8 @@ static int spksock_bpf_setpromisc(struct SpkSock *ssock, bool promisc) {
         req.ifr_flags &= ~IFF_PROMISC;
 #endif
     if (ioctl(priv->sock, SIOCSIFFLAGS, &req) < 0)
-        return SPKSOCK_ERROR;
-    return SPKSOCK_SUCCESS;
+        return SPKERR_ERROR;
+    return SPKERR_SUCCESS;
 }
 
 static int spksock_bpf_write(struct SpkSock *ssock, unsigned char *buf, unsigned int len) {
@@ -183,9 +183,9 @@ static int spksock_bpf_write(struct SpkSock *ssock, unsigned char *buf, unsigned
     if (byte < 0) {
         switch (errno) {
             case EINTR:
-                return SPKSOCK_EINTR;
+                return SPKERR_EINTR;
             default:
-                return SPKSOCK_ERROR;
+                return SPKERR_ERROR;
         }
     }
 
@@ -204,13 +204,13 @@ int __ssock_init_socket(struct SpkSock *ssock) {
         if ((ssock->sfd = open(bpf_file, O_RDWR)) < 0) {
             switch (errno) {
                 case EACCES:
-                    return SPKSOCK_EPERM;
+                    return SPKERR_EPERM;
                 case ENOMEM:
-                    return SPKSOCK_ENOMEM;
+                    return SPKERR_ENOMEM;
                 case EBUSY:
                     break;
                 default:
-                    return SPKSOCK_ERROR;
+                    return SPKERR_ERROR;
             }
         }
 
@@ -222,7 +222,7 @@ int __ssock_init_socket(struct SpkSock *ssock) {
             if (ioctl(ssock->sfd, BIOCSETIF, &ifr) < 0)
                 break;
 
-            if (__bpf_get_hwaddr(ssock) != SPKSOCK_SUCCESS)
+            if (__bpf_get_hwaddr(ssock) != SPKERR_SUCCESS)
                 break;
 
             if (ioctl(ssock->sfd, BIOCGDLT, &ssock->lktype) < 0)
@@ -238,7 +238,7 @@ int __ssock_init_socket(struct SpkSock *ssock) {
             if ((priv = (struct SpkBpf *) calloc(1, sizeof(struct SpkBpf)))
                 == NULL) {
                 close(ssock->sfd);
-                return SPKSOCK_ENOMEM;
+                return SPKERR_ENOMEM;
             }
 
             if (ioctl(ssock->sfd, BIOCGBLEN, &priv->buflen) < 0) {
@@ -249,7 +249,7 @@ int __ssock_init_socket(struct SpkSock *ssock) {
             if ((priv->buf = malloc(priv->buflen)) == NULL) {
                 free(priv);
                 close(ssock->sfd);
-                return SPKSOCK_ENOMEM;
+                return SPKERR_ENOMEM;
             }
             priv->cursor = priv->buf;
 
@@ -269,13 +269,13 @@ int __ssock_init_socket(struct SpkSock *ssock) {
             ssock->op.setpromisc = spksock_bpf_setpromisc;
             ssock->op.write = spksock_bpf_write;
             ssock->op.finalize = spksock_bpf_finalize;
-            return SPKSOCK_SUCCESS;
+            return SPKERR_SUCCESS;
         }
     }
 
     if (ssock->sfd >= 0)
         close(ssock->sfd);
-    return SPKSOCK_ERROR;
+    return SPKERR_ERROR;
 }
 
 static void spksock_bpf_finalize(struct SpkSock *ssock) {
@@ -291,7 +291,7 @@ static int __bpf_get_hwaddr(struct SpkSock *ssock) {
     struct ifaddrs *ifa;
     struct ifaddrs *curr;
     struct sockaddr_dl *sdl;
-    int error = SPKSOCK_ERROR;
+    int error = SPKERR_ERROR;
 
     if (getifaddrs(&ifa) < 0)
         return error;
@@ -304,17 +304,17 @@ static int __bpf_get_hwaddr(struct SpkSock *ssock) {
                     case 0:
                         if ((curr->ifa_flags & IFF_LOOPBACK) == IFF_LOOPBACK) {
                             memset(ssock->iaddr.mac, 0x00, ETHHWASIZE);
-                            error = SPKSOCK_SUCCESS;
+                            error = SPKERR_SUCCESS;
                             break;
                         }
-                        error = SPKSOCK_ERROR;
+                        error = SPKERR_ERROR;
                         break;
                     case ETHHWASIZE:
                         memcpy(ssock->iaddr.mac, LLADDR(sdl), ETHHWASIZE);
-                        error = SPKSOCK_SUCCESS;
+                        error = SPKERR_SUCCESS;
                         break;
                     default:
-                        error = SPKSOCK_ERROR;
+                        error = SPKERR_ERROR;
                 }
                 freeifaddrs(ifa);
                 return error;

@@ -20,36 +20,24 @@
  * SOFTWARE.
 */
 
-#include <stdlib.h>
+#ifndef SPARK_SPKERR_H
+#define SPARK_SPKERR_H
 
-#include <ethernet.h>
-#include <spkerr.h>
-#include <netdevice.h>
+#define SPKERR_SUCCESS      0
+#define SPKERR_ERROR        -1
+#define SPKERR_ENINIT       -2
+#define SPKERR_ENOSUPPORT   -3
+#define SPKERR_ENOMEM       -4
+#define SPKERR_EPERM        -5
+#define SPKERR_ENODEV       -6
+#define SPKERR_EINTR        -7
+#define SPKERR_ESIZE        -8
 
-int netdev_burnedin_mac(char *iface_name, struct netaddr_mac *mac) {
-    return SPKERR_ENOSUPPORT;
-}
+/**
+ * @brief Returns error message.
+ * @param error Error number.
+ * @return On success, pointer to the error message will returned, otherwise returns NULL.
+ */
+char *spark_strerror(int error);
 
-int netdev_get_flags(char *iface_name, short *flags) {
-    return SPKERR_ENOSUPPORT;
-}
-
-int netdev_get_mac(char *iface_name, struct netaddr_mac *mac) {
-    return SPKERR_ENOSUPPORT;
-}
-
-int netdev_set_flags(char *iface_name, short flags) {
-    return SPKERR_ENOSUPPORT;
-}
-
-int netdev_set_mac(char *iface_name, struct netaddr_mac *mac) {
-    return SPKERR_ENOSUPPORT;
-}
-
-struct NetDevList *netdev_get_iflist(unsigned int filter) {
-    return NULL;
-}
-
-inline void netdev_iflist_cleanup(struct NetDevList *NetDevList) {
-    return;
-}
+#endif //SPARK_SPKERR_H

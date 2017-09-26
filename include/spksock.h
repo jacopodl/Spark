@@ -30,18 +30,9 @@
 
 #include <stdbool.h>
 
+#include "spkerr.h"
 #include "datatype.h"
 #include "dlt_table.h"
-
-#define SPKSOCK_SUCCESS     0
-#define SPKSOCK_ERROR       -1
-#define SPKSOCK_ENINIT      -2
-#define SPKSOCK_ENOSUPPORT  -3
-#define SPKSOCK_ENOMEM      -4
-#define SPKSOCK_EPERM       -5
-#define SPKSOCK_ENODEV      -6
-#define SPKSOCK_EINTR       -7
-#define SPKSOCK_ESIZE       -8
 
 /// @brief Define packets direction.
 enum SpkDirection {
@@ -108,13 +99,6 @@ struct SpkSock {
         void (*finalize)(struct SpkSock *);
     } op;
 };
-
-/**
- * @brief Returns error message.
- * @param error Error number.
- * @return On success, pointer to the error message will returned, otherwise returns NULL.
- */
-char *spark_strerror(int error);
 
 /**
  * @brief Returns the link type in use.

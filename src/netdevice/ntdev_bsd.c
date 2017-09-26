@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jacopo De Luca
+ * Copyright (c) 2016 - 2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,10 +31,11 @@
 #include <net/if_dl.h>
 
 #include <ethernet.h>
+#include <spkerr.h>
 #include <netdevice.h>
 
 int netdev_burnedin_mac(char *iface_name, struct netaddr_mac *mac) {
-    return NETD_ENOSUPPORT;
+    return SPKERR_ENOSUPPORT;
 }
 
 int netdev_get_flags(char *iface_name, short *flags) {
@@ -44,12 +45,12 @@ int netdev_get_flags(char *iface_name, short *flags) {
 
     memset(&req, 0x00, sizeof(struct ifreq));
     strcpy(req.ifr_name, iface_name);
-    ret = NETD_FAILURE;
+    ret = SPKERR_ERROR;
 
     if ((ctl_sock = socket(AF_INET, SOCK_DGRAM, 0)) >= 0) {
         if (ioctl(ctl_sock, SIOCGIFFLAGS, &req) >= 0) {
             *flags = req.ifr_flags;
-            ret = NETD_SUCCESS;
+            ret = SPKERR_SUCCESS;
         }
         close(ctl_sock);
     }
@@ -60,10 +61,10 @@ int netdev_get_mac(char *iface_name, struct netaddr_mac *mac) {
     struct ifaddrs *ifa;
     struct ifaddrs *curr;
     struct sockaddr_dl *sdl;
-    int error = NETD_FAILURE;
+    int error = SPKERR_ERROR;
 
     if (getifaddrs(&ifa) < 0)
-        return NETD_FAILURE;
+        return SPKERR_ERROR;
 
     for (curr = ifa; curr != NULL; curr = curr->ifa_next) {
         if (strcmp(curr->ifa_name, iface_name) == 0) {
@@ -73,17 +74,17 @@ int netdev_get_mac(char *iface_name, struct netaddr_mac *mac) {
                     case 0:
                         if ((curr->ifa_flags & IFF_LOOPBACK) == IFF_LOOPBACK) {
                             memset(mac->mac, 0x00, ETHHWASIZE);
-                            error = NETD_SUCCESS;
+                            error = SPKERR_SUCCESS;
                             break;
                         }
-                        error = NETD_FAILURE;
+                        error = SPKERR_ERROR;
                         break;
                     case ETHHWASIZE:
                         memcpy(mac->mac, LLADDR(sdl), sdl->sdl_alen);
-                        error = NETD_SUCCESS;
+                        error = SPKERR_SUCCESS;
                         break;
                     default:
-                        error = NETD_FAILURE;
+                        error = SPKERR_ERROR;
                 }
                 freeifaddrs(ifa);
                 return error;
@@ -91,7 +92,7 @@ int netdev_get_mac(char *iface_name, struct netaddr_mac *mac) {
         }
     }
     freeifaddrs(ifa);
-    return NETD_FAILURE;
+    return SPKERR_ERROR;
 }
 
 int netdev_set_flags(char *iface_name, short flags) {
@@ -103,10 +104,10 @@ int netdev_set_flags(char *iface_name, short flags) {
     strcpy(req.ifr_name, iface_name);
     req.ifr_flags = flags;
 
-    ret = NETD_FAILURE;
+    ret = SPKERR_ERROR;
     if ((ctl_sock = socket(AF_INET, SOCK_DGRAM, 0)) >= 0) {
         if (ioctl(ctl_sock, SIOCSIFFLAGS, &req) >= 0)
-            ret = NETD_SUCCESS;
+            ret = SPKERR_SUCCESS;
         close(ctl_sock);
     }
     return ret;
@@ -119,13 +120,13 @@ int netdev_set_mac(char *iface_name, struct netaddr_mac *mac) {
 
     memset(&req, 0x00, sizeof(struct ifreq));
     strcpy(req.ifr_name, iface_name);
-    ret = NETD_FAILURE;
+    ret = SPKERR_ERROR;
 
     if ((ctl_sock = socket(AF_INET, SOCK_DGRAM, 0)) >= 0) {
         memcpy(&req.ifr_addr.sa_data, mac->mac, ETHHWASIZE);
         req.ifr_addr.sa_len = ETHHWASIZE;
         if (ioctl(ctl_sock, SIOCSIFLLADDR, &req) >= 0)
-            ret = NETD_SUCCESS;
+            ret = SPKERR_SUCCESS;
         close(ctl_sock);
     }
     return ret;
@@ -139,7 +140,7 @@ struct NetDevList *netdev_get_iflist(unsigned int filter) {
     struct NetDevList *dev = NULL;
 
     if (getifaddrs(&ifa) < 0)
-        return NETD_FAILURE;
+        return SPKERR_ERROR;
 
     filter = (filter == 0 ? ~filter : filter);
     for (curr = ifa; curr != NULL; curr = curr->ifa_next) {

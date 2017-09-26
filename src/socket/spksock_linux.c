@@ -64,9 +64,9 @@ static int spksock_linux_read(struct SpkSock *ssock, unsigned char *buf, struct 
                 case EAGAIN:
                     return 0;
                 case EINTR:
-                    return SPKSOCK_EINTR;
+                    return SPKERR_EINTR;
                 default:
-                    return SPKSOCK_ERROR;
+                    return SPKERR_ERROR;
             }
         }
     } while (__linux_discards_direction(ssock, &from));
@@ -92,7 +92,7 @@ static int spksock_linux_read(struct SpkSock *ssock, unsigned char *buf, struct 
 
 static int spksock_linux_setdir(struct SpkSock *ssock, enum SpkDirection direction) {
     ssock->direction = direction;
-    return SPKSOCK_SUCCESS;
+    return SPKERR_SUCCESS;
 }
 
 static int spksock_linux_setnblock(struct SpkSock *ssock, bool nonblock) {
@@ -104,13 +104,13 @@ static int spksock_linux_setnblock(struct SpkSock *ssock, bool nonblock) {
         flags ^= O_NONBLOCK;
     }
     if (fcntl(ssock->sfd, F_SETFL, flags) < 0)
-        return SPKSOCK_ERROR;
-    return SPKSOCK_SUCCESS;
+        return SPKERR_ERROR;
+    return SPKERR_SUCCESS;
 }
 
 static int spksock_linux_setprc(struct SpkSock *ssock, enum SpkTimesPrc prc) {
     ssock->tsprc = prc;
-    return SPKSOCK_SUCCESS;
+    return SPKERR_SUCCESS;
 }
 
 static int spksock_linux_setpromisc(struct SpkSock *ssock, bool promisc) {
@@ -122,10 +122,10 @@ static int spksock_linux_setpromisc(struct SpkSock *ssock, bool promisc) {
 
     if (setsockopt(ssock->sfd, SOL_PACKET, promisc ? PACKET_ADD_MEMBERSHIP : PACKET_DROP_MEMBERSHIP, &pm,
                    sizeof(struct packet_mreq)) < 0) {
-        return SPKSOCK_ERROR;
+        return SPKERR_ERROR;
     }
 
-    return SPKSOCK_SUCCESS;
+    return SPKERR_SUCCESS;
 }
 
 static int spksock_linux_write(struct SpkSock *ssock, unsigned char *buf, unsigned int len) {
@@ -139,11 +139,11 @@ static int spksock_linux_write(struct SpkSock *ssock, unsigned char *buf, unsign
     if (byte < 0) {
         switch (errno) {
             case EMSGSIZE:
-                return SPKSOCK_ESIZE;
+                return SPKERR_ESIZE;
             case EINTR:
-                return SPKSOCK_EINTR;
+                return SPKERR_EINTR;
             default:
-                return SPKSOCK_ERROR;
+                return SPKERR_ERROR;
         }
     }
 
@@ -170,12 +170,12 @@ int __ssock_init_socket(struct SpkSock *ssock) {
         switch (errno) {
             case EACCES:
             case EPERM:
-                return SPKSOCK_EPERM;
+                return SPKERR_EPERM;
             case ENOBUFS:
             case ENOMEM:
-                return SPKSOCK_ENOMEM;
+                return SPKERR_ENOMEM;
             default:
-                return SPKSOCK_ERROR;
+                return SPKERR_ERROR;
         }
     }
 
@@ -191,12 +191,12 @@ int __ssock_init_socket(struct SpkSock *ssock) {
 
     if (bind(ssock->sfd, (struct sockaddr *) &sll, sizeof(struct sockaddr_ll)) < 0) {
         close(ssock->sfd);
-        return SPKSOCK_ENODEV;
+        return SPKERR_ENODEV;
     }
 
     if (ioctl(ssock->sfd, SIOCGIFHWADDR, &ifr) < 0) {
         close(ssock->sfd);
-        return SPKSOCK_ERROR;
+        return SPKERR_ERROR;
     }
 
     __linux_map_dlt(ssock, ifr.ifr_hwaddr.sa_family);
@@ -212,7 +212,7 @@ int __ssock_init_socket(struct SpkSock *ssock) {
     ssock->op.setpromisc = spksock_linux_setpromisc;
     ssock->op.write = spksock_linux_write;
 
-    return SPKSOCK_SUCCESS;
+    return SPKERR_SUCCESS;
 }
 
 static void spksock_linux_finalize(struct SpkSock *ssock) {

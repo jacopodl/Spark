@@ -19,37 +19,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 */
-
 #include <stdlib.h>
 
-#include <ethernet.h>
 #include <spkerr.h>
-#include <netdevice.h>
 
-int netdev_burnedin_mac(char *iface_name, struct netaddr_mac *mac) {
-    return SPKERR_ENOSUPPORT;
-}
+struct ErrorInfo {
+    int value;
+    char *msg;
+};
 
-int netdev_get_flags(char *iface_name, short *flags) {
-    return SPKERR_ENOSUPPORT;
-}
+static const struct ErrorInfo __spk_error_table[] =
+        {
+                {SPKERR_SUCCESS,    "Success"},
+                {SPKERR_ERROR,      "Generic internal error"},
+                {SPKERR_ENINIT,     "Uninitialized socket"},
+                {SPKERR_ENOSUPPORT, "Operation not supported"},
+                {SPKERR_ENOMEM,     "Out of memory"},
+                {SPKERR_EPERM,      "Permission denied"},
+                {SPKERR_ENODEV,     "No such device"},
+                {SPKERR_EINTR,      "Interrupted system call"},
+                {SPKERR_ESIZE,      "Message too large"}
+        };
 
-int netdev_get_mac(char *iface_name, struct netaddr_mac *mac) {
-    return SPKERR_ENOSUPPORT;
-}
+char *spark_strerror(int error) {
+    char *ret = NULL;
 
-int netdev_set_flags(char *iface_name, short flags) {
-    return SPKERR_ENOSUPPORT;
-}
-
-int netdev_set_mac(char *iface_name, struct netaddr_mac *mac) {
-    return SPKERR_ENOSUPPORT;
-}
-
-struct NetDevList *netdev_get_iflist(unsigned int filter) {
-    return NULL;
-}
-
-inline void netdev_iflist_cleanup(struct NetDevList *NetDevList) {
-    return;
+    for (int i = 0; i < (sizeof(__spk_error_table) / sizeof(struct ErrorInfo)); i++)
+        if (error == __spk_error_table[i].value) {
+            ret = __spk_error_table[i].msg;
+            return ret;
+        }
+    return ret;
 }

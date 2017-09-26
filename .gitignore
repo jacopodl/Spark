@@ -1,0 +1,4 @@
+bin/
+.idea/
+cmake-build-debug/
+include/spark.h

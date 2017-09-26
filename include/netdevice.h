@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jacopo De Luca
+ * Copyright (c) 2016 - 2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,11 +33,6 @@
 
 #include "datatype.h"
 
-#define NETD_SUCCESS    1
-#define NETD_FAILURE    0
-#define NETD_ENOSUPPORT -1
-
-
 /// @brief Contains device information and pointer to the next structure.
 struct NetDevList {
     /// @brief Device name.
@@ -54,8 +49,8 @@ struct NetDevList {
  * @brief Obtains device burned-in mac address.
  * @param iface_name Interface name.
  * @param __OUT__mac Pointer to netaddr_mac structure.
- * @return The netdev_burnedin_mac and netdev_get_mac functions returns NETD_SUCCESS and fill mac with MAC address.
- * On error, NETD_FAILURE is returned and errno is set appropriately. If function is not supported NETD_ENOSUPPORT is returned.
+ * @return The netdev_burnedin_mac and netdev_get_mac functions returns SPKERR_SUCCESS and fill mac with MAC address.
+ * On error, SPKERR_ERROR is returned and errno is set appropriately. If function is not supported SPKERR_ENOSUPPORT is returned.
  */
 int netdev_burnedin_mac(char *iface_name, struct netaddr_mac *mac) ;
 
@@ -63,8 +58,8 @@ int netdev_burnedin_mac(char *iface_name, struct netaddr_mac *mac) ;
  * @brief Get the active flag word of the device.
  * @param iface_name Interface name.
  * @param __OUT__flag Pointer to short int.
- * @return On success the parameter `flag` will filled with active device flags and the function returns NETD_SUCCESS.
- * Otherwise, NETD_FAILURE is returned and errno is set appropriately.
+ * @return On success the parameter `flag` will filled with active device flags and the function returns SPKERR_SUCCESS.
+ * Otherwise, SPKERR_ERROR is returned and errno is set appropriately.
  */
 int netdev_get_flags(char *iface_name, short *flags);
 
@@ -72,8 +67,8 @@ int netdev_get_flags(char *iface_name, short *flags);
  * @brief Obtains current device mac address.
  * @param iface_name Interface name.
  * @param __OUT__mac Pointer to netaddr_mac structure.
- * @return The netdev_get_mac and netdev_burnedin_mac functions returns NETD_SUCCESS and fill mac with MAC address.
- * On error, NETD_FAILURE is returned and errno is set appropriately.
+ * @return The netdev_get_mac and netdev_burnedin_mac functions returns SPKERR_SUCCESS and fill mac with MAC address.
+ * On error, SPKERR_ERROR is returned and errno is set appropriately.
  */
 int netdev_get_mac(char *iface_name, struct netaddr_mac *mac);
 
@@ -81,8 +76,8 @@ int netdev_get_mac(char *iface_name, struct netaddr_mac *mac);
  * @brief Set device flags.
  * @param iface_name Interface name.
  * @param flags New device flags word.
- * @return On success NETD_SUCCESS is returned. 
- * Otherwise, NETD_FAILURE is returned, and errno is set appropriately.
+ * @return On success SPKERR_SUCCESS is returned.
+ * Otherwise, SPKERR_ERROR is returned, and errno is set appropriately.
  */
 int netdev_set_flags(char *iface_name, short flags);
 
@@ -90,8 +85,8 @@ int netdev_set_flags(char *iface_name, short flags);
  * @brief Set new mac address..
  * @param iface_name Interface name.
  * @param __IN__mac Pointer to netaddr_mac structure contains new MAC address.
- * @return On success NETD_SUCCESS is returned. 
- * Otherwise, NETD_FAILURE is returned, and errno is set appropriately.
+ * @return On success SPKERR_SUCCESS is returned.
+ * Otherwise, SPKERR_ERROR is returned, and errno is set appropriately.
  */
 int netdev_set_mac(char *iface_name, struct netaddr_mac *mac);
 

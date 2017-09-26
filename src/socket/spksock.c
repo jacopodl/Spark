@@ -26,38 +26,9 @@
 #include <spksock.h>
 #include "spksock_common.h"
 
-struct ErrorInfo {
-    int value;
-    char *msg;
-};
-
-static const struct ErrorInfo __spk_error_table[] =
-        {
-                {SPKSOCK_SUCCESS,    "Success"},
-                {SPKSOCK_ERROR,      "Generic internal error"},
-                {SPKSOCK_ENINIT,     "Uninitialized socket"},
-                {SPKSOCK_ENOSUPPORT, "Operation not supported"},
-                {SPKSOCK_ENOMEM,     "Out of memory"},
-                {SPKSOCK_EPERM,      "Permission denied"},
-                {SPKSOCK_ENODEV,     "No such device"},
-                {SPKSOCK_EINTR,      "Interrupted system call"},
-                {SPKSOCK_ESIZE,      "Message too large"}
-        };
-
-char *spark_strerror(int error) {
-    char *ret = NULL;
-
-    for (int i = 0; i < (sizeof(__spk_error_table) / sizeof(struct ErrorInfo)); i++)
-        if (error == __spk_error_table[i].value) {
-            ret = __spk_error_table[i].msg;
-            return ret;
-        }
-    return ret;
-}
-
 int spark_getltype(struct SpkSock *ssock) {
     if (ssock == NULL)
-        return SPKSOCK_ENINIT;
+        return SPKERR_ENINIT;
     return ssock->lktype;
 }
 
@@ -65,10 +36,10 @@ int spark_opensock(char *device, unsigned int buflen, struct SpkSock **ssock) {
     int errcode;
 
     if (device == NULL || ssock == NULL)
-        return SPKSOCK_ERROR;
+        return SPKERR_ERROR;
 
     if (((*ssock) = calloc(1, sizeof(struct SpkSock))) == NULL)
-        return SPKSOCK_ENOMEM;
+        return SPKERR_ENOMEM;
 
     (*ssock)->iface_name = strdup(device);
     (*ssock)->bufl = buflen;
@@ -84,45 +55,45 @@ int spark_opensock(char *device, unsigned int buflen, struct SpkSock **ssock) {
 
 int spark_read(struct SpkSock *ssock, unsigned char *buf, struct SpkTimeStamp *ts) {
     if (ssock == NULL)
-        return SPKSOCK_ENINIT;
+        return SPKERR_ENINIT;
     return ssock->op.read(ssock, buf, ts);
 }
 
 int spark_setdirection(struct SpkSock *ssock, enum SpkDirection direction) {
     if (ssock == NULL)
-        return SPKSOCK_ENINIT;
+        return SPKERR_ENINIT;
     if (ssock->op.setdir == NULL)
-        return SPKSOCK_ENOSUPPORT;
+        return SPKERR_ENOSUPPORT;
     return ssock->op.setdir(ssock, direction);
 }
 
 int spark_setnblock(struct SpkSock *ssock, bool nonblock) {
     if (ssock == NULL)
-        return SPKSOCK_ENINIT;
+        return SPKERR_ENINIT;
     if (ssock->op.setnblk == NULL)
-        return SPKSOCK_ENOSUPPORT;
+        return SPKERR_ENOSUPPORT;
     return ssock->op.setnblk(ssock, nonblock);
 }
 
 int spark_setpromisc(struct SpkSock *ssock, bool promisc) {
     if (ssock == NULL)
-        return SPKSOCK_ENINIT;
+        return SPKERR_ENINIT;
     if (ssock->op.setpromisc == NULL)
-        return SPKSOCK_ENOSUPPORT;
+        return SPKERR_ENOSUPPORT;
     return ssock->op.setpromisc(ssock, promisc);
 }
 
 int spark_settsprc(struct SpkSock *ssock, enum SpkTimesPrc prc) {
     if (ssock == NULL)
-        return SPKSOCK_ENINIT;
+        return SPKERR_ENINIT;
     if (ssock->op.setprc == NULL)
-        return SPKSOCK_ENOSUPPORT;
+        return SPKERR_ENOSUPPORT;
     return ssock->op.setprc(ssock, prc);
 }
 
 int spark_write(struct SpkSock *ssock, unsigned char *buf, unsigned int len) {
     if (ssock == NULL)
-        return SPKSOCK_ENINIT;
+        return SPKERR_ENINIT;
     return ssock->op.write(ssock, buf, len);
 }
 

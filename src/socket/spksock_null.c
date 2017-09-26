@@ -25,5 +25,5 @@
 
 int __ssock_init_socket(struct SpkSock *ssock)
 {
-    return SPKSOCK_ENOSUPPORT;
+    return SPKERR_ENOSUPPORT;
 }
