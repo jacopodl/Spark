@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jacopo De Luca
+ * Copyright (c) 2016 - 2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -84,7 +84,16 @@ struct IcmpHeader *build_icmp4_packet(unsigned char type, unsigned char code, un
                                       unsigned char *payload);
 
 /**
- * @brief Injects ICMP echo request into a bufer pointed by `buf`.
+ * @brief Injects ICMP echo reply into a buffer pointed by `buf`.
+ * @param __OUT__buf Pointer to remote bufer.
+ * @param id Packet identifier.
+ * @param seqn Packet sequence.
+ * @return The function returns the pointer to ICMP packet.
+ */
+struct IcmpHeader *injects_icmp4_echo_reply(unsigned char *buf, unsigned short id, unsigned short seqn);
+
+/**
+ * @brief Injects ICMP echo request into a buffer pointed by `buf`.
  * @param __OUT__buf Pointer to remote bufer.
  * @param id Packet identifier.
  * @param seqn Packet sequence.
@@ -93,7 +102,7 @@ struct IcmpHeader *build_icmp4_packet(unsigned char type, unsigned char code, un
 struct IcmpHeader *injects_icmp4_echo_request(unsigned char *buf, unsigned short id, unsigned short seqn);
 
 /**
- * @brief Injects ICMP header into a bufer pointed by `buf`.
+ * @brief Injects ICMP header into a buffer pointed by `buf`.
  * @param __OUT__buf Pointer to remote bufer.
  * @param type Message type.
  * @param code Message code.

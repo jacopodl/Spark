@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jacopo De Luca
+ * Copyright (c) 2016 - 2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +39,13 @@ struct IcmpHeader *build_icmp4_packet(unsigned char type, unsigned char code, un
     return ret;
 }
 
+struct IcmpHeader *injects_icmp4_echo_reply(unsigned char *buf, unsigned short id, unsigned short seqn) {
+    struct IcmpHeader *icmp = injects_icmp4_header(buf, ICMPTY_ECHO_REPLY, 0);
+    icmp->echo.id = htons(id);
+    icmp->echo.sqn = htons(seqn);
+    return icmp;
+}
+
 struct IcmpHeader *injects_icmp4_echo_request(unsigned char *buf, unsigned short id, unsigned short seqn) {
     struct IcmpHeader *icmp = injects_icmp4_header(buf, ICMPTY_ECHO_REQUEST, 0);
     icmp->echo.id = htons(id);
@@ -57,9 +64,11 @@ struct IcmpHeader *injects_icmp4_header(unsigned char *buf, unsigned char type, 
 unsigned short icmp4_checksum(struct IcmpHeader *icmpHeader, unsigned short paysize) {
     unsigned short *buf = (unsigned short *) icmpHeader;
     register unsigned int sum = 0;
+
     icmpHeader->chksum = 0;
     for (int i = 0; i < (ICMP4HDRSIZE + paysize); i += 2)
         sum += *buf++;
+
     sum = (sum >> 16) + (sum & 0xffff);
     sum += (sum >> 16);
     sum = ~sum;
