@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -73,6 +73,8 @@ int spark_opensock(char *device, unsigned int buflen, struct SpkSock **ssock) {
     (*ssock)->iface_name = strdup(device);
     (*ssock)->bufl = buflen;
     (*ssock)->lktype = -1;
+
+    NETADDR_SET_MAC((*ssock)->iaddr);
 
     if ((errcode = __ssock_init_socket(*ssock)) < 0)
         free(*ssock);

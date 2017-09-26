@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,11 +40,8 @@ static bool __linux_discards_direction(struct SpkSock *ssock, struct sockaddr_ll
     if (ssock->direction == SPKDIR_BOTH)
         return false;
 
-    if (sll->sll_pkttype == PACKET_OUTGOING) {
-        if (ssock->direction == SPKDIR_IN)
-            return true;
-        return false;
-    }
+    if (sll->sll_pkttype == PACKET_OUTGOING)
+        return ssock->direction == SPKDIR_IN;
 
     // Incoming packet
     if (ssock->direction == SPKDIR_OUT)
