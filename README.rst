@@ -4,7 +4,7 @@
 .. image:: https://img.shields.io/badge/license-MIT-blue.svg
    :alt: MIT License
    
-.. image:: https://img.shields.io/badge/version-2.4.0-green.svg
+.. image:: https://img.shields.io/badge/version-2.4.1-green.svg
 .. image:: https://travis-ci.org/jacopodl/Spark.svg?branch=master
 
 =====
@@ -17,15 +17,15 @@ Introduction
 ------------
 This library provide a uniform interface for raw socket and implements various network protocols that are part of the TCP/IP stack.
 
-+---------------------------------------------------------------------------+
-|Implemented protocols                                                      |
-+==============+==================+===================+=====================+
-|**Link Layer**|**Internet layer**|**Transport layer**|**Application Layer**|
-+--------------+------------------+-------------------+---------------------+
-|Ethernet      |IPv4              |TCP                |DHCP(Partial)        |
-+--------------+------------------+-------------------+---------------------+
-|ARP           |ICMPv4            |UDP                |                     |
-+--------------+------------------+-------------------+---------------------+
++--------------------------------------------------------------------------+
+|Implemented protocols                                                     |
++==============+=================+===================+=====================+
+|**Link Layer**|**Network layer**|**Transport layer**|**Application Layer**|
++--------------+-----------------+-------------------+---------------------+
+|Ethernet      |IPv4             |TCP                |DHCP(Partial)        |
++--------------+-----------------+-------------------+---------------------+
+|ARP           |ICMPv4           |UDP                |                     |
++--------------+-----------------+-------------------+---------------------+
 
 ================
 Getting the code

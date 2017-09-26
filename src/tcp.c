@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jacopo De Luca
+ * Copyright (c) 2016-2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -59,22 +59,31 @@ struct TcpHeader *injects_tcp_header(unsigned char *buf, unsigned short src, uns
 
 unsigned short tcp_checksum4(struct TcpHeader *TcpHeader, struct Ipv4Header *ipv4Header) {
     unsigned short *buf = (unsigned short *) TcpHeader;
-    unsigned short tcpl = ntohs(ipv4Header->len) - (unsigned short) IPV4HDRSIZE;
+    unsigned short tcpl = ntohs(ipv4Header->len) - (unsigned short) (ipv4Header->ihl * 4);
+    unsigned short length = tcpl;
     register unsigned int sum = 0;
+
     TcpHeader->checksum = 0;
+    while (tcpl > 1) {
+        sum += *buf++;
+        if (sum & 0x80000000)
+            sum = (sum & 0xFFFF) + (sum >> 16);
+        tcpl -= 2;
+    }
+
+    if (tcpl & 1)
+        sum += *((unsigned char *) buf);
 
     // Add the pseudo-header
     sum += *(((unsigned short *) &ipv4Header->saddr));
     sum += *(((unsigned short *) &ipv4Header->saddr) + 1);
     sum += *(((unsigned short *) &ipv4Header->daddr));
     sum += *(((unsigned short *) &ipv4Header->daddr) + 1);
-    sum += htons(ipv4Header->protocol);
-    sum += htons(tcpl);
+    sum += htons(0x06);
+    sum += htons(length);
 
-    for (int i = 0; i < tcpl; i += 2)
-        sum += *buf++;
-    sum = (sum >> 16) + (sum & 0xffff);
-    sum += (sum >> 16);
-    sum = ~sum;
-    return (unsigned short) sum;
+    while (sum >> 16)
+        sum = (sum & 0xFFFF) + (sum >> 16);
+
+    return (unsigned short) ~sum;
 }

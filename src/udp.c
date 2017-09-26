@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jacopo De Luca
+ * Copyright (c) 2016-2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -41,22 +41,33 @@ struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, uns
 
 unsigned short udp_checksum4(struct UdpHeader *udpHeader, struct Ipv4Header *ipv4Header) {
     unsigned short *buf = (unsigned short *) udpHeader;
+    unsigned short udpl = ntohs(ipv4Header->len) - (unsigned short) (ipv4Header->ihl * 4);
+    unsigned short length = udpl;
     register unsigned int sum = 0;
+
     udpHeader->checksum = 0;
+    while (udpl > 1) {
+        sum += *buf++;
+        if (sum & 0x80000000)
+            sum = (sum & 0xFFFF) + (sum >> 16);
+        udpl -= 2;
+    }
+
+    if (udpl & 1)
+        sum += *((unsigned char *) buf);
 
     // Add the pseudo-header
     sum += *(((unsigned short *) &ipv4Header->saddr));
     sum += *(((unsigned short *) &ipv4Header->saddr) + 1);
     sum += *(((unsigned short *) &ipv4Header->daddr));
     sum += *(((unsigned short *) &ipv4Header->daddr) + 1);
-    sum += htons(ipv4Header->protocol) + udpHeader->len;
+    sum += htons(0x11);
+    sum += htons(length);
 
-    for (int i = 0; i < ntohs(udpHeader->len); i += 2)
-        sum += *buf++;
-    sum = (sum >> 16) + (sum & 0xffff);
-    sum += (sum >> 16);
-    sum = ~sum;
-    return (unsigned short) (sum == 0 ? 0xFFFF : sum); // RFC 768
+    while (sum >> 16)
+        sum = (sum & 0xFFFF) + (sum >> 16);
+
+    return (unsigned short) ~sum;
 }
 
 struct UdpHeader *injects_udp_header(unsigned char *buf, unsigned short srcp, unsigned short dstp,

@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 project(LibSpark)
 
-set (VERSION_MAJOR 2)
+set(VERSION_MAJOR 2)
 set(VERSION_MINOR 4)
-set(VERSION_PATCH 0)
+set(VERSION_PATCH 1)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --std=gnu11 --pedantic -DUSE_DEPRECATED")
 
