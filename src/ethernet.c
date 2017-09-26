@@ -109,8 +109,8 @@ char *get_vendor_r(struct netaddr_mac *mac, char *vstr) {
 }
 
 struct EthHeader *build_ethernet_packet(struct netaddr_mac *src, struct netaddr_mac *dst, unsigned short type,
-                                        unsigned long paysize, unsigned char *payload) {
-    unsigned long size = ETHHDRSIZE + paysize;
+                                        unsigned short paysize, unsigned char *payload) {
+    unsigned short size = (unsigned short) ETHHDRSIZE + paysize;
     struct EthHeader *ret;
 
     if (paysize > ETHMAXPAYL) {

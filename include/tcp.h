@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jacopo De Luca
+ * Copyright (c) 2016 - 2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -108,7 +108,7 @@ struct TcpHeader {
 /**
  * @brief Built a new TCP packet.
  *
- * If `payload` is not NULL, the functions copies all byte from payload bufer in the new TCP packet.
+ * If `payload` is not NULL, the functions copies all byte from payload buffer in the new TCP packet.
  * @param src Source port.
  * @param dst Destination port.
  * @param seqn Sequence number.
@@ -122,11 +122,12 @@ struct TcpHeader {
  */
 struct TcpHeader *build_tcp_packet(unsigned short src, unsigned short dst, unsigned int seqn, unsigned int ackn,
                                    unsigned char flags, unsigned short window, unsigned short urgp,
-                                   unsigned long paysize, unsigned char *payload);
+                                   unsigned short paysize,
+                                   unsigned char *payload);
 
 /**
- * @brief Injects TCP packet into a bufer pointed by `buf`.
- * @param __OUT__buf Pointer to remote bufer.
+ * @brief Injects TCP packet into a buffer pointed by `buf`.
+ * @param __OUT__buf Pointer to remote buffer.
  * @param src Source port.
  * @param dst Destination port.
  * @param seqn Sequence number.
@@ -137,8 +138,8 @@ struct TcpHeader *build_tcp_packet(unsigned short src, unsigned short dst, unsig
  * @return The function returns the pointer to TCP packet.
  */
 struct TcpHeader *injects_tcp_header(unsigned char *buf, unsigned short src, unsigned short dst, unsigned int seqn,
-                                     unsigned int ackn, unsigned char flags,
-                                     unsigned short window, unsigned short urgp);
+                                     unsigned int ackn, unsigned char flags, unsigned short window,
+                                     unsigned short urgp);
 
 /**
  * @brief Computes the TCP checksum.

@@ -151,7 +151,7 @@ char *get_vendor_r(struct netaddr_mac *mac, char *vstr);
  * @return On success returns the pointer to new Ethernet frame of size equal to paysize + ETHHDRSIZE, otherwise return NULL.
  */
 struct EthHeader *build_ethernet_packet(struct netaddr_mac *src, struct netaddr_mac *dst, unsigned short type,
-                                        unsigned long paysize, unsigned char *payload);
+                                        unsigned short paysize, unsigned char *payload);
 
 /**
  * @brief Injects Ethernet header into a bufer pointed by `buf`.

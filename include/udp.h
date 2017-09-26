@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jacopo De Luca
+ * Copyright (c) 2016 - 2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -50,7 +50,7 @@ struct UdpHeader {
 /**
  * @brief Built a new UDP packet.
  *
- * If `payload` is not NULL, the functions copies all byte from payload bufer in the new UDP packet.
+ * If `payload` is not NULL, the functions copies all byte from payload buffer in the new UDP packet.
  * @param srcp Source port.
  * @param dstp Destination port.
  * @param paysize Length of payload.
@@ -61,8 +61,8 @@ struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, uns
                                    unsigned char *payload);
 
 /**
- * @brief Injects UDP header into a bufer pointed by `buf`.
- * @param __OUT__buf Pointer to remote bufer.
+ * @brief Injects UDP header into a buffer pointed by `buf`.
+ * @param __OUT__buf Pointer to remote buffer.
  * @param srcp Source port.
  * @param dstp Destination port.
  * @param len Length of payload.

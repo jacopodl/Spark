@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,7 @@
 
 struct TcpHeader *build_tcp_packet(unsigned short src, unsigned short dst, unsigned int seqn, unsigned int ackn,
                                    unsigned char flags, unsigned short window, unsigned short urgp,
-                                   unsigned long paysize, unsigned char *payload) {
+                                   unsigned short paysize, unsigned char *payload) {
     unsigned long size = TCPHDRSIZE + paysize;
     struct TcpHeader *ret = NULL;
     if ((ret = (struct TcpHeader *) malloc(size)) == NULL)
@@ -42,8 +42,8 @@ struct TcpHeader *build_tcp_packet(unsigned short src, unsigned short dst, unsig
 
 
 struct TcpHeader *injects_tcp_header(unsigned char *buf, unsigned short src, unsigned short dst, unsigned int seqn,
-                                     unsigned int ackn, unsigned char flags,
-                                     unsigned short window, unsigned short urgp) {
+                                     unsigned int ackn, unsigned char flags, unsigned short window,
+                                     unsigned short urgp) {
     struct TcpHeader *ret = (struct TcpHeader *) buf;
     memset(ret, 0x00, TCPHDRSIZE);
     ret->offset = TCPHDRLEN;
