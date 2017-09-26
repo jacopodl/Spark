@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jacopo De Luca
+ * Copyright (c) 2016 - 2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -110,14 +110,17 @@ char *get_vendor_r(struct netaddr_mac *mac, char *vstr) {
 
 struct EthHeader *build_ethernet_packet(struct netaddr_mac *src, struct netaddr_mac *dst, unsigned short type,
                                         unsigned long paysize, unsigned char *payload) {
+    unsigned long size = ETHHDRSIZE + paysize;
+    struct EthHeader *ret;
+
     if (paysize > ETHMAXPAYL) {
         errno = EINVAL;
         return NULL;
     }
-    unsigned long size = ETHHDRSIZE + paysize;
-    struct EthHeader *ret = (struct EthHeader *) malloc(size);
-    if (ret == NULL)
+
+    if ((ret = (struct EthHeader *) malloc(size)) == NULL)
         return NULL;
+
     injects_ethernet_header((unsigned char *) ret, src, dst, type);
     if (payload != NULL)
         memcpy(ret->data, payload, paysize);
@@ -144,7 +147,6 @@ void build_ethmulti_addr(struct netaddr_mac *mac, struct netaddr_ip *ip) {
     mac->mac[5] = *(((unsigned char *) &ip->ip) + 3);
     mac->mac[4] = *(((unsigned char *) &ip->ip) + 2);
     mac->mac[3] = *(((unsigned char *) &ip->ip) + 1) & (char) 0x7F;
-    return;
 }
 
 void rndmac(struct netaddr_mac *mac) {

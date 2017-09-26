@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jacopo De Luca
+ * Copyright (c) 2016 - 2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,15 +35,18 @@
 #define MACSTRLEN       18      // Mac address string size
 #define MACSTRHLFLEN    9       // Mac address string half size
 
-#define ETHFRAME        1518    // ETHMAXPAYL + FCS field
+#define ETHFRAME        1510    // ETHMAXPAYL (1500 - FCS field + ETHHDRSIZE)
 #define ETHHDRSIZE      14      // Ethernet header size
-#define ETHMINPAYL      46      // Ethernet min payload
-#define ETHMAXPAYL      1500    // Ethernet max payload
+#define ETHMINPAYL      42      // Ethernet min payload (46 - FCS field)
+#define ETHMAXPAYL      1496    // Ethernet max payload (1500 - FCS field)
 
-#define ETHTYPE_PUP     0X0200
+#define ETHTYPE_PUP     0x0200
 #define ETHTYPE_IP      0x0800
-#define ETHTYPE_ARP     0X0806
-#define ETHTYPE_RARP    0X8035
+#define ETHTYPE_IPV6    0x86DD
+#define ETHTYPE_ARP     0x0806
+#define ETHTYPE_RARP    0x8035
+#define ETHTYPE_MPLSU   0x8847 // MPLS unicast
+#define ETHTYPE_MPLSM   0x8848 // MPLS multicast
 
 /// @brief This structure rapresents an Ethernet frame.
 struct EthHeader {
