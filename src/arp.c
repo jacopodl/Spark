@@ -27,8 +27,9 @@
 #include <arp.h>
 
 struct ArpPacket *build_arp_packet(unsigned char hwalen, unsigned char pralen, unsigned short opcode,
-                                   struct netaddr *shwaddr, struct netaddr *spraddr, struct netaddr *dhwaddr,
-                                   struct netaddr *dpraddr) {
+                                   struct netaddr_generic *shwaddr, struct netaddr_generic *spraddr,
+                                   struct netaddr_generic *dhwaddr,
+                                   struct netaddr_generic *dpraddr) {
     unsigned long size = (unsigned int) ARPHDRSIZE + ((hwalen + pralen) * 2);
     struct ArpPacket *arp = (struct ArpPacket *) malloc(size);
     if (arp == NULL)
@@ -38,8 +39,9 @@ struct ArpPacket *build_arp_packet(unsigned char hwalen, unsigned char pralen, u
 }
 
 struct ArpPacket *injects_arp_packet(unsigned char *buf, unsigned char hwalen, unsigned char pralen,
-                                     unsigned short opcode, struct netaddr *shwaddr, struct netaddr *spraddr,
-                                     struct netaddr *dhwaddr, struct netaddr *dpraddr) {
+                                     unsigned short opcode, struct netaddr_generic *shwaddr,
+                                     struct netaddr_generic *spraddr,
+                                     struct netaddr_generic *dhwaddr, struct netaddr_generic *dpraddr) {
     struct ArpPacket *arp = (struct ArpPacket *) buf;
     unsigned char *data = (unsigned char *) arp->data;
     unsigned int tlen = (unsigned int) ARPHDRSIZE + ((hwalen + pralen) * 2);
@@ -65,36 +67,38 @@ struct ArpPacket *injects_arp_packet(unsigned char *buf, unsigned char hwalen, u
 
 struct ArpPacket *injects_arp_reply(unsigned char *buf, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
                                     struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr) {
-    return injects_arp_packet(buf, ETHHWASIZE, IPV4ADDRSIZE, ARPOP_REPLY, (struct netaddr *) shwaddr,
-                              (struct netaddr *) spraddr, (struct netaddr *) dhwaddr, (struct netaddr *) dpraddr);
+    return injects_arp_packet(buf, ETHHWASIZE, IPV4ADDRSIZE, ARPOP_REPLY, (struct netaddr_generic *) shwaddr,
+                              (struct netaddr_generic *) spraddr, (struct netaddr_generic *) dhwaddr,
+                              (struct netaddr_generic *) dpraddr);
 }
 
 struct ArpPacket *injects_arp_request(unsigned char *buf, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
                                       struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr) {
-    return injects_arp_packet(buf, ETHHWASIZE, IPV4ADDRSIZE, ARPOP_REQUEST, (struct netaddr *) shwaddr,
-                              (struct netaddr *) spraddr, (struct netaddr *) dhwaddr, (struct netaddr *) dpraddr);
+    return injects_arp_packet(buf, ETHHWASIZE, IPV4ADDRSIZE, ARPOP_REQUEST, (struct netaddr_generic *) shwaddr,
+                              (struct netaddr_generic *) spraddr, (struct netaddr_generic *) dhwaddr,
+                              (struct netaddr_generic *) dpraddr);
 }
 
 struct netaddr_ip arp_getaddr_d(struct ArpPacket *ap) {
-    struct netaddr_ip ip;
+    netaddr_ip(ip);
     ip.ip = *((unsigned int *) (ap->data + ap->hwalen + ap->pralen + ap->hwalen));
     return ip;
 }
 
 struct netaddr_ip arp_getaddr_s(struct ArpPacket *ap) {
-    struct netaddr_ip ip;
+    netaddr_ip(ip);
     ip.ip = *((unsigned int *) (ap->data + ap->hwalen));
     return ip;
 }
 
 struct netaddr_mac arp_gethwaddr_d(struct ArpPacket *ap) {
-    struct netaddr_mac mac;
+    netaddr_mac(mac);
     memcpy(mac.mac, (ap->data + ap->hwalen + ap->pralen), ap->hwalen);
     return mac;
 }
 
 struct netaddr_mac arp_gethwaddr_s(struct ArpPacket *ap) {
-    struct netaddr_mac mac;
+    netaddr_mac(mac);
     memcpy(mac.mac, ap->data, ap->hwalen);
     return mac;
 }

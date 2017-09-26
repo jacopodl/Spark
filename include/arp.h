@@ -83,8 +83,9 @@ struct ArpPacket {
  * @return On success returns the pointer to new generic ARP packet, otherwise return NULL.
  */
 struct ArpPacket *build_arp_packet(unsigned char hwalen, unsigned char pralen, unsigned short opcode,
-                                   struct netaddr *shwaddr, struct netaddr *spraddr, struct netaddr *dhwaddr,
-                                   struct netaddr *dpraddr);
+                                   struct netaddr_generic *shwaddr, struct netaddr_generic *spraddr,
+                                   struct netaddr_generic *dhwaddr,
+                                   struct netaddr_generic *dpraddr);
 
 /**
  * @brief Injects generic ARP packet into a bufer pointed by `buf`.
@@ -99,8 +100,9 @@ struct ArpPacket *build_arp_packet(unsigned char hwalen, unsigned char pralen, u
  * @return The function returns the pointer to generic ARP packet.
  */
 struct ArpPacket *injects_arp_packet(unsigned char *buf, unsigned char hwalen, unsigned char pralen,
-                                     unsigned short opcode, struct netaddr *shwaddr, struct netaddr *spraddr,
-                                     struct netaddr *dhwaddr, struct netaddr *dpraddr);
+                                     unsigned short opcode, struct netaddr_generic *shwaddr,
+                                     struct netaddr_generic *spraddr,
+                                     struct netaddr_generic *dhwaddr, struct netaddr_generic *dpraddr);
 
 /**
  * @brief Injects ARP replay packet into a bufer pointed by `buf`.

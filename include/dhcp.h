@@ -163,7 +163,7 @@ unsigned int dhcp_get_option_uint(struct DhcpPacket *dhcpPkt, unsigned char opti
 struct DhcpPacket *build_dhcp_raw(unsigned char op, unsigned char htype, unsigned char hlen, unsigned char hops,
                                   unsigned int xid, unsigned short secs, unsigned short flags,
                                   struct netaddr_ip *ciaddr, struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr,
-                                  struct netaddr_ip *giaddr, struct netaddr *chaddr, char *sname);
+                                  struct netaddr_ip *giaddr, struct netaddr_generic *chaddr, char *sname);
 
 /**
  * @brief Injects DHCP discover message into a bufer pointed by `buf`.
@@ -199,7 +199,7 @@ struct DhcpPacket *injects_dhcp_discover(unsigned char *buf, struct netaddr_mac 
 struct DhcpPacket *injects_dhcp_raw(unsigned char *buf, unsigned char op, unsigned char htype, unsigned char hlen,
                                     unsigned char hops, unsigned int xid, unsigned short secs, unsigned short flags,
                                     struct netaddr_ip *ciaddr, struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr,
-                                    struct netaddr_ip *giaddr, struct netaddr *chaddr, char *sname);
+                                    struct netaddr_ip *giaddr, struct netaddr_generic *chaddr, char *sname);
 
 /**
  * @brief Injects DHCP release message into a bufer pointed by `buf`.
