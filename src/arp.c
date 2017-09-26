@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jacopo De Luca
+ * Copyright (c) 2016 - 2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,28 +26,39 @@
 #include <datatype.h>
 #include <arp.h>
 
-struct ArpPacket *build_arp_packet(unsigned char hwalen, unsigned char pralen, unsigned short opcode,
-                                   struct netaddr_generic *shwaddr, struct netaddr_generic *spraddr,
-                                   struct netaddr_generic *dhwaddr,
+struct ArpPacket *build_arp_packet(unsigned short hw_type, unsigned short proto, unsigned char hwalen,
+                                   unsigned char pralen, unsigned short opcode, struct netaddr_generic *shwaddr,
+                                   struct netaddr_generic *spraddr, struct netaddr_generic *dhwaddr,
                                    struct netaddr_generic *dpraddr) {
-    unsigned long size = (unsigned int) ARPHDRSIZE + ((hwalen + pralen) * 2);
+    unsigned int size = (unsigned int) ARPHDRSIZE + ((hwalen + pralen) * 2);
     struct ArpPacket *arp = (struct ArpPacket *) malloc(size);
+
     if (arp == NULL)
         return NULL;
-    injects_arp_packet((unsigned char *) arp, hwalen, pralen, opcode, shwaddr, spraddr, dhwaddr, dpraddr);
+
+    injects_arp_packet((unsigned char *) arp,
+                       hw_type,
+                       proto,
+                       hwalen,
+                       pralen,
+                       opcode,
+                       shwaddr,
+                       spraddr,
+                       dhwaddr,
+                       dpraddr);
     return arp;
 }
 
-struct ArpPacket *injects_arp_packet(unsigned char *buf, unsigned char hwalen, unsigned char pralen,
-                                     unsigned short opcode, struct netaddr_generic *shwaddr,
-                                     struct netaddr_generic *spraddr,
+struct ArpPacket *injects_arp_packet(unsigned char *buf, unsigned short hw_type, unsigned short proto,
+                                     unsigned char hwalen, unsigned char pralen, unsigned short opcode,
+                                     struct netaddr_generic *shwaddr, struct netaddr_generic *spraddr,
                                      struct netaddr_generic *dhwaddr, struct netaddr_generic *dpraddr) {
     struct ArpPacket *arp = (struct ArpPacket *) buf;
     unsigned char *data = (unsigned char *) arp->data;
     unsigned int tlen = (unsigned int) ARPHDRSIZE + ((hwalen + pralen) * 2);
     memset(arp, 0x00, tlen);
-    arp->hw_type = htons(ARPHWT_ETH);
-    arp->proto = htons(ETHTYPE_IP);
+    arp->hw_type = htons(hw_type);
+    arp->proto = htons(proto);
     arp->hwalen = hwalen;
     arp->pralen = pralen;
     arp->opcode = htons(opcode);
@@ -67,38 +78,52 @@ struct ArpPacket *injects_arp_packet(unsigned char *buf, unsigned char hwalen, u
 
 struct ArpPacket *injects_arp_reply(unsigned char *buf, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
                                     struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr) {
-    return injects_arp_packet(buf, ETHHWASIZE, IPV4ADDRSIZE, ARPOP_REPLY, (struct netaddr_generic *) shwaddr,
-                              (struct netaddr_generic *) spraddr, (struct netaddr_generic *) dhwaddr,
+    return injects_arp_packet(buf,
+                              ARPHWT_ETH,
+                              ETHTYPE_IP,
+                              ETHHWASIZE,
+                              IPV4ADDRSIZE,
+                              ARPOP_REPLY,
+                              (struct netaddr_generic *) shwaddr,
+                              (struct netaddr_generic *) spraddr,
+                              (struct netaddr_generic *) dhwaddr,
                               (struct netaddr_generic *) dpraddr);
 }
 
 struct ArpPacket *injects_arp_request(unsigned char *buf, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
                                       struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr) {
-    return injects_arp_packet(buf, ETHHWASIZE, IPV4ADDRSIZE, ARPOP_REQUEST, (struct netaddr_generic *) shwaddr,
-                              (struct netaddr_generic *) spraddr, (struct netaddr_generic *) dhwaddr,
+    return injects_arp_packet(buf,
+                              ARPHWT_ETH,
+                              ETHTYPE_IP,
+                              ETHHWASIZE,
+                              IPV4ADDRSIZE,
+                              ARPOP_REQUEST,
+                              (struct netaddr_generic *) shwaddr,
+                              (struct netaddr_generic *) spraddr,
+                              (struct netaddr_generic *) dhwaddr,
                               (struct netaddr_generic *) dpraddr);
 }
 
 struct netaddr_ip arp_getaddr_d(struct ArpPacket *ap) {
     netaddr_ip(ip);
-    ip.ip = *((unsigned int *) (ap->data + ap->hwalen + ap->pralen + ap->hwalen));
+    ip.ip = *((unsigned int *) (ap->data + ETHHWASIZE + IPV4ADDRSIZE + ETHHWASIZE));
     return ip;
 }
 
 struct netaddr_ip arp_getaddr_s(struct ArpPacket *ap) {
     netaddr_ip(ip);
-    ip.ip = *((unsigned int *) (ap->data + ap->hwalen));
+    ip.ip = *((unsigned int *) (ap->data + ETHHWASIZE));
     return ip;
 }
 
 struct netaddr_mac arp_gethwaddr_d(struct ArpPacket *ap) {
     netaddr_mac(mac);
-    memcpy(mac.mac, (ap->data + ap->hwalen + ap->pralen), ap->hwalen);
+    memcpy(mac.mac, (ap->data + ETHHWASIZE + IPV4ADDRSIZE), ETHHWASIZE);
     return mac;
 }
 
 struct netaddr_mac arp_gethwaddr_s(struct ArpPacket *ap) {
     netaddr_mac(mac);
-    memcpy(mac.mac, ap->data, ap->hwalen);
+    memcpy(mac.mac, ap->data, ETHHWASIZE);
     return mac;
 }

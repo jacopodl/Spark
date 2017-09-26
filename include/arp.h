@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Jacopo De Luca
+ * Copyright (c) 2016 - 2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -73,6 +73,8 @@ struct ArpPacket {
 
 /**
  * @brief Built a new generic ARP packet.
+ * @param hw_type Hardware type.
+ * @param proto Protocol type.
  * @param hwlen Length of a hardware address.
  * @param pralen Length of addresses used in the upper layer protocol.
  * @param opcode Specifies the operation that the sender is performing.
@@ -82,14 +84,16 @@ struct ArpPacket {
  * @param __IN__dpraddr Target protocol address.
  * @return On success returns the pointer to new generic ARP packet, otherwise return NULL.
  */
-struct ArpPacket *build_arp_packet(unsigned char hwalen, unsigned char pralen, unsigned short opcode,
-                                   struct netaddr_generic *shwaddr, struct netaddr_generic *spraddr,
-                                   struct netaddr_generic *dhwaddr,
+struct ArpPacket *build_arp_packet(unsigned short hw_type, unsigned short proto, unsigned char hwalen,
+                                   unsigned char pralen, unsigned short opcode, struct netaddr_generic *shwaddr,
+                                   struct netaddr_generic *spraddr, struct netaddr_generic *dhwaddr,
                                    struct netaddr_generic *dpraddr);
 
 /**
- * @brief Injects generic ARP packet into a bufer pointed by `buf`.
- * @param __OUT__buf Pointer to remote bufer.
+ * @brief Injects generic ARP packet into a buffer pointed by `buf`.
+ * @param __OUT__buf Pointer to remote buffer.
+ * @param hw_type Hardware type.
+ * @param proto Protocol type.
  * @param hwlen Length of a hardware address.
  * @param pralen Length of addresses used in the upper layer protocol.
  * @param opcode Specifies the operation that the sender is performing.
@@ -99,14 +103,14 @@ struct ArpPacket *build_arp_packet(unsigned char hwalen, unsigned char pralen, u
  * @param __IN__dpraddr Target protocol address.
  * @return The function returns the pointer to generic ARP packet.
  */
-struct ArpPacket *injects_arp_packet(unsigned char *buf, unsigned char hwalen, unsigned char pralen,
-                                     unsigned short opcode, struct netaddr_generic *shwaddr,
-                                     struct netaddr_generic *spraddr,
+struct ArpPacket *injects_arp_packet(unsigned char *buf, unsigned short hw_type, unsigned short proto,
+                                     unsigned char hwalen, unsigned char pralen, unsigned short opcode,
+                                     struct netaddr_generic *shwaddr, struct netaddr_generic *spraddr,
                                      struct netaddr_generic *dhwaddr, struct netaddr_generic *dpraddr);
 
 /**
- * @brief Injects ARP replay packet into a bufer pointed by `buf`.
- * @param __OUT__buf Pointer to remote bufer.
+ * @brief Injects ARP replay packet into a buffer pointed by `buf`.
+ * @param __OUT__buf Pointer to remote buffer.
  * @param __IN__shwaddr Sender hardware address.
  * @param __IN__spraddr Sender protocol address.
  * @param __IN__dhwaddr Target hardware address.
@@ -117,8 +121,8 @@ struct ArpPacket *injects_arp_reply(unsigned char *buf, struct netaddr_mac *shwa
                                     struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr);
 
 /**
- * @brief Injects ARP request packet into a bufer pointed by `buf`.
- * @param __OUT__buf Pointer to remote bufer.
+ * @brief Injects ARP request packet into a buffer pointed by `buf`.
+ * @param __OUT__buf Pointer to remote buffer.
  * @param __IN__shwaddr Sender hardware address.
  * @param __IN__spraddr Sender protocol address.
  * @param __IN__dhwaddr Target hardware address.
