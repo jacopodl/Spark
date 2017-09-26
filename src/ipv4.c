@@ -113,38 +113,6 @@ bool get_device_netmask(char *iface_name, struct netaddr_ip *netmask) {
     return ret;
 }
 
-#ifdef USE_DEPRECATED
-
-bool parse_ipv4addr(char *ipstr, unsigned int *ip) {
-    unsigned int ipaddr[IPV4ADDRSIZE];
-    if (strlen(ipstr) >= IPV4STRLEN)
-        return false;
-    if (sscanf(ipstr, "%u.%u.%u.%u", ipaddr, ipaddr + 1, ipaddr + 2, ipaddr + 3) != 4)
-        return false;
-    if (ipaddr[0] > 255 || ipaddr[1] > 255 || ipaddr[2] > 255 || ipaddr[3] > 255)
-        return false;
-    if (ip != NULL)
-        *ip = (ipaddr[3] << 24 | ipaddr[2] << 16 | ipaddr[1] << 8 | ipaddr[0]);
-    return true;
-}
-
-char *get_stripv4(unsigned int *ip, bool _static) {
-    static char static_buf[IPV4STRLEN];
-    char *ipstr = static_buf;
-    if (!_static) {
-        if ((ipstr = (char *) malloc(IPV4STRLEN)) == NULL)
-            return NULL;
-    }
-    return get_stripv4_r(ip, ipstr);
-}
-
-inline char *get_stripv4_r(unsigned int *ip, char *ipstr) {
-    sprintf(ipstr, "%u.%u.%u.%u", (*ip) & 0xFF, (*ip) >> 8 & 0xFF, (*ip) >> 16 & 0xFF, (*ip) >> 24 & 0xFF);
-    return ipstr;
-}
-
-#else
-
 bool parse_ipv4addr(char *ipstr, struct netaddr_ip *ip) {
     unsigned int ipaddr[IPV4ADDRSIZE];
     if (strlen(ipstr) >= IPV4STRLEN)
@@ -172,8 +140,6 @@ inline char *get_stripv4_r(struct netaddr_ip *ip, char *ipstr) {
     sprintf(ipstr, "%u.%u.%u.%u", (ip->ip) & 0xFF, (ip->ip) >> 8 & 0xFF, (ip->ip) >> 16 & 0xFF, (ip->ip) >> 24 & 0xFF);
     return ipstr;
 }
-
-#endif
 
 struct Ipv4Header *build_ipv4_packet(struct netaddr_ip *src, struct netaddr_ip *dst, unsigned char ihl,
                                      unsigned short id, unsigned char ttl, unsigned char proto, unsigned short paysize,
@@ -208,8 +174,8 @@ struct Ipv4Header *injects_ipv4_header(unsigned char *buf, struct netaddr_ip *sr
 
 unsigned short ipv4_checksum(struct Ipv4Header *ipHeader) {
     unsigned short *buf = (unsigned short *) ipHeader;
-    ipHeader->checksum = 0;
     register unsigned int sum = 0;
+    ipHeader->checksum = 0;
     for (int i = 0; i < IPV4HDRSIZE; sum += *buf++, i += 2);
     sum = (sum >> 16) + (sum & 0xffff);
     sum += (sum >> 16);
