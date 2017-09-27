@@ -38,25 +38,6 @@ int netdev_burnedin_mac(char *iface_name, struct netaddr_mac *mac) {
     return SPKERR_ENOSUPPORT;
 }
 
-int netdev_get_flags(char *iface_name, short *flags) {
-    int ret;
-    int ctl_sock;
-    struct ifreq req;
-
-    memset(&req, 0x00, sizeof(struct ifreq));
-    strcpy(req.ifr_name, iface_name);
-    ret = SPKERR_ERROR;
-
-    if ((ctl_sock = socket(AF_INET, SOCK_DGRAM, 0)) >= 0) {
-        if (ioctl(ctl_sock, SIOCGIFFLAGS, &req) >= 0) {
-            *flags = req.ifr_flags;
-            ret = SPKERR_SUCCESS;
-        }
-        close(ctl_sock);
-    }
-    return ret;
-}
-
 int netdev_get_mac(char *iface_name, struct netaddr_mac *mac) {
     struct ifaddrs *ifa;
     struct ifaddrs *curr;
@@ -93,24 +74,6 @@ int netdev_get_mac(char *iface_name, struct netaddr_mac *mac) {
     }
     freeifaddrs(ifa);
     return SPKERR_ERROR;
-}
-
-int netdev_set_flags(char *iface_name, short flags) {
-    int ret;
-    int ctl_sock;
-    struct ifreq req;
-
-    memset(&req, 0x00, sizeof(struct ifreq));
-    strcpy(req.ifr_name, iface_name);
-    req.ifr_flags = flags;
-
-    ret = SPKERR_ERROR;
-    if ((ctl_sock = socket(AF_INET, SOCK_DGRAM, 0)) >= 0) {
-        if (ioctl(ctl_sock, SIOCSIFFLAGS, &req) >= 0)
-            ret = SPKERR_SUCCESS;
-        close(ctl_sock);
-    }
-    return ret;
 }
 
 int netdev_set_mac(char *iface_name, struct netaddr_mac *mac) {
@@ -162,9 +125,4 @@ struct NetDevList *netdev_get_iflist(unsigned int filter) {
     }
     freeifaddrs(ifa);
     return devs;
-}
-
-inline void netdev_iflist_cleanup(struct NetDevList *NetDevList) {
-    struct NetDevList *tmp, *curr;
-    for (curr = NetDevList; curr != NULL; tmp = curr->next, free(curr), curr = tmp);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,11 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-#include <netinet/in.h>
-#include <net/if.h>
 #include <time.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
 
 #include <datatype.h>
 #include <ipv4.h>
@@ -71,46 +67,6 @@ inline bool ismcast_ipv4(struct netaddr_ip *ip) {
 
 inline bool issame_subnet(struct netaddr_ip *addr1, struct netaddr_ip *addr2, struct netaddr_ip *netmask) {
     return (addr1->ip & netmask->ip) == (addr2->ip & netmask->ip);
-}
-
-bool get_device_ipv4(char *iface_name, struct netaddr_ip *ip) {
-    bool ret;
-    int ctl_sock;
-    struct ifreq req;
-
-    memset(&req, 0x00, sizeof(struct ifreq));
-    strcpy(req.ifr_name, iface_name);
-    req.ifr_addr.sa_family = AF_INET;
-
-    ret = false;
-    if ((ctl_sock = socket(AF_INET, SOCK_DGRAM, 0)) >= 0) {
-        if (ioctl(ctl_sock, SIOCGIFADDR, &req) >= 0) {
-            ip->ip = ((struct sockaddr_in *) &req.ifr_addr)->sin_addr.s_addr;
-            ret = true;
-        }
-        close(ctl_sock);
-    }
-    return ret;
-}
-
-bool get_device_netmask(char *iface_name, struct netaddr_ip *netmask) {
-    bool ret;
-    int ctl_sock;
-    struct ifreq req;
-
-    memset(&req, 0x00, sizeof(struct ifreq));
-    strcpy(req.ifr_name, iface_name);
-    req.ifr_addr.sa_family = AF_INET;
-
-    ret = false;
-    if ((ctl_sock = socket(AF_INET, SOCK_DGRAM, 0)) >= 0) {
-        if (ioctl(ctl_sock, SIOCGIFNETMASK, &req) >= 0) {
-            netmask->ip = ((struct sockaddr_in *) &req.ifr_addr)->sin_addr.s_addr;
-            ret = true;
-        }
-        close(ctl_sock);
-    }
-    return ret;
 }
 
 bool parse_ipv4addr(char *ipstr, struct netaddr_ip *ip) {

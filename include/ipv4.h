@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -135,22 +135,6 @@ bool ismcast_ipv4(struct netaddr_ip *ip);
  * @return Function returns true if the addr1 and addr2 are on the same subnet, false otherwise.
  */
 bool issame_subnet(struct netaddr_ip *addr1, struct netaddr_ip *addr2, struct netaddr_ip *netmask);
-
-/**
- * @brief Obtains the IPv4 address of device called `iface_name`.
- * @param iface_name Interface name.
- * @param __OUT__ip Pointer to netaddr_ip structure.
- * @return Function returns true if the address has been obtained, false otherwise.
- */
-bool get_device_ipv4(char *iface_name, struct netaddr_ip *ip);
-
-/**
- * @brief Obtains the IPv4 netmask of device called `iface_name`.
- * @param iface_name Interface name.
- * @param __OUT__netmask Pointer to netaddr_ip structure.
- * @return Function returns true if the netmask has been obtained, false otherwise.
- */
-bool get_device_netmask(char *iface_name, struct netaddr_ip *netmask);
 
 /**
  * @brief Parse string contains a ipv4 address in the form `000.000.000.000`.

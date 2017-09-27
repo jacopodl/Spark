@@ -52,7 +52,7 @@ struct NetDevList {
  * @return The netdev_burnedin_mac and netdev_get_mac functions returns SPKERR_SUCCESS and fill mac with MAC address.
  * On error, SPKERR_ERROR is returned and errno is set appropriately. If function is not supported SPKERR_ENOSUPPORT is returned.
  */
-int netdev_burnedin_mac(char *iface_name, struct netaddr_mac *mac) ;
+int netdev_burnedin_mac(char *iface_name, struct netaddr_mac *mac);
 
 /**
  * @brief Get the active flag word of the device.
@@ -62,6 +62,22 @@ int netdev_burnedin_mac(char *iface_name, struct netaddr_mac *mac) ;
  * Otherwise, SPKERR_ERROR is returned and errno is set appropriately.
  */
 int netdev_get_flags(char *iface_name, short *flags);
+
+/**
+ * @brief Obtains the IPv4 address.
+ * @param iface_name Interface name.
+ * @param __OUT__ip Pointer to netaddr_ip structure.
+ * @return Function returns true if the address has been obtained, false otherwise.
+ */
+bool netdev_get_ipv4(char *iface_name, struct netaddr_ip *ip);
+
+/**
+ * @brief Obtains the IPv4 netmask.
+ * @param iface_name Interface name.
+ * @param __OUT__netmask Pointer to netaddr_ip structure.
+ * @return Function returns true if the netmask has been obtained, false otherwise.
+ */
+bool netdev_get_netmask(char *iface_name, struct netaddr_ip *netmask);
 
 /**
  * @brief Obtains current device mac address.
