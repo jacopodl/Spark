@@ -5,6 +5,7 @@ set(LIB_FILE
         spkerr.c
         socket/spksock.c
         netdevice/netdev.c
+        pcap/pcap.c
         ethernet.c
         arp.c
         ipv4.c

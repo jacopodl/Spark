@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2017 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,6 +35,20 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include "datatype.h"
+#include "spkerr.h"
+#include "netdevice.h"
+#include "spksock.h"
+#include "pcap.h"
+#include "ethernet.h"
+#include "arp.h"
+#include "ipv4.h"
+#include "icmp4.h"
+#include "routev4.h"
+#include "tcp.h"
+#include "udp.h"
+#include "dhcp.h"
 
 #ifdef __cplusplus
 };
