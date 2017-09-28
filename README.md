@@ -27,7 +27,7 @@ If the build finishes without errors, the compiled library will be located in th
 
 ## Quick tour ##
 
-### Your first dumper ###
+### Packet sniffer ###
 
 ```C
 unsigned char buf[4096];
@@ -59,6 +59,32 @@ while(max_packet-- > 0)
 
 spark_close(rsock);
 spark_pcapclose(mypcap);
+
+```
+
+### Polymorphic type ###
+
+```C
+void addr_printer(struct netaddr *addr)
+{
+    if(NETADDR_CMP_TYPE((*addr), NA_TYPE_MAC))
+        printf("This is MAC address!\n");
+    else if(NETADDR_CMP_TYPE((*addr), NA_TYPE_IP))
+        printf("This is IPv4 address!\n");
+    else if (NETADDR_CMP_TYPE((*addr), NA_TYPE_IP6))
+        printf("This is IPv6 address!\n");
+    else
+        printf("Generic/unknown address!\n");
+}
+
+int main()
+{
+    netaddr_mac(macaddr);
+    netaddr_ip(ipaddr);
+    
+    addr_printer(&macaddr);
+    addr_printer(&ipaddr);
+}
 
 ```
 
