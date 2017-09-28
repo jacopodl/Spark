@@ -29,17 +29,25 @@
 #include <spkerr.h>
 #include <pcap.h>
 
-int spark_pcapnew(struct SpkPcap *spkpcap, char *filename, unsigned int snaplen, unsigned int dlt) {
+int spark_pcapnew(char *filename, unsigned int snaplen, unsigned int dlt, struct SpkPcap **spkpcap) {
     int err = SPKERR_SUCCESS;
 
-    SPKPCAP_FILL_DEFAULT(spkpcap->header);
-    spkpcap->header.snaplen = snaplen;
-    spkpcap->header.dlt = dlt;
+    if (filename == NULL || spkpcap == NULL)
+        return SPKERR_ERROR;
 
-    if ((spkpcap->filename = strdup(filename)) == NULL)
+    if (((*spkpcap) = calloc(1, sizeof(struct SpkPcap))) == NULL)
         return SPKERR_ENOMEM;
 
-    if ((spkpcap->fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC)) < 0) {
+    SPKPCAP_FILL_DEFAULT((*spkpcap)->header);
+    (*spkpcap)->header.snaplen = snaplen;
+    (*spkpcap)->header.dlt = dlt;
+
+    if (((*spkpcap)->filename = strdup(filename)) == NULL) {
+        free(*spkpcap);
+        return SPKERR_ENOMEM;
+    }
+
+    if (((*spkpcap)->fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC)) < 0) {
         switch (errno) {
             case EACCES:
             case EPERM:
@@ -52,11 +60,12 @@ int spark_pcapnew(struct SpkPcap *spkpcap, char *filename, unsigned int snaplen,
             default:
                 err = SPKERR_ERROR;
         }
-        free(spkpcap->filename);
+        free((*spkpcap)->filename);
+        free(*spkpcap);
         return err;
     }
 
-    if (write(spkpcap->fd, ((char *) &spkpcap->header), sizeof(struct SpkPcapHdr)) < 0) {
+    if (write((*spkpcap)->fd, ((char *) &(*spkpcap)->header), sizeof(struct SpkPcapHdr)) < 0) {
         switch (errno) {
             case EMSGSIZE:
                 err = SPKERR_ESIZE;
@@ -67,8 +76,9 @@ int spark_pcapnew(struct SpkPcap *spkpcap, char *filename, unsigned int snaplen,
             default:
                 err = SPKERR_ERROR;
         }
-        close(spkpcap->fd);
-        free(spkpcap->filename);
+        close((*spkpcap)->fd);
+        free((*spkpcap)->filename);
+        free(*spkpcap);
     }
 
     return err;
@@ -77,6 +87,9 @@ int spark_pcapnew(struct SpkPcap *spkpcap, char *filename, unsigned int snaplen,
 int spark_pcapwrite(struct SpkPcap *spkpcap, unsigned char *buf, unsigned int buflen, struct SpkTimeStamp *ts) {
     struct SpkPcapRecord *record;
     int err = SPKERR_SUCCESS;
+
+    if (spkpcap == NULL)
+        return SPKERR_ENINIT;
 
     if (buflen > spkpcap->header.snaplen)
         buflen = spkpcap->header.snaplen;
@@ -122,6 +135,9 @@ int spark_pcapwrite(struct SpkPcap *spkpcap, unsigned char *buf, unsigned int bu
 }
 
 void spark_pcapclose(struct SpkPcap *spkpcap) {
-    free(spkpcap->filename);
-    close(spkpcap->fd);
+    if (spkpcap != NULL) {
+        close(spkpcap->fd);
+        free(spkpcap->filename);
+        free(spkpcap);
+    }
 }

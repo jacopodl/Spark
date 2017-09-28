@@ -72,14 +72,14 @@ struct SpkPcap {
 
 /**
  * @brief Create new pcap file.
- * @param __IN__spkpcap Pointer to SpkPcap structure.
  * @param filename String contains pcap filename.
  * @param snaplen Max length of snapshot.
  * @param dlt Data-link-type(DLT) value.
+ * @param __IN__spkpcap Pointer to SpkPcap structure.
  * @return Upon successful completion, spark_pcapnew() returns SPKERR_SUCCESS.
  * Otherwise, a value < 0 shall be returned, you can use spark_strerror to get error message.
  */
-int spark_pcapnew(struct SpkPcap *spkpcap, char *filename, unsigned int snaplen, unsigned int dlt);
+int spark_pcapnew(char *filename, unsigned int snaplen, unsigned int dlt, struct SpkPcap **spkpcap);
 
 /**
  * @brief Write on pcap file.
