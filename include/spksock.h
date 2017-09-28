@@ -22,7 +22,7 @@
 
 /**
  * @file spksock.h
- * @brief Provides  uniform APIs for create, manage, destroy and use raw sockets.
+ * @brief Provides uniform APIs for create, manage, destroy and use raw sockets.
  */
 
 #ifndef SPARK_SPKSOCK_H
@@ -110,7 +110,7 @@ int spark_getltype(struct SpkSock *ssock);
  * @param device Interface name.
  * @param bufl Set length of buffer for read operation.
  * @param __OUT__ssock Pointer to the empty SpkSock structure.
- * @return Upon successful completion, spark_opensock() returns SPKSOCK_SUCCESS.
+ * @return Upon successful completion, spark_opensock() returns SPKERR_SUCCESS.
  * Otherwise, a value < 0 shall be returned, you can use spark_strerror to get error message.
  */
 int spark_opensock(char *device, unsigned int buflen, struct SpkSock **ssock);
@@ -133,7 +133,7 @@ int spark_read(struct SpkSock *ssock, unsigned char *buf, struct SpkTimeStamp *t
  * or both packets on the interface should be returned by raw socket.
  * @param __IN__ssock Pointer to SpkSock structure which handles the active raw socket.
  * @param direction Packets direction.
- * @return On success, SPKSOCK_SUCCESS is returned.
+ * @return On success, SPKERR_SUCCESS is returned.
  * Otherwise, a value < 0 shall be returned, you can use spark_strerror to get error message.
  */
 int spark_setdirection(struct SpkSock *ssock, enum SpkDirection direction);
@@ -142,7 +142,7 @@ int spark_setdirection(struct SpkSock *ssock, enum SpkDirection direction);
  * @brief Set socket blocking mode.
  * @param __IN__ssock Pointer to SpkSock structure which handles the active raw socket.
  * @param nonblock True or false.
- * @return On success, SPKSOCK_SUCCESS is returned.
+ * @return On success, SPKERR_SUCCESS is returned.
  * Otherwise, a value < 0 shall be returned, you can use spark_strerror to get error message.
  */
 int spark_setnblock(struct SpkSock *ssock, bool nonblock);
@@ -151,7 +151,7 @@ int spark_setnblock(struct SpkSock *ssock, bool nonblock);
  * @brief Set promiscuous mode.
  * @param __IN__ssock Pointer to SpkSock structure which handles the active raw socket.
  * @param promisc True or false.
- * @return On success, SPKSOCK_SUCCESS is returned.
+ * @return On success, SPKERR_SUCCESS is returned.
  * Otherwise, a value < 0 shall be returned, you can use spark_strerror to get error message.
  * @warning On BSD systems this option involves the whole device and not only the socket.
  */
@@ -161,7 +161,7 @@ int spark_setpromisc(struct SpkSock *ssock, bool promisc);
  * @brief Set timestamp precision.
  * @param __IN__ssock Pointer to SpkSock structure which handles the active raw socket.
  * @param prc Timestamp precision.
- * @return On success, SPKSOCK_SUCCESS is returned.
+ * @return On success, SPKERR_SUCCESS is returned.
  * Otherwise, a value < 0 shall be returned, you can use spark_strerror to get error message.
  */
 int spark_settsprc(struct SpkSock *ssock, enum SpkTimesPrc prc);

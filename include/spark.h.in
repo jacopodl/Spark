@@ -22,7 +22,7 @@
 
 /**
  * @file spark.h
- * @brief This IS THE SPARK LIBRARY!
+ * @brief Spark Library!
  */
 
 #ifndef SPARK_H

@@ -20,6 +20,11 @@
  * SOFTWARE.
 */
 
+/**
+ * @file pcap.h
+ * @brief Provides Spark pcap functionalities.
+ */
+
 #ifndef LIBSPARK_PCAP_H
 #define LIBSPARK_PCAP_H
 
@@ -39,6 +44,7 @@
     header.sigfigs = 0;                     \
     header.snaplen = SPKPCAP_SNAPLEN_DEFAULT
 
+/// @brief Pcap file header.
 struct SpkPcapHdr {
     unsigned int magic_number;
     unsigned short version_major;
@@ -49,6 +55,7 @@ struct SpkPcapHdr {
     unsigned int dlt;
 };
 
+/// @brief Pcap record header.
 struct SpkPcapRecord {
     unsigned int ts_sec;
     unsigned int ts_usec;
@@ -56,16 +63,39 @@ struct SpkPcapRecord {
     unsigned int orig_len;
 };
 
+/// @brief Contains information about the currently pcap file.
 struct SpkPcap {
     struct SpkPcapHdr header;
     char *filename;
     int fd;
 };
 
-int spark_pcapnew(struct SpkPcap *pcap, char *filename, unsigned int snaplen, unsigned int dlt);
+/**
+ * @brief Create new pcap file.
+ * @param __IN__spkpcap Pointer to SpkPcap structure.
+ * @param filename String contains pcap filename.
+ * @param snaplen Max length of snapshot.
+ * @param dlt Data-link-type(DLT) value.
+ * @return Upon successful completion, spark_pcapnew() returns SPKERR_SUCCESS.
+ * Otherwise, a value < 0 shall be returned, you can use spark_strerror to get error message.
+ */
+int spark_pcapnew(struct SpkPcap *spkpcap, char *filename, unsigned int snaplen, unsigned int dlt);
 
-int spark_pcapwrite(struct SpkPcap *pcap, unsigned char *buf, unsigned int buflen, struct SpkTimeStamp *ts);
+/**
+ * @brief Write on pcap file.
+ * @param __IN__spkpcap Pointer to SpkPcap structure.
+ * @param buf Buffer contains network packet.
+ * @param buflen Length of buffer.
+ * @param __IN__ts Pointer to SpkTimeStamp structure.
+ * @return Upon successful completion, spark_pcapwrite() returns SPKERR_SUCCESS.
+ * Otherwise, a value < 0 shall be returned, you can use spark_strerror to get error message.
+ */
+int spark_pcapwrite(struct SpkPcap *spkpcap, unsigned char *buf, unsigned int buflen, struct SpkTimeStamp *ts);
 
-void spark_pcapclose(struct SpkPcap *pcap);
+/**
+ * @brief Close opened pcap file.
+ * @param spkpcap Pointer to SpkPcap structure.
+ */
+void spark_pcapclose(struct SpkPcap *spkpcap);
 
 #endif //LIBSPARK_PCAP_H

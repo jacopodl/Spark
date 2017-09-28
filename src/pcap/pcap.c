@@ -29,17 +29,17 @@
 #include <spkerr.h>
 #include <pcap.h>
 
-int spark_pcapnew(struct SpkPcap *pcap, char *filename, unsigned int snaplen, unsigned int dlt) {
+int spark_pcapnew(struct SpkPcap *spkpcap, char *filename, unsigned int snaplen, unsigned int dlt) {
     int err = SPKERR_SUCCESS;
 
-    SPKPCAP_FILL_DEFAULT(pcap->header);
-    pcap->header.snaplen = snaplen;
-    pcap->header.dlt = dlt;
+    SPKPCAP_FILL_DEFAULT(spkpcap->header);
+    spkpcap->header.snaplen = snaplen;
+    spkpcap->header.dlt = dlt;
 
-    if ((pcap->filename = strdup(filename)) == NULL)
+    if ((spkpcap->filename = strdup(filename)) == NULL)
         return SPKERR_ENOMEM;
 
-    if ((pcap->fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC)) < 0) {
+    if ((spkpcap->fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC)) < 0) {
         switch (errno) {
             case EACCES:
             case EPERM:
@@ -52,11 +52,11 @@ int spark_pcapnew(struct SpkPcap *pcap, char *filename, unsigned int snaplen, un
             default:
                 err = SPKERR_ERROR;
         }
-        free(pcap->filename);
+        free(spkpcap->filename);
         return err;
     }
 
-    if (write(pcap->fd, ((char *) &pcap->header), sizeof(struct SpkPcapHdr)) < 0) {
+    if (write(spkpcap->fd, ((char *) &spkpcap->header), sizeof(struct SpkPcapHdr)) < 0) {
         switch (errno) {
             case EMSGSIZE:
                 err = SPKERR_ESIZE;
@@ -67,19 +67,19 @@ int spark_pcapnew(struct SpkPcap *pcap, char *filename, unsigned int snaplen, un
             default:
                 err = SPKERR_ERROR;
         }
-        close(pcap->fd);
-        free(pcap->filename);
+        close(spkpcap->fd);
+        free(spkpcap->filename);
     }
 
     return err;
 }
 
-int spark_pcapwrite(struct SpkPcap *pcap, unsigned char *buf, unsigned int buflen, struct SpkTimeStamp *ts) {
+int spark_pcapwrite(struct SpkPcap *spkpcap, unsigned char *buf, unsigned int buflen, struct SpkTimeStamp *ts) {
     struct SpkPcapRecord *record;
     int err = SPKERR_SUCCESS;
 
-    if (buflen > pcap->header.snaplen)
-        buflen = pcap->header.snaplen;
+    if (buflen > spkpcap->header.snaplen)
+        buflen = spkpcap->header.snaplen;
 
     if ((record = malloc(sizeof(struct SpkPcapRecord) + buflen)) == NULL)
         return SPKERR_ENOMEM;
@@ -104,7 +104,7 @@ int spark_pcapwrite(struct SpkPcap *pcap, unsigned char *buf, unsigned int bufle
 
     memcpy(((unsigned char *) record) + sizeof(struct SpkPcapRecord), buf, buflen);
 
-    if (write(pcap->fd, ((unsigned char *) record), sizeof(struct SpkPcapRecord) + buflen) < 0) {
+    if (write(spkpcap->fd, ((unsigned char *) record), sizeof(struct SpkPcapRecord) + buflen) < 0) {
         switch (errno) {
             case EMSGSIZE:
                 err = SPKERR_ESIZE;
@@ -121,7 +121,7 @@ int spark_pcapwrite(struct SpkPcap *pcap, unsigned char *buf, unsigned int bufle
     return err;
 }
 
-void spark_pcapclose(struct SpkPcap *pcap) {
-    free(pcap->filename);
-    close(pcap->fd);
+void spark_pcapclose(struct SpkPcap *spkpcap) {
+    free(spkpcap->filename);
+    close(spkpcap->fd);
 }

@@ -20,6 +20,11 @@
  * SOFTWARE.
 */
 
+/**
+ * @file spkerr.h
+ * @brief Contains common error codes.
+ */
+
 #ifndef SPARK_SPKERR_H
 #define SPARK_SPKERR_H
 
