@@ -78,11 +78,11 @@ static int spksock_linux_read(struct SpkSock *ssock, unsigned char *buf, struct 
         if (ssock->tsprc == SPKSTAMP_MICRO) {
             ioctl(ssock->sfd, SIOCGSTAMP, &tval);
             ts->sec = tval.tv_sec;
-            ts->usec = tval.tv_usec;
+            ts->subs = tval.tv_usec;
         } else {
             ioctl(ssock->sfd, SIOCGSTAMPNS, &tspec);
             ts->sec = tspec.tv_sec;
-            ts->nsec = tspec.tv_nsec;
+            ts->subs = tspec.tv_nsec;
         }
         ts->prc = ssock->tsprc;
     }

@@ -51,10 +51,8 @@ enum SpkTimesPrc {
 struct SpkTimeStamp {
     /// @brief Second.
     long sec;
-    /// @brief Microsecond.
-    long usec;
-    /// @brief Nanosecond.
-    long nsec;
+    /// @brief Sub-second precision, Microsecond/Nanosecond
+    long subs;
     /// @brief Timestamp precision.
     enum SpkTimesPrc prc;
 };

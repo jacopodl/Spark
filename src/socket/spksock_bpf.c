@@ -64,12 +64,9 @@ static int spksock_bpf_read(struct SpkSock *ssock, unsigned char *buf, struct Sp
         memcpy(buf, priv->cursor + bhdr->bh_hdrlen, ssock->bufl);
 
     if (ts != NULL) {
-        ts->prc = ssock->tsprc;
         ts->sec = bhdr->bh_tstamp.tv_sec;
-        if (ssock->tsprc == SPKSTAMP_MICRO)
-            ts->usec = bhdr->bh_tstamp.tv_usec;
-        else
-            ts->nsec = bhdr->bh_tstamp.tv_usec;
+        ts->subs = bhdr->bh_tstamp.tv_usec;
+        ts->prc = ssock->tsprc;
     }
     ssock->sock_stats.rx_byte += bhdr->bh_datalen;
     ssock->sock_stats.pkt_recv++;
@@ -235,8 +232,7 @@ int __ssock_init_socket(struct SpkSock *ssock) {
                 break;
 
             // AUXILIARY
-            if ((priv = (struct SpkBpf *) calloc(1, sizeof(struct SpkBpf)))
-                == NULL) {
+            if ((priv = (struct SpkBpf *) calloc(1, sizeof(struct SpkBpf))) == NULL) {
                 close(ssock->sfd);
                 return SPKERR_ENOMEM;
             }

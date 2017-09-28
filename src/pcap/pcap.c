@@ -85,22 +85,19 @@ int spark_pcapwrite(struct SpkPcap *pcap, unsigned char *buf, unsigned int bufle
         return SPKERR_ENOMEM;
 
     record->ts_sec = (unsigned int) ts->sec;
+    record->ts_usec = (unsigned int) ts->subs;
     switch (ts->prc) {
         case SPKSTAMP_MICRO:
-            if (ts->usec == 0x000F4240) {
-                record->ts_usec = 0;
+            if (ts->subs >= 0x000F4240) {
+                record->ts_usec -= 0x000F4240;
                 record->ts_sec++;
-                break;
             }
-            record->ts_usec = (unsigned int) ts->usec;
             break;
         case SPKSTAMP_NANO:
-            if (ts->nsec == 0x3B9ACA00) {
-                record->ts_usec = 0;
+            if (ts->subs >= 0x3B9ACA00) {
+                record->ts_usec -= 0x3B9ACA00;
                 record->ts_sec++;
-                break;
             }
-            record->ts_usec = (unsigned int) ts->nsec;
     }
     record->orig_len = buflen;
     record->incl_len = buflen;
