@@ -24,36 +24,36 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include <ipv4.h>
-#include <icmp4.h>
+#include <ip.h>
+#include <icmp.h>
 
-struct IcmpHeader *build_icmp4_packet(unsigned char type, unsigned char code, unsigned short paysize,
+struct IcmpHeader *icmp_build_packet(unsigned char type, unsigned char code, unsigned short paysize,
                                       unsigned char *payload) {
     unsigned long size = ICMP4HDRSIZE + paysize;
     struct IcmpHeader *ret = (struct IcmpHeader *) malloc(size);
     if (ret == NULL)
         return NULL;
-    injects_icmp4_header((unsigned char *) ret, type, code);
+    icmp_inject_header((unsigned char *) ret, type, code);
     if (payload != NULL)
         memcpy(ret->data, payload, paysize);
     return ret;
 }
 
-struct IcmpHeader *injects_icmp4_echo_reply(unsigned char *buf, unsigned short id, unsigned short seqn) {
-    struct IcmpHeader *icmp = injects_icmp4_header(buf, ICMPTY_ECHO_REPLY, 0);
+struct IcmpHeader *icmp_inject_echo_reply(unsigned char *buf, unsigned short id, unsigned short seqn) {
+    struct IcmpHeader *icmp = icmp_inject_header(buf, ICMPTY_ECHO_REPLY, 0);
     icmp->echo.id = htons(id);
     icmp->echo.sqn = htons(seqn);
     return icmp;
 }
 
-struct IcmpHeader *injects_icmp4_echo_request(unsigned char *buf, unsigned short id, unsigned short seqn) {
-    struct IcmpHeader *icmp = injects_icmp4_header(buf, ICMPTY_ECHO_REQUEST, 0);
+struct IcmpHeader *icmp_inject_echo_request(unsigned char *buf, unsigned short id, unsigned short seqn) {
+    struct IcmpHeader *icmp = icmp_inject_header(buf, ICMPTY_ECHO_REQUEST, 0);
     icmp->echo.id = htons(id);
     icmp->echo.sqn = htons(seqn);
     return icmp;
 }
 
-struct IcmpHeader *injects_icmp4_header(unsigned char *buf, unsigned char type, unsigned char code) {
+struct IcmpHeader *icmp_inject_header(unsigned char *buf, unsigned char type, unsigned char code) {
     struct IcmpHeader *ret = (struct IcmpHeader *) buf;
     memset(ret, 0x00, ICMP4HDRSIZE);
     ret->type = type;
@@ -61,7 +61,7 @@ struct IcmpHeader *injects_icmp4_header(unsigned char *buf, unsigned char type, 
     return ret;
 }
 
-unsigned short icmp4_checksum(struct IcmpHeader *icmpHeader, unsigned short paysize) {
+unsigned short icmp_checksum(struct IcmpHeader *icmpHeader, unsigned short paysize) {
     unsigned short *buf = (unsigned short *) icmpHeader;
     register unsigned int sum = 0;
 

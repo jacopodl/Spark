@@ -28,6 +28,7 @@
 #include <net/if.h>
 #include <ifaddrs.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <linux/ethtool.h>
 #include <linux/sockios.h>
 #include <linux/if_packet.h>
@@ -70,6 +71,43 @@ int netdev_burnedin_mac(char *iface_name, struct netaddr_mac *mac) {
     }
     free(epa);
     return ret;
+}
+
+int netdev_get_defgateway(char *iface_name, struct netaddr_ip *gateway) {
+    char buf[1024];
+    char ifa[24];
+    int dest;
+    unsigned int gate;
+    int flags;
+    int fd;
+    char *line;
+
+    if ((fd = open(ROUTETABLE, O_RDONLY)) < 0)
+        return SPKERR_ERROR;
+
+    while (read(fd, buf, 1024) != 0) {
+        line = strtok(buf, "\n");
+        while (line != NULL) {
+            if (sscanf(line, "%s\t%u\t%x\t%u", ifa, &dest, &gate, &flags) != 4) {
+                line = strtok(NULL, "\n");
+                continue;
+            }
+            if (iface_name != NULL && strcmp(iface_name, ifa) != 0) {
+                line = strtok(NULL, "\n");
+                continue;
+            }
+            if (dest != 0 && flags < 2) {
+                line = strtok(NULL, "\n");
+                continue;
+            }
+            gateway->ip = gate;
+            close(fd);
+            return SPKERR_SUCCESS;
+        }
+    }
+
+    close(fd);
+    return SPKERR_ERROR;
 }
 
 int netdev_get_mac(char *iface_name, struct netaddr_mac *mac) {

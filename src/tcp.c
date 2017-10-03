@@ -24,26 +24,26 @@
 #include <string.h>
 #include <netinet/in.h>
 
-#include <ipv4.h>
+#include <ip.h>
 #include <tcp.h>
 
-struct TcpHeader *build_tcp_packet(unsigned short src, unsigned short dst, unsigned int seqn, unsigned int ackn,
+struct TcpHeader *tcp_build_packet(unsigned short src, unsigned short dst, unsigned int seqn, unsigned int ackn,
                                    unsigned char flags, unsigned short window, unsigned short urgp,
                                    unsigned short paysize, unsigned char *payload) {
     unsigned long size = TCPHDRSIZE + paysize;
     struct TcpHeader *ret = NULL;
     if ((ret = (struct TcpHeader *) malloc(size)) == NULL)
         return NULL;
-    injects_tcp_header((unsigned char *) ret, src, dst, seqn, ackn, flags, window, urgp);
+    tcp_inject_header((unsigned char *) ret, src, dst, seqn, ackn, flags, window, urgp);
     if (payload != NULL)
         memcpy(ret->data, payload, paysize);
     return ret;
 }
 
 
-struct TcpHeader *injects_tcp_header(unsigned char *buf, unsigned short src, unsigned short dst, unsigned int seqn,
-                                     unsigned int ackn, unsigned char flags, unsigned short window,
-                                     unsigned short urgp) {
+struct TcpHeader *tcp_inject_header(unsigned char *buf, unsigned short src, unsigned short dst, unsigned int seqn,
+                                    unsigned int ackn, unsigned char flags, unsigned short window,
+                                    unsigned short urgp) {
     struct TcpHeader *ret = (struct TcpHeader *) buf;
     memset(ret, 0x00, TCPHDRSIZE);
     ret->offset = TCPHDRLEN;
@@ -57,7 +57,7 @@ struct TcpHeader *injects_tcp_header(unsigned char *buf, unsigned short src, uns
     return ret;
 }
 
-unsigned short tcp_checksum4(struct TcpHeader *TcpHeader, struct Ipv4Header *ipv4Header) {
+unsigned short tcp_checksum(struct TcpHeader *TcpHeader, struct Ipv4Header *ipv4Header) {
     unsigned short *buf = (unsigned short *) TcpHeader;
     unsigned short tcpl = ntohs(ipv4Header->len) - (unsigned short) (ipv4Header->ihl * 4);
     unsigned short length = tcpl;

@@ -21,7 +21,7 @@
 */
 
 /**
- * @file icmp4.h
+ * @file icmp.h
  * @brief Provides functions for build and manage ICMPv4 packets.
  */
 
@@ -80,8 +80,8 @@ struct IcmpHeader {
  * @param __IN__payload ICMP payload.
  * @return On success returns the pointer to new ICMP packet of size equal to paysize + ICMP4HDRSIZE, otherwise return NULL.
  */
-struct IcmpHeader *build_icmp4_packet(unsigned char type, unsigned char code, unsigned short paysize,
-                                      unsigned char *payload);
+struct IcmpHeader *icmp_build_packet(unsigned char type, unsigned char code, unsigned short paysize,
+                                     unsigned char *payload);
 
 /**
  * @brief Injects ICMP echo reply into a buffer pointed by `buf`.
@@ -90,7 +90,7 @@ struct IcmpHeader *build_icmp4_packet(unsigned char type, unsigned char code, un
  * @param seqn Packet sequence.
  * @return The function returns the pointer to ICMP packet.
  */
-struct IcmpHeader *injects_icmp4_echo_reply(unsigned char *buf, unsigned short id, unsigned short seqn);
+struct IcmpHeader *icmp_inject_echo_reply(unsigned char *buf, unsigned short id, unsigned short seqn);
 
 /**
  * @brief Injects ICMP echo request into a buffer pointed by `buf`.
@@ -99,7 +99,7 @@ struct IcmpHeader *injects_icmp4_echo_reply(unsigned char *buf, unsigned short i
  * @param seqn Packet sequence.
  * @return The function returns the pointer to ICMP packet.
  */
-struct IcmpHeader *injects_icmp4_echo_request(unsigned char *buf, unsigned short id, unsigned short seqn);
+struct IcmpHeader *icmp_inject_echo_request(unsigned char *buf, unsigned short id, unsigned short seqn);
 
 /**
  * @brief Injects ICMP header into a buffer pointed by `buf`.
@@ -108,7 +108,7 @@ struct IcmpHeader *injects_icmp4_echo_request(unsigned char *buf, unsigned short
  * @param code Message code.
  * @return The function returns the pointer to ICMP packet.
  */
-struct IcmpHeader *injects_icmp4_header(unsigned char *buf, unsigned char type, unsigned char code);
+struct IcmpHeader *icmp_inject_header(unsigned char *buf, unsigned char type, unsigned char code);
 
 /**
  * @brief Compute the ICMP checksum.
@@ -116,6 +116,6 @@ struct IcmpHeader *injects_icmp4_header(unsigned char *buf, unsigned char type, 
  * @param paysize Size of ICMP payload.
  * @return The function returns the checksum.
  */
-unsigned short icmp4_checksum(struct IcmpHeader *icmpHeader, unsigned short paysize);
+unsigned short icmp_checksum(struct IcmpHeader *icmpHeader, unsigned short paysize);
 
 #endif

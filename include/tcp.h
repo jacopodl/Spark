@@ -28,7 +28,7 @@
 #ifndef SPARK_TCP_H
 #define SPARK_TCP_H
 
-#include "ipv4.h"
+#include "ip.h"
 
 #define TCPHDRSIZE  20
 #define TCPHDRLEN   5   // (TCPHDRSIZE / (DWORD/8))
@@ -120,7 +120,7 @@ struct TcpHeader {
  * @param payload TCP payload.
  * @return On success returns the pointer to new TCP packet of size equal to paysize + TCPHDRSIZE, otherwise return NULL.
  */
-struct TcpHeader *build_tcp_packet(unsigned short src, unsigned short dst, unsigned int seqn, unsigned int ackn,
+struct TcpHeader *tcp_build_packet(unsigned short src, unsigned short dst, unsigned int seqn, unsigned int ackn,
                                    unsigned char flags, unsigned short window, unsigned short urgp,
                                    unsigned short paysize,
                                    unsigned char *payload);
@@ -137,9 +137,9 @@ struct TcpHeader *build_tcp_packet(unsigned short src, unsigned short dst, unsig
  * @param urgp Urgent pointer.
  * @return The function returns the pointer to TCP packet.
  */
-struct TcpHeader *injects_tcp_header(unsigned char *buf, unsigned short src, unsigned short dst, unsigned int seqn,
-                                     unsigned int ackn, unsigned char flags, unsigned short window,
-                                     unsigned short urgp);
+struct TcpHeader *tcp_inject_header(unsigned char *buf, unsigned short src, unsigned short dst, unsigned int seqn,
+                                    unsigned int ackn, unsigned char flags, unsigned short window,
+                                    unsigned short urgp);
 
 /**
  * @brief Computes the TCP checksum.
@@ -147,6 +147,6 @@ struct TcpHeader *injects_tcp_header(unsigned char *buf, unsigned short src, uns
  * @param __IN__ipv4Header Pointer to ipv4 header.
  * @return The function returns the checksum.
  */
-unsigned short tcp_checksum4(struct TcpHeader *TcpHeader, struct Ipv4Header *ipv4Header);
+unsigned short tcp_checksum(struct TcpHeader *TcpHeader, struct Ipv4Header *ipv4Header);
 
 #endif

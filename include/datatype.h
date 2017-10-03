@@ -85,7 +85,7 @@ struct netaddr_mac {
  * You can fill the structure in this way:
  * @code
  * struct netaddr_ip ip;
- * parse_ipv4addr("192.168.1.254", &ip)
+ * ip_parse_addr("192.168.1.254", &ip)
  * @endcode
  */
 struct netaddr_ip {

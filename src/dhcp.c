@@ -26,7 +26,7 @@
 
 #include <datatype.h>
 #include <ethernet.h>
-#include <ipv4.h>
+#include <ip.h>
 #include <dhcp.h>
 
 bool dhcp_append_option(struct DhcpPacket *dhcpPkt, unsigned char op, unsigned char len, unsigned char *payload) {
@@ -54,7 +54,7 @@ unsigned int dhcp_get_option_uint(struct DhcpPacket *dhcpPkt, unsigned char opti
     return 0;
 }
 
-struct DhcpPacket *build_dhcp_raw(unsigned char op, unsigned char hops, unsigned int xid, unsigned short secs,
+struct DhcpPacket *dhcp_build_raw(unsigned char op, unsigned char hops, unsigned int xid, unsigned short secs,
                                   unsigned short flags, struct netaddr_ip *ciaddr, struct netaddr_ip *yiaddr,
                                   struct netaddr_ip *siaddr, struct netaddr_ip *giaddr, struct netaddr_mac *chaddr,
                                   char *sname) {
@@ -63,11 +63,11 @@ struct DhcpPacket *build_dhcp_raw(unsigned char op, unsigned char hops, unsigned
     if (dhcpPkt == NULL)
         return NULL;
 
-    return injects_dhcp_raw((unsigned char *) dhcpPkt, op, hops, xid, secs, flags, ciaddr, yiaddr, siaddr, giaddr,
-                            chaddr, sname);
+    return dhcp_inject_raw((unsigned char *) dhcpPkt, op, hops, xid, secs, flags, ciaddr, yiaddr, siaddr, giaddr,
+                           chaddr, sname);
 }
 
-struct DhcpPacket *injects_dhcp_discover(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
+struct DhcpPacket *dhcp_inject_discovery(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
                                          unsigned short flags) {
     static const unsigned char buf_parameter_request[] = {DHCP_REQ_SUBMASK, DHCP_REQ_ROUTERS, DHCP_REQ_DOMAIN_NAME,
                                                           DHCP_REQ_DNS};
@@ -75,8 +75,8 @@ struct DhcpPacket *injects_dhcp_discover(unsigned char *buf, struct netaddr_mac 
     struct DhcpPacket *dhcpPkt;
     int optoff = 0;
 
-    dhcpPkt = injects_dhcp_raw(buf, DHCP_OP_BOOT_REQUEST, 0, dhcp_mkxid(), 0, flags, NULL, NULL, NULL, NULL,
-                               chaddr, NULL);
+    dhcpPkt = dhcp_inject_raw(buf, DHCP_OP_BOOT_REQUEST, 0, dhcp_mkxid(), 0, flags, NULL, NULL, NULL, NULL,
+                              chaddr, NULL);
 
     dhcpPkt->options[optoff++] = DHCP_MESSAGE_TYPE;
     dhcpPkt->options[optoff++] = 0x01;
@@ -87,16 +87,16 @@ struct DhcpPacket *injects_dhcp_discover(unsigned char *buf, struct netaddr_mac 
     memcpy(buf_client_id + 1, chaddr->mac, ETHHWASIZE);
 
     if (ipreq != NULL)
-        dhcp_append_option(dhcpPkt, DHCP_REQUESTED_ADDRESS, IPV4ADDRSIZE, (unsigned char *) &(ipreq->ip));
+        dhcp_append_option(dhcpPkt, DHCP_REQUESTED_ADDRESS, IPADDRSIZE, (unsigned char *) &(ipreq->ip));
 
     dhcp_append_option(dhcpPkt, DHCP_PARAMETER_REQUEST_LIST, 0x04, (unsigned char *) buf_parameter_request);
     return dhcpPkt;
 }
 
-struct DhcpPacket *injects_dhcp_raw(unsigned char *buf, unsigned char op, unsigned char hops, unsigned int xid,
-                                    unsigned short secs, unsigned short flags, struct netaddr_ip *ciaddr,
-                                    struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr, struct netaddr_ip *giaddr,
-                                    struct netaddr_mac *chaddr, char *sname) {
+struct DhcpPacket *dhcp_inject_raw(unsigned char *buf, unsigned char op, unsigned char hops, unsigned int xid,
+                                   unsigned short secs, unsigned short flags, struct netaddr_ip *ciaddr,
+                                   struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr, struct netaddr_ip *giaddr,
+                                   struct netaddr_mac *chaddr, char *sname) {
     struct DhcpPacket *dhcpPkt = (struct DhcpPacket *) buf;
     memset(dhcpPkt, 0x00, DHCPPKTSIZE);
     dhcpPkt->op = op;
@@ -123,35 +123,35 @@ struct DhcpPacket *injects_dhcp_raw(unsigned char *buf, unsigned char op, unsign
     return dhcpPkt;
 }
 
-struct DhcpPacket *injects_dhcp_release(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ciaddr,
-                                        struct netaddr_ip *server, unsigned short flags) {
+struct DhcpPacket *dhcp_inject_release(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ciaddr,
+                                       struct netaddr_ip *server, unsigned short flags) {
     int optoff = 0;
-    struct DhcpPacket *dhcpPkt = injects_dhcp_raw(buf, ETHHWASIZE, 0, dhcp_mkxid(), 0, flags, ciaddr, NULL, NULL, NULL,
-                                                  chaddr, NULL);
+    struct DhcpPacket *dhcpPkt = dhcp_inject_raw(buf, ETHHWASIZE, 0, dhcp_mkxid(), 0, flags, ciaddr, NULL, NULL, NULL,
+                                                 chaddr, NULL);
 
     dhcpPkt->options[(optoff)++] = DHCP_MESSAGE_TYPE;
     dhcpPkt->options[(optoff)++] = 0x01;
     dhcpPkt->options[(optoff)++] = DHCP_RELEASE;
     dhcpPkt->options[(optoff)] = 0xFF;
 
-    dhcp_append_option(dhcpPkt, DHCP_SERVER_IDENTIFIER, IPV4ADDRSIZE, (unsigned char *) &server->ip);
+    dhcp_append_option(dhcpPkt, DHCP_SERVER_IDENTIFIER, IPADDRSIZE, (unsigned char *) &server->ip);
     return dhcpPkt;
 }
 
-struct DhcpPacket *injects_dhcp_request(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
-                                        unsigned int xid, struct netaddr_ip *siaddr,
-                                        unsigned short flags) {
+struct DhcpPacket *dhcp_inject_request(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
+                                       unsigned int xid, struct netaddr_ip *siaddr,
+                                       unsigned short flags) {
     int optoff = 0;
-    struct DhcpPacket *dhcpPkt = injects_dhcp_raw(buf, ETHHWASIZE, 0, xid, 0, flags, NULL, NULL, siaddr, NULL,
-                                                  chaddr, NULL);
+    struct DhcpPacket *dhcpPkt = dhcp_inject_raw(buf, ETHHWASIZE, 0, xid, 0, flags, NULL, NULL, siaddr, NULL,
+                                                 chaddr, NULL);
 
     dhcpPkt->options[(optoff)++] = DHCP_MESSAGE_TYPE;
     dhcpPkt->options[(optoff)++] = 0x01;
     dhcpPkt->options[(optoff)++] = DHCP_REQUEST;
     dhcpPkt->options[(optoff)] = 0xFF;
 
-    dhcp_append_option(dhcpPkt, DHCP_SERVER_IDENTIFIER, IPV4ADDRSIZE, (unsigned char *) &siaddr->ip);
-    dhcp_append_option(dhcpPkt, DHCP_REQUESTED_ADDRESS, IPV4ADDRSIZE, (unsigned char *) &ipreq->ip);
+    dhcp_append_option(dhcpPkt, DHCP_SERVER_IDENTIFIER, IPADDRSIZE, (unsigned char *) &siaddr->ip);
+    dhcp_append_option(dhcpPkt, DHCP_REQUESTED_ADDRESS, IPADDRSIZE, (unsigned char *) &ipreq->ip);
     return dhcpPkt;
 }
 

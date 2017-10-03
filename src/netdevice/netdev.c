@@ -49,7 +49,7 @@ int netdev_get_flags(char *iface_name, short *flags) {
     return ret;
 }
 
-bool netdev_get_ipv4(char *iface_name, struct netaddr_ip *ip) {
+bool netdev_get_ip(char *iface_name, struct netaddr_ip *ip) {
     bool ret;
     int ctl_sock;
     struct ifreq req;

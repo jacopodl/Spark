@@ -158,7 +158,7 @@ unsigned int dhcp_get_option_uint(struct DhcpPacket *dhcpPkt, unsigned char opti
  * @param __IN__sname Server host name.
  * @return On success returns the pointer to new DHCP packet, otherwise return NULL.
  */
-struct DhcpPacket *build_dhcp_raw(unsigned char op, unsigned char hops, unsigned int xid, unsigned short secs,
+struct DhcpPacket *dhcp_build_raw(unsigned char op, unsigned char hops, unsigned int xid, unsigned short secs,
                                   unsigned short flags, struct netaddr_ip *ciaddr, struct netaddr_ip *yiaddr,
                                   struct netaddr_ip *siaddr, struct netaddr_ip *giaddr, struct netaddr_mac *chaddr,
                                   char *sname);
@@ -172,7 +172,7 @@ struct DhcpPacket *build_dhcp_raw(unsigned char op, unsigned char hops, unsigned
  * @param flags Flags.
  * @return The function returns the pointer to DHCP discover packet.
  */
-struct DhcpPacket *injects_dhcp_discover(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
+struct DhcpPacket *dhcp_inject_discovery(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
                                          unsigned short flags);
 
 /**
@@ -192,10 +192,10 @@ struct DhcpPacket *injects_dhcp_discover(unsigned char *buf, struct netaddr_mac 
  * @param __IN__sname Server host name.
  * @return The function returns the pointer to DHCP packet.
  */
-struct DhcpPacket *injects_dhcp_raw(unsigned char *buf, unsigned char op, unsigned char hops, unsigned int xid,
-                                    unsigned short secs, unsigned short flags, struct netaddr_ip *ciaddr,
-                                    struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr, struct netaddr_ip *giaddr,
-                                    struct netaddr_mac *chaddr, char *sname);
+struct DhcpPacket *dhcp_inject_raw(unsigned char *buf, unsigned char op, unsigned char hops, unsigned int xid,
+                                   unsigned short secs, unsigned short flags, struct netaddr_ip *ciaddr,
+                                   struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr, struct netaddr_ip *giaddr,
+                                   struct netaddr_mac *chaddr, char *sname);
 
 /**
  * @brief Injects DHCP release message into a bufer pointed by `buf`.
@@ -207,8 +207,8 @@ struct DhcpPacket *injects_dhcp_raw(unsigned char *buf, unsigned char op, unsign
  * @param flags Flags.
  * @return The function returns the pointer to DHCP release packet.
  */
-struct DhcpPacket *injects_dhcp_release(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ciaddr,
-                                        struct netaddr_ip *server, unsigned short flags);
+struct DhcpPacket *dhcp_inject_release(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ciaddr,
+                                       struct netaddr_ip *server, unsigned short flags);
 
 /**
  * @brief Injects DHCP request message into a bufer pointed by `buf`.
@@ -221,8 +221,8 @@ struct DhcpPacket *injects_dhcp_release(unsigned char *buf, struct netaddr_mac *
  * @param flags Flags.
  * @return The function returns the pointer to DHCP request packet.
  */
-struct DhcpPacket *injects_dhcp_request(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
-                                        unsigned int xid, struct netaddr_ip *siaddr, unsigned short flags);
+struct DhcpPacket *dhcp_inject_request(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
+                                       unsigned int xid, struct netaddr_ip *siaddr, unsigned short flags);
 
 /**
  * @brief Obtains DHCP message type.

@@ -21,28 +21,28 @@
 */
 
 /**
- * @file ipv4.h
+ * @file ip.h
  * @brief Provides useful functions for build IPv4 packet and manage related addresses.
  */
 
-#ifndef SPARK_IPV4_H
-#define SPARK_IPV4_H
+#ifndef SPARK_IP_H
+#define SPARK_IP_H
 
 #include <stdbool.h>
 #include <arpa/inet.h>
 
 #include "datatype.h"
 
-#define IPV4VERSION 4                   // IP version
-#define IPV4HDRSIZE 20                  // Header size
-#define IPV4DEFTTL  64                  // Time to live default value
-#define IPV4DEFIHL  5                   // Default IHL value
-#define IPV4MAXTTL  255                 // Time to live max value
-#define IPV4MINSIZE (IPV4HDRSIZE + 0)   // IPv4 min size
-#define IPV4MAXSIZE 65535               // IPv4 max size
+#define IPVERSION 4                 // IP version
+#define IPHDRSIZE 20                // Header size
+#define IPDEFTTL  64                // Time to live default value
+#define IPDEFIHL  5                 // Default IHL value
+#define IPMAXTTL  255               // Time to live max value
+#define IPMINSIZE (IPHDRSIZE + 0)   // IPv4 min size
+#define IPMAXSIZE 65535             // IPv4 max size
 
-#define IPV4ADDRSIZE    4                   // IP address length
-#define IPV4STRLEN      16                  // IPV4 string length
+#define IPADDRSIZE    4             // IP address length
+#define IPSTRLEN      16            // IPV4 string length
 
 /// @brief This structure represents an IPv4 packet.
 struct Ipv4Header {
@@ -80,14 +80,14 @@ struct Ipv4Header {
  * @param ip2 Pointer to netaddr_ip structure contains seconds ip address.
  * @return Function returns true if ip1 is equals to ip2, false otherwise.
  */
-bool ipv4cmp(struct netaddr_ip *ip1, struct netaddr_ip *ip2);
+bool ip_compare(struct netaddr_ip *ip1, struct netaddr_ip *ip2);
 
 /**
  * @brief Checks if is a broadcast(255.255.255.255) IPv4 address.
  * @param ip Pointer to netaddr_ip structure contains ip address.
  * @return Function returns true if is a broadcast address, false otherwise.
  */
-bool isbcast_ipv4(struct netaddr_ip *ip);
+bool ip_isbcast(struct netaddr_ip *ip);
 
 /**
  * @brief Checks if is a broadcast IPv4 address.
@@ -95,14 +95,14 @@ bool isbcast_ipv4(struct netaddr_ip *ip);
  * @param netmask Pointer to netaddr_ip structure contains netmask address.
  * @return Function returns true if is a broadcast address, false otherwise.
  */
-bool isbcast2_ipv4(struct netaddr_ip *ip, struct netaddr_ip *netmask);
+bool ip_isbcast2(struct netaddr_ip *ip, struct netaddr_ip *netmask);
 
 /**
  * @brief Checks if is a empty IPv4 address (All byte are zero!).
  * @param ip Pointer to netaddr_ip structure contains ip address.
  * @return Function returns true if is empty IPv4 address, false otherwise.
  */
-bool isempty_ipv4(struct netaddr_ip *ip);
+bool ip_isempty(struct netaddr_ip *ip);
 
 /**
  * @brief Checks if ip1 is greater than ip2.
@@ -110,7 +110,7 @@ bool isempty_ipv4(struct netaddr_ip *ip);
  * @param ip2 Pointer to netaddr_ip structure contains ip address.
  * @return Function returns true if ip1 is greater than ip2, false otherwise.
  */
-bool isgreater_ipv4(struct netaddr_ip *ip1, struct netaddr_ip *ip2);
+bool ip_isgreater(struct netaddr_ip *ip1, struct netaddr_ip *ip2);
 
 /**
  * @brief Checks if ip1 is less than ip2.
@@ -118,14 +118,14 @@ bool isgreater_ipv4(struct netaddr_ip *ip1, struct netaddr_ip *ip2);
  * @param ip2 Pointer to netaddr_ip structure contains ip address.
  * @return Function returns true if ip1 is less than ip2, false otherwise.
  */
-bool isless_ipv4(struct netaddr_ip *ip1, struct netaddr_ip *ip2);
+bool ip_isless(struct netaddr_ip *ip1, struct netaddr_ip *ip2);
 
 /**
  * @brief Checks if is a multicast(class D) IPv4 address.
  * @param ip Pointer to netaddr_ip structure contains ip address.
  * @return Function returns true if is a class D address, false otherwise.
  */
-bool ismcast_ipv4(struct netaddr_ip *ip);
+bool ip_ismcast(struct netaddr_ip *ip);
 
 /**
  * @brief Check if they are addresses on the same subnet.
@@ -134,7 +134,7 @@ bool ismcast_ipv4(struct netaddr_ip *ip);
  * @param netmask Pointer to netaddr_ip structure contains netmask.
  * @return Function returns true if the addr1 and addr2 are on the same subnet, false otherwise.
  */
-bool issame_subnet(struct netaddr_ip *addr1, struct netaddr_ip *addr2, struct netaddr_ip *netmask);
+bool ip_issame_subnet(struct netaddr_ip *addr1, struct netaddr_ip *addr2, struct netaddr_ip *netmask);
 
 /**
  * @brief Parse string contains a ipv4 address in the form `000.000.000.000`.
@@ -142,7 +142,7 @@ bool issame_subnet(struct netaddr_ip *addr1, struct netaddr_ip *addr2, struct ne
  * @param __OUT__ip Pointer to netaddr_ip structure.
  * @return Function returns true if the address has been converted, false otherwise.
  */
-bool parse_ipv4addr(char *ipstr, struct netaddr_ip *ip);
+bool ip_parse_addr(char *ipstr, struct netaddr_ip *ip);
 
 /**
  * @brief Obtains ipv4 address in the form `000.000.000.000`.
@@ -150,15 +150,15 @@ bool parse_ipv4addr(char *ipstr, struct netaddr_ip *ip);
  * @param _static Not allocate new memory, the result will be saved in internal static bufer.
  * @return Function returns string contains ip address.
  */
-char *get_stripv4(struct netaddr_ip *ip, bool _static);
+char *ip_getstr(struct netaddr_ip *ip, bool _static);
 
 /**
  * @brief Obtains ipv4 address in the form `000.000.000.000`.
  * @param __IN__ip Pointer to netaddr_ip structure.
- * @param __OUT__ipstr Pointer to string of dimension IPV4STRLEN.
+ * @param __OUT__ipstr Pointer to string of dimension IPSTRLEN.
  * @return Function returns string contains ip address.
  */
-char *get_stripv4_r(struct netaddr_ip *ip, char *ipstr);
+char *ip_getstr_r(struct netaddr_ip *ip, char *ipstr);
 
 /**
  * @brief Built a new IPv4 packet.
@@ -172,9 +172,9 @@ char *get_stripv4_r(struct netaddr_ip *ip, char *ipstr);
  * @param proto Type of the protocol in the payload field.
  * @param paysize Lenght of paylod.
  * @param __IN__payload IPv4 payload.
- * @return On success returns the pointer to new IPv4 packet of size equal to paysize + IPV4HDRSIZE, otherwise return NULL.
+ * @return On success returns the pointer to new IPv4 packet of size equal to paysize + IPHDRSIZE, otherwise return NULL.
  */
-struct Ipv4Header *build_ipv4_packet(struct netaddr_ip *src, struct netaddr_ip *dst, unsigned char ihl,
+struct Ipv4Header *ip_build_packet(struct netaddr_ip *src, struct netaddr_ip *dst, unsigned char ihl,
                                      unsigned short id, unsigned char ttl, unsigned char proto, unsigned short paysize,
                                      unsigned char *payload);
 
@@ -190,22 +190,22 @@ struct Ipv4Header *build_ipv4_packet(struct netaddr_ip *src, struct netaddr_ip *
  * @param proto Type of the protocol in the payload field.
  * @return The function returns the pointer to IPv4 packet.
  */
-struct Ipv4Header *injects_ipv4_header(unsigned char *buf, struct netaddr_ip *src, struct netaddr_ip *dst,
-                                       unsigned char ihl, unsigned short id, unsigned short len, unsigned char ttl,
-                                       unsigned char proto);
+struct Ipv4Header *ip_inject_header(unsigned char *buf, struct netaddr_ip *src, struct netaddr_ip *dst,
+                                    unsigned char ihl, unsigned short id, unsigned short len, unsigned char ttl,
+                                    unsigned char proto);
 
 /**
  * @brief Computes the IPv4 checksum.
  * @param __IN__ipv4Header Pointer to ipv4 header.
  * @return The function returns the checksum.
  */
-unsigned short ipv4_checksum(struct Ipv4Header *ipHeader);
+unsigned short ip_checksum(struct Ipv4Header *ipHeader);
 
 /**
  * @brief Builds a random ID.
  * @return The function returns a random ID.
  */
-unsigned short ipv4_mkid();
+unsigned short ip_mkid();
 
 /**
  * @brief Obtains broadcast IPv4 address.
@@ -213,7 +213,7 @@ unsigned short ipv4_mkid();
  * @brief __IN__netmask Pointer to netaddr_ip structure contains the subnet mask.
  * @param __OUT__broadcast Pointer to netaddr_ip structure.
  */
-void get_ipv4bcast_addr(struct netaddr_ip *addr, struct netaddr_ip *netmask, struct netaddr_ip *broadcast);
+void ip_bcast(struct netaddr_ip *addr, struct netaddr_ip *netmask, struct netaddr_ip *broadcast);
 
 /**
  * @brief Obtains network address.
@@ -221,25 +221,25 @@ void get_ipv4bcast_addr(struct netaddr_ip *addr, struct netaddr_ip *netmask, str
  * @brief __IN__netmask Pointer to netaddr_ip structure contains the subnet mask.
  * @param __OUT__net Pointer to netaddr_ip structure.
  */
-void get_ipv4net_addr(struct netaddr_ip *addr, struct netaddr_ip *netmask, struct netaddr_ip *net);
+void ip_netaddr(struct netaddr_ip *addr, struct netaddr_ip *netmask, struct netaddr_ip *net);
 
 /**
  * @brief Obtains wildcard mask.
  * @brief __IN__netmask Pointer to netaddr_ip structure contains the subnet mask.
  * @param __OUT__ret_wildcard Pointer to netaddr_ip structure.
  */
-void get_ipv4wildcard_mask(struct netaddr_ip *netmask, struct netaddr_ip *ret_wildcard);
+void ip_wildcard(struct netaddr_ip *netmask, struct netaddr_ip *ret_wildcard);
 
 /**
  * @brief Obtains the next IPv4 address.
  * @brief __IN__OUT__ip Pointer to netaddr_ip structure contains the ip address.
  */
-void increment_ipv4addr(struct netaddr_ip *ip);
+void ip_inc(struct netaddr_ip *ip);
 
 /**
  * @brief Obtains a random IPv4 address.
  * @param __OUT__ip Pointer to netaddr_ip structure.
  */
-void rndipv4(struct netaddr_ip *ip);
+void ip_rndaddr(struct netaddr_ip *ip);
 
 #endif

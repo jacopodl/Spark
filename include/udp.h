@@ -28,7 +28,7 @@
 #ifndef SPARK_UDP_H
 #define SPARK_UDP_H
 
-#include "ipv4.h"
+#include "ip.h"
 
 #define UDPHDRSIZE  8                                           // Header size
 #define UDPMINSIZE  (UDPHDRSIZE + 0)                            // UDP min len
@@ -57,7 +57,7 @@ struct UdpHeader {
  * @param payload UDP payload.
  * @return On success returns the pointer to new UDP packet of size equal to paysize + UDPHDRSIZE, otherwise return NULL.
  */
-struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, unsigned short paysize,
+struct UdpHeader *udp_build_packet(unsigned short srcp, unsigned short dstp, unsigned short paysize,
                                    unsigned char *payload);
 
 /**
@@ -68,7 +68,7 @@ struct UdpHeader *build_udp_packet(unsigned short srcp, unsigned short dstp, uns
  * @param len Length of payload.
  * @return The function returns the pointer to UDP packet.
  */
-struct UdpHeader *injects_udp_header(unsigned char *buf, unsigned short srcp, unsigned short dstp, unsigned short len);
+struct UdpHeader *udp_inject_header(unsigned char *buf, unsigned short srcp, unsigned short dstp, unsigned short len);
 
 /**
  * @brief Computes the UDP checksum.
@@ -76,6 +76,6 @@ struct UdpHeader *injects_udp_header(unsigned char *buf, unsigned short srcp, un
  * @param __IN__ipv4Header Pointer to ipv4 header.
  * @return The function returns the checksum.
  */
-unsigned short udp_checksum4(struct UdpHeader *udpHeader, struct Ipv4Header *ipv4Header);
+unsigned short udp_checksum(struct UdpHeader *udpHeader, struct Ipv4Header *ipv4Header);
 
 #endif

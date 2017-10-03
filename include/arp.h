@@ -31,7 +31,7 @@
 #include "datatype.h"
 #include "netdevice.h"
 #include "ethernet.h"
-#include "ipv4.h"
+#include "ip.h"
 
 #define ARPHWT_ETH      1
 #define ARPHWT_EXPETH   2
@@ -53,7 +53,7 @@
 #define ARPOP_REVREP    4
 
 #define ARPHDRSIZE      8
-#define ARPETHIPSIZE    (ARPHDRSIZE + ((ETHHWASIZE+IPV4ADDRSIZE)*2))
+#define ARPETHIPSIZE    (ARPHDRSIZE + ((ETHHWASIZE+IPADDRSIZE)*2))
 
 /// @brief This structure rapresents an ARP packet.
 struct ArpPacket {
@@ -84,7 +84,7 @@ struct ArpPacket {
  * @param __IN__dpraddr Target protocol address.
  * @return On success returns the pointer to new generic ARP packet, otherwise return NULL.
  */
-struct ArpPacket *build_arp_packet(unsigned short hw_type, unsigned short proto, unsigned char hwalen,
+struct ArpPacket *arp_build_packet(unsigned short hw_type, unsigned short proto, unsigned char hwalen,
                                    unsigned char pralen, unsigned short opcode, struct netaddr_generic *shwaddr,
                                    struct netaddr_generic *spraddr, struct netaddr_generic *dhwaddr,
                                    struct netaddr_generic *dpraddr);
@@ -103,10 +103,10 @@ struct ArpPacket *build_arp_packet(unsigned short hw_type, unsigned short proto,
  * @param __IN__dpraddr Target protocol address.
  * @return The function returns the pointer to generic ARP packet.
  */
-struct ArpPacket *injects_arp_packet(unsigned char *buf, unsigned short hw_type, unsigned short proto,
-                                     unsigned char hwalen, unsigned char pralen, unsigned short opcode,
-                                     struct netaddr_generic *shwaddr, struct netaddr_generic *spraddr,
-                                     struct netaddr_generic *dhwaddr, struct netaddr_generic *dpraddr);
+struct ArpPacket *arp_inject_packet(unsigned char *buf, unsigned short hw_type, unsigned short proto,
+                                    unsigned char hwalen, unsigned char pralen, unsigned short opcode,
+                                    struct netaddr_generic *shwaddr, struct netaddr_generic *spraddr,
+                                    struct netaddr_generic *dhwaddr, struct netaddr_generic *dpraddr);
 
 /**
  * @brief Injects ARP replay packet into a buffer pointed by `buf`.
@@ -117,8 +117,8 @@ struct ArpPacket *injects_arp_packet(unsigned char *buf, unsigned short hw_type,
  * @param __IN__dpraddr Target protocol address.
  * @return The function returns the pointer to ARP replay packet.
  */
-struct ArpPacket *injects_arp_reply(unsigned char *buf, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
-                                    struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr);
+struct ArpPacket *arp_inject_reply(unsigned char *buf, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
+                                   struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr);
 
 /**
  * @brief Injects ARP request packet into a buffer pointed by `buf`.
@@ -129,8 +129,8 @@ struct ArpPacket *injects_arp_reply(unsigned char *buf, struct netaddr_mac *shwa
  * @param __IN__dpraddr Target protocol address.
  * @return The function returns the pointer to ARP request packet.
  */
-struct ArpPacket *injects_arp_request(unsigned char *buf, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
-                                      struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr);
+struct ArpPacket *arp_inject_request(unsigned char *buf, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
+                                     struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr);
 
 /**
  * @brief Obtains dest IP address from ArpPacket.

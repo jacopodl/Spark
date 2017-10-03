@@ -33,6 +33,8 @@
 
 #include "datatype.h"
 
+#define ROUTETABLE   "/proc/net/route"
+
 /// @brief Contains device information and pointer to the next structure.
 struct NetDevList {
     /// @brief Device name.
@@ -64,12 +66,20 @@ int netdev_burnedin_mac(char *iface_name, struct netaddr_mac *mac);
 int netdev_get_flags(char *iface_name, short *flags);
 
 /**
+ * @brief Obtains the address of default gateway.
+ * @param iface_name Interface name.
+ * @param __OUT__gateway Pointer to netaddr_ip structure.
+ * @return Function returns true if the gateway address has been obtained, false otherwise.
+ */
+int netdev_get_defgateway(char *iface_name, struct netaddr_ip *gateway);
+
+/**
  * @brief Obtains the IPv4 address.
  * @param iface_name Interface name.
  * @param __OUT__ip Pointer to netaddr_ip structure.
  * @return Function returns true if the address has been obtained, false otherwise.
  */
-bool netdev_get_ipv4(char *iface_name, struct netaddr_ip *ip);
+bool netdev_get_ip(char *iface_name, struct netaddr_ip *ip);
 
 /**
  * @brief Obtains the IPv4 netmask.

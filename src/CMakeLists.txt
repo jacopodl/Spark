@@ -8,9 +8,8 @@ set(LIB_FILE
         pcap/pcap.c
         ethernet.c
         arp.c
-        ipv4.c
-        routev4.c
-        icmp4.c
+        ip.c
+        icmp.c
         tcp.c
         udp.c
         dhcp.c)
