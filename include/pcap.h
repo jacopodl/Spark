@@ -79,7 +79,7 @@ struct SpkPcap {
  * @return Upon successful completion, spark_pcapnew() returns SPKERR_SUCCESS.
  * Otherwise, a value < 0 shall be returned, you can use spark_strerror to get error message.
  */
-int spark_pcapnew(char *filename, unsigned int snaplen, unsigned int dlt, struct SpkPcap **spkpcap);
+int spark_pnew(char *filename, unsigned int snaplen, unsigned int dlt, struct SpkPcap **spkpcap);
 
 /**
  * @brief Write on pcap file.
@@ -90,12 +90,12 @@ int spark_pcapnew(char *filename, unsigned int snaplen, unsigned int dlt, struct
  * @return Upon successful completion, spark_pcapwrite() returns SPKERR_SUCCESS.
  * Otherwise, a value < 0 shall be returned, you can use spark_strerror to get error message.
  */
-int spark_pcapwrite(struct SpkPcap *spkpcap, unsigned char *buf, unsigned int buflen, struct SpkTimeStamp *ts);
+int spark_pwrite(struct SpkPcap *spkpcap, unsigned char *buf, unsigned int buflen, struct SpkTimeStamp *ts);
 
 /**
  * @brief Close opened pcap file.
  * @param spkpcap Pointer to SpkPcap structure.
  */
-void spark_pcapclose(struct SpkPcap *spkpcap);
+void spark_pclose(struct SpkPcap *spkpcap);
 
 #endif //LIBSPARK_PCAP_H

@@ -29,7 +29,7 @@
 #include <spkerr.h>
 #include <pcap.h>
 
-int spark_pcapnew(char *filename, unsigned int snaplen, unsigned int dlt, struct SpkPcap **spkpcap) {
+int spark_pnew(char *filename, unsigned int snaplen, unsigned int dlt, struct SpkPcap **spkpcap) {
     int err = SPKERR_SUCCESS;
 
     if (filename == NULL || spkpcap == NULL)
@@ -84,7 +84,7 @@ int spark_pcapnew(char *filename, unsigned int snaplen, unsigned int dlt, struct
     return err;
 }
 
-int spark_pcapwrite(struct SpkPcap *spkpcap, unsigned char *buf, unsigned int buflen, struct SpkTimeStamp *ts) {
+int spark_pwrite(struct SpkPcap *spkpcap, unsigned char *buf, unsigned int buflen, struct SpkTimeStamp *ts) {
     struct SpkPcapRecord *record;
     int err = SPKERR_SUCCESS;
 
@@ -134,7 +134,7 @@ int spark_pcapwrite(struct SpkPcap *spkpcap, unsigned char *buf, unsigned int bu
     return err;
 }
 
-void spark_pcapclose(struct SpkPcap *spkpcap) {
+void spark_pclose(struct SpkPcap *spkpcap) {
     if (spkpcap != NULL) {
         close(spkpcap->fd);
         free(spkpcap->filename);

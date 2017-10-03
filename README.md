@@ -45,7 +45,7 @@ if((err = spark_opensock("my-interface", sizeof(buf), &rsock)) < 0)
     return -1;
 }
 
-if((err = spark_pcapnew("my-pcap", SPKPCAP_SNAPLEN_DEFAULT, spark_getltype(rsock), &mypcap)) < 0)
+if((err = spark_pnew("my-pcap", SPKPCAP_SNAPLEN_DEFAULT, spark_getltype(rsock), &mypcap)) < 0)
 {
     fprintf(stderr, "%s\n", spark_strerror(err));
     return -1;
@@ -54,11 +54,11 @@ if((err = spark_pcapnew("my-pcap", SPKPCAP_SNAPLEN_DEFAULT, spark_getltype(rsock
 while(max_packet-- > 0)
 {
     len = spark_read(rsock, buf, &ts);
-    spark_pcapwrite(mypcap, buf, len, &ts);
+    spark_pwrite(mypcap, buf, len, &ts);
 }
 
 spark_close(rsock);
-spark_pcapclose(mypcap);
+spark_pclose(mypcap);
 
 ```
 
