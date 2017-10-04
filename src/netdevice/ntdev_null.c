@@ -50,10 +50,10 @@ int netdev_set_mac(char *iface_name, struct netaddr_mac *mac) {
     return SPKERR_ENOSUPPORT;
 }
 
-struct NetDevList *netdev_get_iflist(unsigned int filter) {
+struct NetDevice *netdev_get_iflist(unsigned int filter) {
     return NULL;
 }
 
-inline void netdev_iflist_cleanup(struct NetDevList *NetDevList) {
+inline void netdev_iflist_cleanup(struct NetDevice *NetDevice) {
     return;
 }

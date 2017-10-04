@@ -154,11 +154,11 @@ int netdev_set_mac(char *iface_name, struct netaddr_mac *mac) {
     return ret;
 }
 
-struct NetDevList *netdev_get_iflist(unsigned int filter) {
+struct NetDevice *netdev_get_iflist(unsigned int filter) {
     struct ifaddrs *ifa = NULL;
     struct ifaddrs *curr = NULL;
-    struct NetDevList *devs = NULL;
-    struct NetDevList *dev = NULL;
+    struct NetDevice *devs = NULL;
+    struct NetDevice *dev = NULL;
     struct sockaddr_ll *sll = NULL;
 
     if (getifaddrs(&ifa) < 0)
@@ -170,7 +170,7 @@ struct NetDevList *netdev_get_iflist(unsigned int filter) {
             continue;
         if (!(curr->ifa_flags & filter))
             continue;
-        if ((dev = (struct NetDevList *) malloc(sizeof(struct NetDevList))) == NULL) {
+        if ((dev = (struct NetDevice *) malloc(sizeof(struct NetDevice))) == NULL) {
             netdev_iflist_cleanup(devs);
             return NULL;
         }

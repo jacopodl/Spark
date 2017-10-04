@@ -36,15 +36,15 @@
 #define ROUTETABLE   "/proc/net/route"
 
 /// @brief Contains device information and pointer to the next structure.
-struct NetDevList {
+struct NetDevice {
     /// @brief Device name.
     char name[IFNAMSIZ];
     /// @brief Device flags.
     unsigned int flags;
     /// @brief Device MAC address.
     struct netaddr_mac mac;
-    /// @brief Next NetDevList item.
-    struct NetDevList *next;
+    /// @brief Next NetDevice item.
+    struct NetDevice *next;
 };
 
 /**
@@ -61,7 +61,7 @@ int netdev_burnedin_mac(char *iface_name, struct netaddr_mac *mac);
  * @param iface_name Interface name.
  * @param __OUT__flag Pointer to short int.
  * @return On success the parameter `flag` will filled with active device flags and the function returns SPKERR_SUCCESS.
- * Otherwise, SPKERR_ERROR is returned and errno is set appropriately.
+ * Otherwise, SPKERR_ERROR is returned.
  */
 int netdev_get_flags(char *iface_name, short *flags);
 
@@ -69,7 +69,8 @@ int netdev_get_flags(char *iface_name, short *flags);
  * @brief Obtains the address of default gateway.
  * @param iface_name Interface name.
  * @param __OUT__gateway Pointer to netaddr_ip structure.
- * @return Function returns true if the gateway address has been obtained, false otherwise.
+ * @return Function returns SPKERR_SUCCESS if the gateway address has been obtained, SPKERR_ERROR otherwise.
+ * If function is not supported SPKERR_ENOSUPPORT is returned.
  */
 int netdev_get_defgateway(char *iface_name, struct netaddr_ip *gateway);
 
@@ -77,17 +78,17 @@ int netdev_get_defgateway(char *iface_name, struct netaddr_ip *gateway);
  * @brief Obtains the IPv4 address.
  * @param iface_name Interface name.
  * @param __OUT__ip Pointer to netaddr_ip structure.
- * @return Function returns true if the address has been obtained, false otherwise.
+ * @return Function returns SPKERR_SUCCESS if the address has been obtained, SPKERR_ERROR otherwise.
  */
-bool netdev_get_ip(char *iface_name, struct netaddr_ip *ip);
+int netdev_get_ip(char *iface_name, struct netaddr_ip *ip);
 
 /**
  * @brief Obtains the IPv4 netmask.
  * @param iface_name Interface name.
  * @param __OUT__netmask Pointer to netaddr_ip structure.
- * @return Function returns true if the netmask has been obtained, false otherwise.
+ * @return Function returns SPKERR_SUCCESS if netmask has been obtained, SPKERR_ERROR otherwise.
  */
-bool netdev_get_netmask(char *iface_name, struct netaddr_ip *netmask);
+int netdev_get_netmask(char *iface_name, struct netaddr_ip *netmask);
 
 /**
  * @brief Obtains current device mac address.
@@ -120,15 +121,15 @@ int netdev_set_mac(char *iface_name, struct netaddr_mac *mac);
  * @brief Builds and returns linked list with devices currently availlable on the system.
  * @param filter Set this mask for showing a certain device group, Eg: IFF_BROADCAST, IFF_PROMISC...
  * If mask is ZERO all device are displayed.
- * @return First element of the NetDevList linked list.
+ * @return First element of the NetDevice linked list.
  * On error, NULL is returned.
  */
-struct NetDevList *netdev_get_iflist(unsigned int filter);
+struct NetDevice *netdev_get_iflist(unsigned int filter);
 
 /**
  * @brief Frees the memory occupied by netdev_get_iflist() function.
- * @param __IN__NetDevList pointer to NetDevList list.
+ * @param __IN__NetDevice pointer to NetDevice list.
  */
-void netdev_iflist_cleanup(struct NetDevList *NetDevList);
+void netdev_iflist_cleanup(struct NetDevice *NetDevice);
 
 #endif

@@ -49,8 +49,8 @@ int netdev_get_flags(char *iface_name, short *flags) {
     return ret;
 }
 
-bool netdev_get_ip(char *iface_name, struct netaddr_ip *ip) {
-    bool ret;
+int netdev_get_ip(char *iface_name, struct netaddr_ip *ip) {
+    int ret = SPKERR_ERROR;
     int ctl_sock;
     struct ifreq req;
 
@@ -58,19 +58,18 @@ bool netdev_get_ip(char *iface_name, struct netaddr_ip *ip) {
     strcpy(req.ifr_name, iface_name);
     req.ifr_addr.sa_family = AF_INET;
 
-    ret = false;
     if ((ctl_sock = socket(AF_INET, SOCK_DGRAM, 0)) >= 0) {
         if (ioctl(ctl_sock, SIOCGIFADDR, &req) >= 0) {
             ip->ip = ((struct sockaddr_in *) &req.ifr_addr)->sin_addr.s_addr;
-            ret = true;
+            ret = SPKERR_SUCCESS;
         }
         close(ctl_sock);
     }
     return ret;
 }
 
-bool netdev_get_netmask(char *iface_name, struct netaddr_ip *netmask) {
-    bool ret;
+int netdev_get_netmask(char *iface_name, struct netaddr_ip *netmask) {
+    bool ret = SPKERR_ERROR;
     int ctl_sock;
     struct ifreq req;
 
@@ -78,11 +77,10 @@ bool netdev_get_netmask(char *iface_name, struct netaddr_ip *netmask) {
     strcpy(req.ifr_name, iface_name);
     req.ifr_addr.sa_family = AF_INET;
 
-    ret = false;
     if ((ctl_sock = socket(AF_INET, SOCK_DGRAM, 0)) >= 0) {
         if (ioctl(ctl_sock, SIOCGIFNETMASK, &req) >= 0) {
             netmask->ip = ((struct sockaddr_in *) &req.ifr_addr)->sin_addr.s_addr;
-            ret = true;
+            ret = SPKERR_SUCCESS;
         }
         close(ctl_sock);
     }
@@ -107,7 +105,7 @@ int netdev_set_flags(char *iface_name, short flags) {
     return ret;
 }
 
-inline void netdev_iflist_cleanup(struct NetDevList *NetDevList) {
-    struct NetDevList *tmp, *curr;
-    for (curr = NetDevList; curr != NULL; tmp = curr->next, free(curr), curr = tmp);
+inline void netdev_iflist_cleanup(struct NetDevice *NetDevice) {
+    struct NetDevice *tmp, *curr;
+    for (curr = NetDevice; curr != NULL; tmp = curr->next, free(curr), curr = tmp);
 }
