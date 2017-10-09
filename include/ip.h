@@ -80,7 +80,7 @@ struct Ipv4Header {
  * @param ip2 Pointer to netaddr_ip structure contains seconds ip address.
  * @return Function returns true if ip1 is equals to ip2, false otherwise.
  */
-bool ip_compare(struct netaddr_ip *ip1, struct netaddr_ip *ip2);
+bool ip_equals(struct netaddr_ip *ip1, struct netaddr_ip *ip2);
 
 /**
  * @brief Checks if is a broadcast(255.255.255.255) IPv4 address.

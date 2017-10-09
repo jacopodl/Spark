@@ -29,7 +29,7 @@
 #include <datatype.h>
 #include <ip.h>
 
-inline bool ip_compare(struct netaddr_ip *ip1, struct netaddr_ip *ip2) {
+inline bool ip_equals(struct netaddr_ip *ip1, struct netaddr_ip *ip2) {
     return ip1->ip == ip2->ip;
 }
 

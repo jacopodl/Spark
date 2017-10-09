@@ -66,7 +66,7 @@ struct EthHeader {
  * @param mac2 Pointer to netaddr_mac structure contains seconds mac address.
  * @return Function returns true if mac1 is equals to mac2, false otherwise.
  */
-bool eth_compare(struct netaddr_mac *mac1, struct netaddr_mac *mac2);
+bool eth_equals(struct netaddr_mac *mac1, struct netaddr_mac *mac2);
 
 /**
  * @brief Checks if is a broadcast mac address.

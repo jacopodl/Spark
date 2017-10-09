@@ -31,7 +31,7 @@
 #include <datatype.h>
 #include <ethernet.h>
 
-bool eth_compare(struct netaddr_mac *mac1, struct netaddr_mac *mac2) {
+bool eth_equals(struct netaddr_mac *mac1, struct netaddr_mac *mac2) {
     for (int i = 0; i < ETHHWASIZE; i++)
         if (mac1->mac[i] != mac2->mac[i])
             return false;
