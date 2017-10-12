@@ -77,7 +77,7 @@
 #define DHCP_FILELEN    128
 #define DHCP_OPTLEN     308
 
-/// @brief This structure rapresents an DHCP message.
+/// @brief This structure represents an DHCP message.
 struct DhcpPacket {
     /// @brief opcode.
     unsigned char op;

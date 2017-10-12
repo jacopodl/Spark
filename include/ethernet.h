@@ -48,7 +48,7 @@
 #define ETHTYPE_MPLSU   0x8847 // MPLS unicast
 #define ETHTYPE_MPLSM   0x8848 // MPLS multicast
 
-/// @brief This structure rapresents an Ethernet frame.
+/// @brief This structure represents an Ethernet frame.
 struct EthHeader {
     /// @brief Destination hardware address.
     unsigned char dhwaddr[ETHHWASIZE];

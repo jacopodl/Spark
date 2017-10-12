@@ -12,7 +12,8 @@ set(LIB_FILE
         icmp.c
         tcp.c
         udp.c
-        dhcp.c)
+        dhcp.c
+        dns.c)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(LIB_FILE ${LIB_FILE} socket/spksock_linux.c netdevice/ntdev_linux.c)

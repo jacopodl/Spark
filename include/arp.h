@@ -55,7 +55,7 @@
 #define ARPHDRSIZE      8
 #define ARPETHIPSIZE    (ARPHDRSIZE + ((ETHHWASIZE+IPADDRSIZE)*2))
 
-/// @brief This structure rapresents an ARP packet.
+/// @brief This structure represents an ARP packet.
 struct ArpPacket {
     /// @brif Hardware type.
     unsigned short hw_type;

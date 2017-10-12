@@ -33,7 +33,7 @@
 #define UDPHDRSIZE  8                                           // Header size
 #define UDPMINSIZE  (UDPHDRSIZE + 0)                            // UDP min len
 
-/// @brief This structure rapresents an UDP packet.
+/// @brief This structure represents an UDP packet.
 struct UdpHeader {
     /// @brief UDP source port.
     unsigned short srcport;
