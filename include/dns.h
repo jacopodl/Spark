@@ -86,6 +86,18 @@
 /// @brief This structure represents Dns header.
 struct DnsHeader {
     unsigned short id;
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+    unsigned char rd:1;
+    unsigned char tc:1;
+    unsigned char aa:1;
+    unsigned char opcode:4;
+    unsigned char qr:1;
+    unsigned char rcode:4;
+    unsigned char cd:1;
+    unsigned char ad:1;
+    unsigned char z:1;
+    unsigned char ra:1;
+#elif __BYTE_ORDER == __BIG_ENDIAN
     unsigned char qr:1;
     unsigned char opcode:4;
     unsigned char aa:1;
@@ -96,6 +108,7 @@ struct DnsHeader {
     unsigned char ad:1;
     unsigned char cd:1;
     unsigned char rcode:4;
+#endif
     unsigned short total_questions;
     unsigned short total_answers;
     unsigned short total_authority;
