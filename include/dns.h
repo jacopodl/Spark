@@ -108,7 +108,7 @@ struct DnsQuery {
     /// @brief Query type, Eg: A, MX, AAAA...
     unsigned short type;
     /// @brief Class Eg: IN (Internet).
-    unsigned short class;
+    unsigned short clazz;
 };
 
 /// @brief This structure represents Dns resource record.
@@ -116,7 +116,7 @@ struct DnsResourceRecord {
     /// @brief Answer type, Eg: A, MX, AAAA...
     unsigned short type;
     /// @brief Class Eg: IN (Internet).
-    unsigned short class;
+    unsigned short clazz;
     /// @brief Time to live.
     unsigned int ttl;
     /// @brief Data length.
