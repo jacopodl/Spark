@@ -28,6 +28,8 @@
 #ifndef SPARK_DNS_H
 #define SPARK_DNS_H
 
+#include <stdbool.h>
+
 #define DNSQR_QUERY     0
 #define DNSQR_RESPONSE  1
 
@@ -137,12 +139,13 @@ struct DnsResourceRecord {
 };
 
 /**
- * @brief Returns pointer to DNS answer section (if present).
+ * @brief Indicates if domain name in DNS format is equals to passed url.
  *
- * @param __IN__dns Pointer to DnsHeader.
- * @return On success returns pointer to DNS answer section, otherwise returns NULL.
+ * @param __IN__buf Pointer to DNS section contains domain name.
+ * @param __IN__name Pointer to url string Eg: "www.google.com".
+ * @return true if url string is the same of domain name string contains in DNS packet, false otherwise.
  */
-unsigned char *dns_answerptr(struct DnsHeader *dns);
+bool dns_dnequals(unsigned char *buf, const char *name);
 
 /**
  * @brief Returns new string that contains url.
@@ -153,20 +156,12 @@ unsigned char *dns_answerptr(struct DnsHeader *dns);
 char *dns_dntostr(unsigned char *buf);
 
 /**
- * @brief Returns pointer to DNS query section.
+ * @brief Returns pointer to DNS answer section (if present).
  *
- * @param __IN__dns Pointer to DNS section contains domain name.
- * @return Pointer to DNS query section.
+ * @param __IN__dns Pointer to DnsHeader.
+ * @return On success returns pointer to DNS answer section, otherwise returns NULL.
  */
-struct DnsQuery *dns_getquery(unsigned char *buf);
-
-/**
- * @brief Returns pointer to DNS resource record.
- *
- * @param __IN__dns Pointer to DNS section contains domain name.
- * @return Pointer to DNS resource record.
- */
-struct DnsResourceRecord *dns_getrr(unsigned char *buf);
+unsigned char *dns_answerptr(struct DnsHeader *dns);
 
 /**
  * @brief Convert(to DNS format) and inject name into a pre-allocated buffer.
@@ -184,5 +179,21 @@ unsigned char *dns_inject_dn(unsigned char *buf, const char *url);
  * @return On success returns new string that contains DNS domain name, otherwise returns NULL.
  */
 unsigned char *dns_strtodn(const char *url, int *rlen);
+
+/**
+ * @brief Returns pointer to DNS query section.
+ *
+ * @param __IN__dns Pointer to DNS section contains domain name.
+ * @return Pointer to DNS query section.
+ */
+struct DnsQuery *dns_getquery(unsigned char *buf);
+
+/**
+ * @brief Returns pointer to DNS resource record.
+ *
+ * @param __IN__dns Pointer to DNS section contains domain name.
+ * @return Pointer to DNS resource record.
+ */
+struct DnsResourceRecord *dns_getrr(unsigned char *buf);
 
 #endif //SPARK_DNS_H

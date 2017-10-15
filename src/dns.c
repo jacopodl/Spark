@@ -25,18 +25,21 @@
 
 #include <dns.h>
 
-unsigned char *dns_answerptr(struct DnsHeader *dns) {
-    int questions = dns->total_questions;
-    unsigned char *aptr = dns->data;
+bool dns_dnequals(unsigned char *buf, const char *name) {
+    int dnlen = *buf++;
 
-    if (dns->total_answers == 0)
-        return NULL;
-
-    while (questions-- > 0) {
-        aptr = (unsigned char *) dns_getquery(aptr);
-        aptr += sizeof(struct DnsQuery);
+    for (int cursor = 0;; cursor++) {
+        if (dnlen-- == 0) {
+            dnlen = *buf++;
+            if (dnlen != 0 && name[cursor] != '.')
+                return false;
+            if (dnlen == 0 && name[cursor] == '\0')
+                return true;
+            continue;
+        }
+        if (*buf++ != name[cursor] || name[cursor] == '\0')
+            return false;
     }
-    return aptr;
 }
 
 char *dns_dntostr(unsigned char *buf) {
@@ -62,28 +65,18 @@ char *dns_dntostr(unsigned char *buf) {
     return str;
 }
 
-struct DnsQuery *dns_getquery(unsigned char *buf) {
-    unsigned char jmp;
+unsigned char *dns_answerptr(struct DnsHeader *dns) {
+    int questions = dns->total_questions;
+    unsigned char *aptr = dns->data;
 
-    jmp = *buf;
-    buf++;
+    if (dns->total_answers == 0)
+        return NULL;
 
-    while (*(buf += jmp) != 0)
-        jmp = *buf++;
-
-    return (struct DnsQuery *) ++buf;
-}
-
-struct DnsResourceRecord *dns_getrr(unsigned char *buf) {
-    unsigned char jmp;
-
-    jmp = *buf;
-    buf++;
-
-    while (*(buf += jmp) != 0)
-        jmp = *buf++;
-
-    return (struct DnsResourceRecord *) ++buf;
+    while (questions-- > 0) {
+        aptr = (unsigned char *) dns_getquery(aptr);
+        aptr += sizeof(struct DnsQuery);
+    }
+    return aptr;
 }
 
 unsigned char *dns_inject_dn(unsigned char *buf, const char *url) {
@@ -120,4 +113,28 @@ unsigned char *dns_strtodn(const char *url, int *rlen) {
     *rlen = (int) (strlen(url) + 2);
 
     return str;
+}
+
+struct DnsQuery *dns_getquery(unsigned char *buf) {
+    unsigned char jmp;
+
+    jmp = *buf;
+    buf++;
+
+    while (*(buf += jmp) != 0)
+        jmp = *buf++;
+
+    return (struct DnsQuery *) ++buf;
+}
+
+struct DnsResourceRecord *dns_getrr(unsigned char *buf) {
+    unsigned char jmp;
+
+    jmp = *buf;
+    buf++;
+
+    while (*(buf += jmp) != 0)
+        jmp = *buf++;
+
+    return (struct DnsResourceRecord *) ++buf;
 }
