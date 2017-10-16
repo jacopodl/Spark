@@ -116,7 +116,7 @@ struct DnsHeader {
     unsigned short total_authority;
     unsigned short total_additional;
     unsigned char data[];
-};
+}__attribute__((packed));
 
 /// @brief This structure represents Dns query.
 struct DnsQuery {
@@ -124,7 +124,7 @@ struct DnsQuery {
     unsigned short type;
     /// @brief Class Eg: IN (Internet).
     unsigned short clazz;
-};
+}__attribute__((packed));
 
 /// @brief This structure represents Dns resource record.
 struct DnsResourceRecord {
@@ -136,7 +136,9 @@ struct DnsResourceRecord {
     unsigned int ttl;
     /// @brief Data length.
     unsigned short length;
-};
+    /// @brief Data...
+    unsigned char data[];
+}__attribute__((packed));
 
 /**
  * @brief Indicates if domain name in DNS format is equals to passed url.

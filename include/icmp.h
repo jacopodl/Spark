@@ -68,7 +68,7 @@ struct IcmpHeader {
         unsigned int hdr;
     };
     unsigned char data[];
-};
+}__attribute__((packed));
 
 /**
  * @brief Built a new ICMP packet.

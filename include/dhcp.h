@@ -111,7 +111,7 @@ struct DhcpPacket {
     unsigned int option;
     /// @brief Miscellaneous options.
     unsigned char options[DHCP_OPTLEN];
-};
+}__attribute__((packed));
 
 /**
  * @brief Append the new option at the end of DHCP message.

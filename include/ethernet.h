@@ -58,7 +58,7 @@ struct EthHeader {
     unsigned short eth_type;
     /// @brief Ethernet payload.
     unsigned char data[];
-};
+}__attribute__((packed));
 
 /**
  * @brief Compare two mac address.

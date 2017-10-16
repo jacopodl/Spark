@@ -69,7 +69,7 @@ struct ArpPacket {
     unsigned short opcode;
     /// @brief Sender hardware address + Sender protocol address + Target hardware address + Target protocol address.
     unsigned char data[];
-};
+}__attribute__((packed));
 
 /**
  * @brief Built a new generic ARP packet.

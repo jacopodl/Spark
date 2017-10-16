@@ -45,7 +45,7 @@ struct UdpHeader {
     unsigned short checksum;
     /// @brief UDP payload.
     unsigned char data[];
-};
+}__attribute__((packed));
 
 /**
  * @brief Built a new UDP packet.

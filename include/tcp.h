@@ -103,7 +103,7 @@ struct TcpHeader {
     unsigned short urp;
     /// @brief TCP payload.
     unsigned char data[];
-};
+}__attribute__((packed));
 
 /**
  * @brief Built a new TCP packet.

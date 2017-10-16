@@ -72,7 +72,7 @@ struct Ipv4Header {
     unsigned int saddr;
     unsigned int daddr;
     unsigned char data[];
-};
+}__attribute__((packed));
 
 /**
  * @brief Compare two IPv4 address.
