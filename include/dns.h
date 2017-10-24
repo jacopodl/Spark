@@ -153,12 +153,20 @@ struct DnsResourceRecord {
 bool dns_qndn_equals(unsigned char *qname, const char *dname);
 
 /**
- * @brief Returns pointer to DNS answer section (if present).
+ * @brief Returns pointer to DNS answers section (if present).
  *
  * @param __IN__dns Pointer to DnsHeader.
- * @return On success returns pointer to DNS answer section, otherwise returns NULL.
+ * @return On success returns pointer to DNS answers section, otherwise returns NULL.
  */
-unsigned char *dns_jmpto_answer(struct DnsHeader *dns);
+unsigned char *dns_jmpto_answers(struct DnsHeader *dns);
+
+/**
+ * @brief Returns pointer to DNS queries section (if present).
+ *
+ * @param __IN__dns Pointer to DnsHeader.
+ * @return On success returns pointer to DNS queries section, otherwise returns NULL.
+ */
+unsigned char *dns_jmpto_queries(struct DnsHeader *dns);
 
 /**
  * @brief Convert(to DNS format) and inject name into a pre-allocated buffer.

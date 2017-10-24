@@ -43,7 +43,7 @@ bool dns_qndn_equals(unsigned char *qname, const char *dname) {
     }
 }
 
-unsigned char *dns_jmpto_answer(struct DnsHeader *dns) {
+unsigned char *dns_jmpto_answers(struct DnsHeader *dns) {
     int questions = ntohs(dns->total_questions);
     unsigned char *aptr = dns->data;
 
@@ -55,6 +55,12 @@ unsigned char *dns_jmpto_answer(struct DnsHeader *dns) {
         aptr += sizeof(struct DnsQuery);
     }
     return aptr;
+}
+
+unsigned char *dns_jmpto_queries(struct DnsHeader *dns) {
+    if (ntohs(dns->total_questions) == 0)
+        return NULL;
+    return dns->data;
 }
 
 unsigned char *dns_inject_qn(unsigned char *buf, const char *dname) {
