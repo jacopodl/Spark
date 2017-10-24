@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <arpa/inet.h>
 
 #include <dns.h>
 
@@ -43,10 +44,10 @@ bool dns_qndn_equals(unsigned char *qname, const char *dname) {
 }
 
 unsigned char *dns_jmpto_answer(struct DnsHeader *dns) {
-    int questions = dns->total_questions;
+    int questions = ntohs(dns->total_questions);
     unsigned char *aptr = dns->data;
 
-    if (dns->total_answers == 0)
+    if (ntohs(dns->total_answers) == 0)
         return NULL;
 
     while (questions-- > 0) {
