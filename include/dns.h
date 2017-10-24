@@ -23,6 +23,9 @@
 /**
  * @file dns.h
  * @brief Provides useful functions for manage DNS packets.
+ *
+ * QNAME(Query name): Domain name in DNS format: 3www6google3com
+ * DNAME(Domain name): Domain name in label dotted format: www.google.com
  */
 
 #ifndef SPARK_DNS_H
@@ -141,21 +144,13 @@ struct DnsResourceRecord {
 }__attribute__((packed));
 
 /**
- * @brief Indicates if domain name in DNS format is equals to passed url.
+ * @brief Indicates if qname is equals to passed dname.
  *
- * @param __IN__buf Pointer to DNS section contains domain name.
- * @param __IN__name Pointer to url string Eg: "www.google.com".
- * @return true if url string is the same of domain name string contains in DNS packet, false otherwise.
+ * @param __IN__qname Pointer to DNS section contains qname.
+ * @param __IN__dname Pointer to domain name string.
+ * @return true if dname string is the same of qname string contains in DNS packet, false otherwise.
  */
-bool dns_dnequals(unsigned char *buf, const char *name);
-
-/**
- * @brief Returns new string that contains url.
- *
- * @param __IN__buf Pointer to DNS section contains domain name in DNS format(Eg: 3www6google3com0).
- * @return On success returns new string that contains url, otherwise returns NULL.
- */
-char *dns_dntostr(unsigned char *buf);
+bool dns_qndn_equals(unsigned char *qname, const char *dname);
 
 /**
  * @brief Returns pointer to DNS answer section (if present).
@@ -163,29 +158,29 @@ char *dns_dntostr(unsigned char *buf);
  * @param __IN__dns Pointer to DnsHeader.
  * @return On success returns pointer to DNS answer section, otherwise returns NULL.
  */
-unsigned char *dns_answerptr(struct DnsHeader *dns);
+unsigned char *dns_jmpto_answer(struct DnsHeader *dns);
 
 /**
  * @brief Convert(to DNS format) and inject name into a pre-allocated buffer.
  *
- * @param __IN__buf Pointer to DNS section where will be inject domain name.
- * @param __IN__url Pointer to url string Eg: "www.google.com".
- * @return On success returns pointer that point at the end of injected string.
+ * @param __IN__buf Pointer to DNS section where will be inject qname.
+ * @param __IN__dname Pointer to domain name string Eg: "www.google.com".
+ * @return On success returns pointer that point at the end of injected qname string.
  */
-unsigned char *dns_inject_dn(unsigned char *buf, const char *url);
+unsigned char *dns_inject_qn(unsigned char *buf, const char *dname);
 
 /**
- * @brief Returns new buffer that contains DNS domain name(Eg: 3www6google3com0).
+ * @brief Returns new buffer that contains DNS qname(Eg: 3www6google3com0).
  *
- * @param __IN__url Pointer to url string Eg: "www.google.com".
- * @return On success returns new string that contains DNS domain name, otherwise returns NULL.
+ * @param __IN__dname Pointer to dname string Eg: "www.google.com".
+ * @return On success returns new string that contains qname, otherwise returns NULL.
  */
-unsigned char *dns_strtodn(const char *url, int *rlen);
+unsigned char *dns_dntoqn(const char *dname, int *rlen);
 
 /**
  * @brief Returns pointer to DNS query section.
  *
- * @param __IN__dns Pointer to DNS section contains domain name.
+ * @param __IN__dns Pointer to DNS section contains qname.
  * @return Pointer to DNS query section.
  */
 struct DnsQuery *dns_getquery(unsigned char *buf);
@@ -193,9 +188,17 @@ struct DnsQuery *dns_getquery(unsigned char *buf);
 /**
  * @brief Returns pointer to DNS resource record.
  *
- * @param __IN__dns Pointer to DNS section contains domain name.
+ * @param __IN__dns Pointer to DNS section contains qname.
  * @return Pointer to DNS resource record.
  */
 struct DnsResourceRecord *dns_getrr(unsigned char *buf);
+
+/**
+ * @brief Returns new string that contains dname.
+ *
+ * @param __IN__qname Pointer to DNS section contains domain name in DNS format(Eg: 3www6google3com0).
+ * @return On success returns new string that contains dname, otherwise returns NULL.
+ */
+char *dns_qntodn(unsigned char *qname);
 
 #endif //SPARK_DNS_H

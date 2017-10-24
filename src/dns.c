@@ -25,47 +25,24 @@
 
 #include <dns.h>
 
-bool dns_dnequals(unsigned char *buf, const char *name) {
-    int dnlen = *buf++;
+bool dns_qndn_equals(unsigned char *qname, const char *dname) {
+    int dnlen = *qname++;
 
     for (int cursor = 0;; cursor++) {
         if (dnlen-- == 0) {
-            dnlen = *buf++;
-            if (dnlen != 0 && name[cursor] != '.')
+            dnlen = *qname++;
+            if (dnlen != 0 && dname[cursor] != '.')
                 return false;
-            if (dnlen == 0 && name[cursor] == '\0')
+            if (dnlen == 0 && dname[cursor] == '\0')
                 return true;
             continue;
         }
-        if (*buf++ != name[cursor] || name[cursor] == '\0')
+        if (*qname++ != dname[cursor] || dname[cursor] == '\0')
             return false;
     }
 }
 
-char *dns_dntostr(unsigned char *buf) {
-    int len = 0;
-    int idx = 0;
-    char *str = NULL;
-
-    len = (int) ((unsigned char *) dns_getquery(buf) - buf);
-
-    if ((str = malloc((size_t) len - 1)) == NULL)
-        return NULL;
-
-    while (*buf != 0x00) {
-        len = *buf++;
-        for (int i = 0; i < len; i++) {
-            str[idx++] = *buf;
-            buf++;
-        }
-        str[idx++] = '.';
-    }
-    str[idx - 1] = '\0';
-
-    return str;
-}
-
-unsigned char *dns_answerptr(struct DnsHeader *dns) {
+unsigned char *dns_jmpto_answer(struct DnsHeader *dns) {
     int questions = dns->total_questions;
     unsigned char *aptr = dns->data;
 
@@ -79,22 +56,22 @@ unsigned char *dns_answerptr(struct DnsHeader *dns) {
     return aptr;
 }
 
-unsigned char *dns_inject_dn(unsigned char *buf, const char *url) {
+unsigned char *dns_inject_qn(unsigned char *buf, const char *dname) {
     int len = 0;
     int ins = 0;
     int i = 0;
     unsigned char count = 0;
 
-    len = (int) strlen(url);
+    len = (int) strlen(dname);
 
     for (i = 0; i < len; i++) {
-        if (url[i] == '.') {
+        if (dname[i] == '.') {
             buf[ins] = count;
             ins = i + 1;
             count = 0;
             continue;
         }
-        buf[i + 1] = (unsigned char) url[i];
+        buf[i + 1] = (unsigned char) dname[i];
         count++;
     }
 
@@ -103,14 +80,14 @@ unsigned char *dns_inject_dn(unsigned char *buf, const char *url) {
     return buf + i + 1;
 }
 
-unsigned char *dns_strtodn(const char *url, int *rlen) {
+unsigned char *dns_dntoqn(const char *dname, int *rlen) {
     unsigned char *str;
 
-    if ((str = malloc(strlen(url) + 2)) == NULL)
+    if ((str = malloc(strlen(dname) + 2)) == NULL)
         return NULL;
 
-    dns_inject_dn(str, url);
-    *rlen = (int) (strlen(url) + 2);
+    dns_inject_qn(str, dname);
+    *rlen = (int) (strlen(dname) + 2);
 
     return str;
 }
@@ -137,4 +114,27 @@ struct DnsResourceRecord *dns_getrr(unsigned char *buf) {
         jmp = *buf++;
 
     return (struct DnsResourceRecord *) ++buf;
+}
+
+char *dns_qntodn(unsigned char *qname) {
+    int len = 0;
+    int idx = 0;
+    char *str = NULL;
+
+    len = (int) ((unsigned char *) dns_getquery(qname) - qname);
+
+    if ((str = malloc((size_t) len - 1)) == NULL)
+        return NULL;
+
+    while (*qname != 0x00) {
+        len = *qname++;
+        for (int i = 0; i < len; i++) {
+            str[idx++] = *qname;
+            qname++;
+        }
+        str[idx++] = '.';
+    }
+    str[idx - 1] = '\0';
+
+    return str;
 }
