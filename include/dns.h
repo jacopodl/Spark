@@ -129,7 +129,21 @@ struct DnsQuery {
     unsigned short clazz;
 }__attribute__((packed));
 
-/// @brief This structure represents Dns resource record.
+/**
+ * @brief This structure represents Dns resource record.
+ *
+ * IETF 1035 (Message compression rules)
+ *
+ * Pointer:
+ * +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+ * | 1  1|                OFFSET                   |
+ * +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+ *
+ * Parsing rules:
+ *  a sequence of labels ending in a zero octet
+ *  a pointer
+ *  a sequence of labels ending with a pointer
+ */
 struct DnsResourceRecord {
     /// @brief Answer type, Eg: A, MX, AAAA...
     unsigned short type;

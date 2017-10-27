@@ -112,14 +112,21 @@ struct DnsQuery *dns_getquery(unsigned char *buf) {
 }
 
 struct DnsResourceRecord *dns_getrr(unsigned char *buf) {
-    unsigned char jmp;
+    unsigned char jmp = *buf;
 
-    jmp = *buf;
+    if (*buf == 0) // Label length zero (Root)
+        return (struct DnsResourceRecord *) ++buf;
+
+    if ((ntohs(*((unsigned short *) buf)) & 0xC000) == 0xC000) // Pointer to label
+        return (struct DnsResourceRecord *) (buf + 2);
+
     buf++;
-
-    while (*(buf += jmp) != 0)
-        jmp = *buf++;
-
+    // Sequence of labels ending with zero byte or with a pointer
+    while (*(buf += jmp) != 0) {
+        jmp = *buf;
+        if ((ntohs(*((unsigned short *) buf)) & 0xC000) == 0xC000)
+            break; // Pointer found!
+    }
     return (struct DnsResourceRecord *) ++buf;
 }
 
