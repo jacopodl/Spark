@@ -129,21 +129,26 @@ struct DnsQuery {
     unsigned short clazz;
 }__attribute__((packed));
 
-/**
- * @brief This structure represents Dns resource record.
- *
- * IETF 1035 (Message compression rules)
- *
- * Pointer:
- * +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
- * | 1  1|                OFFSET                   |
- * +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
- *
- * Parsing rules:
- *  a sequence of labels ending in a zero octet
- *  a pointer
- *  a sequence of labels ending with a pointer
- */
+/*
+* +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+* |                    NAME                       |
+* |                                               |
+* |IETF 1035 (Message compression rules)          |
+* |                                               |
+* |Pointer:                                       |
+* |    +--+--+--+--+--+--+--+--+--+--+--+--+--+   |
+* |    | 1  1|            OFFSET              |   |
+* |    +--+--+--+--+--+--+--+--+--+--+--+--+--+   |
+* |Parsing rules:                                 |
+* | a sequence of labels ending in a zero octet   |
+* | a pointer                                     |
+* | a sequence of labels ending with a pointer    |
+* +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+* |              DnsResourceRecord                |
+* +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+*/
+
+/// @brief This structure represents Dns resource record.
 struct DnsResourceRecord {
     /// @brief Answer type, Eg: A, MX, AAAA...
     unsigned short type;
@@ -160,11 +165,12 @@ struct DnsResourceRecord {
 /**
  * @brief Indicates if qname is equals to passed dname.
  *
+ * @param __IN__dns Pointer to DnsHeader.
  * @param __IN__qname Pointer to DNS section contains qname.
  * @param __IN__dname Pointer to domain name string.
  * @return true if dname string is the same of qname string contains in DNS packet, false otherwise.
  */
-bool dns_qndn_equals(unsigned char *qname, const char *dname);
+bool dns_qndn_equals(struct DnsHeader *dns, unsigned char *qname, const char *dname);
 
 /**
  * @brief Returns pointer to DNS answers section (if present).
@@ -218,9 +224,10 @@ struct DnsResourceRecord *dns_getrr(unsigned char *buf);
 /**
  * @brief Returns new string that contains dname.
  *
+ * @param __IN__dns Pointer to DnsHeader.
  * @param __IN__qname Pointer to DNS section contains domain name in DNS format(Eg: 3www6google3com0).
  * @return On success returns new string that contains dname, otherwise returns NULL.
  */
-char *dns_qntodn(unsigned char *qname);
+char *dns_qntodn(struct DnsHeader *dns, unsigned char *qname);
 
 #endif //SPARK_DNS_H

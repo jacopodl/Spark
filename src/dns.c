@@ -26,11 +26,21 @@
 
 #include <dns.h>
 
-bool dns_qndn_equals(unsigned char *qname, const char *dname) {
-    int dnlen = *qname++;
+bool dns_qndn_equals(struct DnsHeader *dns, unsigned char *qname, const char *dname) {
+    int dnlen;
+
+    if (*qname == 0)
+        return *dname == '.' && *(dname + 1) == '\0';
+
+    if ((ntohs(*((unsigned short *) qname)) & 0xC000) == 0xC000)
+        qname = (dns->data + (ntohs(*((unsigned short *) qname)) - 0xC000) - 0x0C);
+
+    dnlen = *qname++;
 
     for (int cursor = 0;; cursor++) {
         if (dnlen-- == 0) {
+            if ((ntohs(*((unsigned short *) (qname))) & 0xC000) == 0xC000)
+                qname = (dns->data + (ntohs(*((unsigned short *) qname)) - 0xC000) - 0x0C);
             dnlen = *qname++;
             if (dnlen != 0 && dname[cursor] != '.')
                 return false;
@@ -130,25 +140,45 @@ struct DnsResourceRecord *dns_getrr(unsigned char *buf) {
     return (struct DnsResourceRecord *) ++buf;
 }
 
-char *dns_qntodn(unsigned char *qname) {
-    int len = 0;
+char *dns_qntodn(struct DnsHeader *dns, unsigned char *qname) {
+    int len = 2;
+    int alloc = -2;
+    int lblsize;
     int idx = 0;
     char *str = NULL;
+    char *tmp = NULL;
 
-    len = (int) ((unsigned char *) dns_getquery(qname) - qname);
-
-    if ((str = malloc((size_t) len - 1)) == NULL)
+    if ((str = malloc((size_t) len)) == NULL)
         return NULL;
 
+    if (*qname == 0) {
+        str[0] = '.';
+        str[1] = '\0';
+        return str;
+    }
+
     while (*qname != 0x00) {
-        len = *qname++;
-        for (int i = 0; i < len; i++) {
+        if ((ntohs(*((unsigned short *) (qname))) & 0xC000) == 0xC000)
+            qname = (dns->data + (ntohs(*((unsigned short *) qname)) - 0xC000) - 0x0C);
+
+        lblsize = *qname++;
+        alloc += lblsize + 1;
+
+        while (lblsize-- > 0) {
+            if (idx >= len) {
+                len += alloc;
+                alloc = 0;
+                if ((tmp = realloc(str, (size_t) len)) == NULL) {
+                    free(str);
+                    return NULL;
+                }
+                str = tmp;
+            }
             str[idx++] = *qname;
             qname++;
         }
         str[idx++] = '.';
     }
     str[idx - 1] = '\0';
-
     return str;
 }
