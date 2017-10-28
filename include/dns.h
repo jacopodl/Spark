@@ -33,6 +33,8 @@
 
 #include <stdbool.h>
 
+#define dns_setptr(dns, ptr, buf) *((unsigned short*)buf) = htons(0xC000 | (ptr - ((unsigned char *)dns)))
+
 #define DNSQR_QUERY     0
 #define DNSQR_RESPONSE  1
 
