@@ -41,10 +41,17 @@
 #define NETADDR_GET_TYPE(netaddr)       netaddr.type
 #define NETADDR_CMP_TYPE(netaddr, tp)   netaddr.type==tp
 
+#ifdef __cplusplus
+#define netaddr_generic(name)   struct netaddr_generic name{}; NETADDR_SET_GENERIC(name)
+#define netaddr_mac(name)       struct netaddr_mac name{}; NETADDR_SET_MAC(name)
+#define netaddr_ip(name)        struct netaddr_ip name{}; NETADDR_SET_IP(name)
+#define netaddr_ip6(name)       struct netaddr_ip6 name{}; NETADDR_SET_IP6(name)
+#else
 #define netaddr_generic(name)   struct netaddr_generic name; NETADDR_SET_GENERIC(name)
 #define netaddr_mac(name)       struct netaddr_mac name; NETADDR_SET_MAC(name)
 #define netaddr_ip(name)        struct netaddr_ip name; NETADDR_SET_IP(name)
 #define netaddr_ip6(name)       struct netaddr_ip6 name; NETADDR_SET_IP6(name)
+#endif
 
 enum netaddr_type {
     NA_TYPE_GENERIC,
