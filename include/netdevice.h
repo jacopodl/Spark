@@ -83,14 +83,6 @@ int netdev_get_defgateway(char *iface_name, struct netaddr_ip *gateway);
 int netdev_get_ip(char *iface_name, struct netaddr_ip *ip);
 
 /**
- * @brief Obtains the IPv4 netmask.
- * @param iface_name Interface name.
- * @param __OUT__netmask Pointer to netaddr_ip structure.
- * @return Function returns SPKERR_SUCCESS if netmask has been obtained, SPKERR_ERROR otherwise.
- */
-int netdev_get_netmask(char *iface_name, struct netaddr_ip *netmask);
-
-/**
  * @brief Obtains current device mac address.
  * @param iface_name Interface name.
  * @param __OUT__mac Pointer to netaddr_mac structure.
@@ -98,6 +90,21 @@ int netdev_get_netmask(char *iface_name, struct netaddr_ip *netmask);
  * On error, SPKERR_ERROR is returned and errno is set appropriately.
  */
 int netdev_get_mac(char *iface_name, struct netaddr_mac *mac);
+
+/**
+ * @brief Obtains interface MTU.
+ * @param iface_name Interface name.
+ * @return if succeeded returns MTU, otherwise SPKERR_ERROR.
+ */
+int netdev_get_mtu(char *iface_name);
+
+/**
+ * @brief Obtains the IPv4 netmask.
+ * @param iface_name Interface name.
+ * @param __OUT__netmask Pointer to netaddr_ip structure.
+ * @return Function returns SPKERR_SUCCESS if netmask has been obtained, SPKERR_ERROR otherwise.
+ */
+int netdev_get_netmask(char *iface_name, struct netaddr_ip *netmask);
 
 /**
  * @brief Set device flags.
@@ -109,13 +116,22 @@ int netdev_get_mac(char *iface_name, struct netaddr_mac *mac);
 int netdev_set_flags(char *iface_name, short flags);
 
 /**
- * @brief Set new mac address..
+ * @brief Set new mac address.
  * @param iface_name Interface name.
  * @param __IN__mac Pointer to netaddr_mac structure contains new MAC address.
  * @return On success SPKERR_SUCCESS is returned.
  * Otherwise, SPKERR_ERROR is returned, and errno is set appropriately.
  */
 int netdev_set_mac(char *iface_name, struct netaddr_mac *mac);
+
+/**
+ * @brief Set interface MTU.
+ * @param iface_name Interface name.
+ * @param mtu New MTU value.
+ * @return On success SPKERR_SUCCESS is returned.
+ * Otherwise, SPKERR_ERROR is returned, and errno is set appropriately.
+ */
+int netdev_set_mtu(char *iface_name, int mtu);
 
 /**
  * @brief Builds and returns linked list with devices currently availlable on the system.
