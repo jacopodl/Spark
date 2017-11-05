@@ -35,10 +35,10 @@
 #define ETHSTRLEN       18      // Mac address string size
 #define ETHSTRHLFLEN    9       // Mac address string half size
 
-#define ETHFRAME        1510    // ETHMAXPAYL (1500 - FCS field + ETHHDRSIZE)
+#define ETHFRAME        1514    // (Dst + Src + Type) + ETHMAXPAYL
 #define ETHHDRSIZE      14      // Ethernet header size
-#define ETHMINPAYL      42      // Ethernet min payload (46 - FCS field)
-#define ETHMAXPAYL      1496    // Ethernet max payload (1500 - FCS field)
+#define ETHMINPAYL      46      // Ethernet min payload
+#define ETHMAXPAYL      1500    // Ethernet max payload
 
 #define ETHTYPE_PUP     0x0200
 #define ETHTYPE_IP      0x0800
