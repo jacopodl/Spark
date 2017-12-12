@@ -48,6 +48,8 @@ int netdev_get_mac(char *iface_name, struct netaddr_mac *mac) {
     struct sockaddr_dl *sdl;
     int error = SPKERR_ERROR;
 
+    NETADDR_SET_MAC((*mac));
+
     if (getifaddrs(&ifa) < 0)
         return SPKERR_ERROR;
 
@@ -124,6 +126,7 @@ struct NetDevice *netdev_get_iflist(unsigned int filter) {
         sdl = (struct sockaddr_dl *) curr->ifa_addr;
         if (sdl->sdl_alen == ETHHWASIZE)
             memcpy(dev->mac.mac, LLADDR(sdl), ETHHWASIZE);
+        NETADDR_SET_MAC(dev->mac);
         dev->next = devs;
         devs = dev;
     }

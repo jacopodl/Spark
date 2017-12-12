@@ -50,6 +50,8 @@ int netdev_burnedin_mac(char *iface_name, struct netaddr_mac *mac) {
     struct ifreq req;
     struct ethtool_perm_addr *epa;
 
+    NETADDR_SET_MAC((*mac));
+
     memset(mac, 0x00, sizeof(struct netaddr_mac));
     memset(&req, 0x00, sizeof(struct ifreq));
     strcpy(req.ifr_name, iface_name);
@@ -81,6 +83,8 @@ int netdev_get_defgateway(char *iface_name, struct netaddr_ip *gateway) {
     int flags;
     int fd;
     char *line;
+
+    NETADDR_SET_IP((*gateway));
 
     if ((fd = open(ROUTETABLE, O_RDONLY)) < 0)
         return SPKERR_ERROR;
@@ -114,6 +118,8 @@ int netdev_get_mac(char *iface_name, struct netaddr_mac *mac) {
     int ret;
     int ctl_sock;
     struct ifreq req;
+
+    NETADDR_SET_MAC((*mac));
 
     memset(&req, 0x00, sizeof(struct ifreq));
     strcpy(req.ifr_name, iface_name);
@@ -178,6 +184,7 @@ struct NetDevice *netdev_get_iflist(unsigned int filter) {
         dev->flags = curr->ifa_flags;
         sll = (struct sockaddr_ll *) curr->ifa_addr;
         memcpy(dev->mac.mac, sll->sll_addr, ETHHWASIZE);
+        NETADDR_SET_MAC(dev->mac);
         dev->next = devs;
         devs = dev;
     }

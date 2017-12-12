@@ -54,6 +54,8 @@ int netdev_get_ip(char *iface_name, struct netaddr_ip *ip) {
     int ctl_sock;
     struct ifreq req;
 
+    NETADDR_SET_IP((*ip));
+
     memset(&req, 0x00, sizeof(struct ifreq));
     strcpy(req.ifr_name, iface_name);
     req.ifr_addr.sa_family = AF_INET;
@@ -89,6 +91,8 @@ int netdev_get_netmask(char *iface_name, struct netaddr_ip *netmask) {
     int ret = SPKERR_ERROR;
     int ctl_sock;
     struct ifreq req;
+
+    NETADDR_SET_IP((*netmask));
 
     memset(&req, 0x00, sizeof(struct ifreq));
     strcpy(req.ifr_name, iface_name);
