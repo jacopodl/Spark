@@ -140,6 +140,29 @@ int netdev_set_mtu(char *iface_name, int mtu) {
     return ret;
 }
 
+int netdev_set_active(char *iface_name, bool enabled) {
+    int ret;
+    int ctl_sock;
+    struct ifreq req;
+
+    memset(&req, 0x00, sizeof(struct ifreq));
+    strcpy(req.ifr_name, iface_name);
+    ret = SPKERR_ERROR;
+
+    if ((ctl_sock = socket(AF_INET, SOCK_DGRAM, 0)) >= 0) {
+        if (ioctl(ctl_sock, SIOCGIFFLAGS, &req) >= 0) {
+            if (enabled)
+                req.ifr_flags |= IFF_UP;
+            else
+                req.ifr_flags &= ~IFF_UP;
+            if (ioctl(ctl_sock, SIOCSIFFLAGS, &req) >= 0)
+                ret = SPKERR_SUCCESS;
+        }
+        close(ctl_sock);
+    }
+    return ret;
+}
+
 inline void netdev_iflist_cleanup(struct NetDevice *NetDevice) {
     struct NetDevice *tmp, *curr;
     for (curr = NetDevice; curr != NULL; tmp = curr->next, free(curr), curr = tmp);

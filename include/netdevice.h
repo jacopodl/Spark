@@ -134,6 +134,15 @@ int netdev_set_mac(char *iface_name, struct netaddr_mac *mac);
 int netdev_set_mtu(char *iface_name, int mtu);
 
 /**
+ * @brief Enable disable interface.
+ * @param iface_name Interface name.
+ * @param enabled True/False
+ * @return On success SPKERR_SUCCESS is returned.
+ * Otherwise, SPKERR_ERROR is returned, and errno is set appropriately.
+ */
+int netdev_set_active(char *iface_name, bool enabled);
+
+/**
  * @brief Builds and returns linked list with devices currently availlable on the system.
  * @param filter Set this mask for showing a certain device group, Eg: IFF_BROADCAST, IFF_PROMISC...
  * If mask is ZERO all device are displayed.
