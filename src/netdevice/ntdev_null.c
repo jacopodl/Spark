@@ -30,19 +30,11 @@ int netdev_burnedin_mac(char *iface_name, struct netaddr_mac *mac) {
     return SPKERR_ENOSUPPORT;
 }
 
-int netdev_get_flags(char *iface_name, short *flags) {
-    return SPKERR_ENOSUPPORT;
-}
-
 int netdev_get_defgateway(char *iface_name, struct netaddr_ip *gateway) {
     return SPKERR_ENOSUPPORT;
 }
 
 int netdev_get_mac(char *iface_name, struct netaddr_mac *mac) {
-    return SPKERR_ENOSUPPORT;
-}
-
-int netdev_set_flags(char *iface_name, short flags) {
     return SPKERR_ENOSUPPORT;
 }
 
