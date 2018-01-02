@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +31,7 @@
 
 bool dhcp_append_option(struct DhcpPacket *dhcpPkt, unsigned char op, unsigned char len, unsigned char *payload) {
     int i = 0;
-    for (i; i < DHCP_OPTLEN && dhcpPkt->options[i] != 0xFF; i++);
+    for (i; i < DHCP_OPTLEN && dhcpPkt->options[i] != 0xFF; i += dhcpPkt->options[i + 1] + 2);
     if (i == DHCP_OPTLEN || (DHCP_OPTLEN - i) < 2 + len)
         return false;
     dhcpPkt->options[i++] = op;
@@ -126,7 +126,8 @@ struct DhcpPacket *dhcp_inject_raw(unsigned char *buf, unsigned char op, unsigne
 struct DhcpPacket *dhcp_inject_release(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ciaddr,
                                        struct netaddr_ip *server, unsigned short flags) {
     int optoff = 0;
-    struct DhcpPacket *dhcpPkt = dhcp_inject_raw(buf, ETHHWASIZE, 0, dhcp_mkxid(), 0, flags, ciaddr, NULL, NULL, NULL,
+    struct DhcpPacket *dhcpPkt = dhcp_inject_raw(buf, DHCP_OP_BOOT_REQUEST, 0, dhcp_mkxid(), 0, flags, ciaddr, NULL,
+                                                 NULL, NULL,
                                                  chaddr, NULL);
 
     dhcpPkt->options[(optoff)++] = DHCP_MESSAGE_TYPE;
@@ -142,7 +143,7 @@ struct DhcpPacket *dhcp_inject_request(unsigned char *buf, struct netaddr_mac *c
                                        unsigned int xid, struct netaddr_ip *siaddr,
                                        unsigned short flags) {
     int optoff = 0;
-    struct DhcpPacket *dhcpPkt = dhcp_inject_raw(buf, ETHHWASIZE, 0, xid, 0, flags, NULL, NULL, siaddr, NULL,
+    struct DhcpPacket *dhcpPkt = dhcp_inject_raw(buf, DHCP_OP_BOOT_REQUEST, 0, xid, 0, flags, NULL, NULL, siaddr, NULL,
                                                  chaddr, NULL);
 
     dhcpPkt->options[(optoff)++] = DHCP_MESSAGE_TYPE;
