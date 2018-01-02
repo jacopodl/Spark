@@ -12,7 +12,7 @@ Small and easy to use network library that support raw socket, pcap file and con
 ## Building library ##
 Check out the latest version with:
 
-    $ git clone http://github.com/jacopodl/spark
+    $ git clone https://github.com/jacopodl/spark
 
 or download .zip from [release](<https://github.com/jacopodl/Spark/releases/>) page.
 
