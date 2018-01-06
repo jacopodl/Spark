@@ -47,8 +47,10 @@ int spark_opensock(char *device, unsigned int buflen, struct SpkSock **ssock) {
 
     NETADDR_SET_MAC((*ssock)->iaddr);
 
-    if ((errcode = __ssock_init_socket(*ssock)) < 0)
+    if ((errcode = __ssock_init_socket(*ssock)) < 0) {
         free(*ssock);
+        (*ssock) = NULL;
+    }
 
     return errcode;
 }
