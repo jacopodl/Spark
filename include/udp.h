@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@
 
 #include "ip.h"
 
+#define IPTYPE_UDP  0x11
 #define UDPHDRSIZE  8                                           // Header size
 #define UDPMINSIZE  (UDPHDRSIZE + 0)                            // UDP min len
 
