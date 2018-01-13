@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -134,7 +134,7 @@ bool dhcp_append_option(struct DhcpPacket *dhcpPkt, unsigned char op, unsigned c
 bool dhcp_type_equals(struct DhcpPacket *dhcpPkt, unsigned char type);
 
 /**
- * @brief Obatins the uint value of DHCP option.
+ * @brief Obtains the uint value of DHCP option.
  *
  * @param __IN__dhcpPkt Pointer to remote DHCP packet.
  * @param options DHCP option.
@@ -233,17 +233,17 @@ struct DhcpPacket *dhcp_inject_request(unsigned char *buf, struct netaddr_mac *c
 unsigned char dhcp_get_type(struct DhcpPacket *dhcp);
 
 /**
- * @brief Obatins options list.
+ * @brief Obtains options list.
  *
  * @param __IN__dhcpPkt Pointer to remote DHCP packet.
  * @param __OUT__len Length of options list.
  * @return On success this function returns an array with all options contained in the DHCP message, otherwise NULL is returned.
  * @warning The returned array doesn't contains the null terminator!
  */
-unsigned char *dhcp_get_options(struct DhcpPacket *dhcpPkt, unsigned int *len);
+unsigned char *dhcp_get_options(struct DhcpPacket *dhcpPkt, unsigned char *len);
 
 /**
- * @brief Obatins the uchar value of DHCP option.
+ * @brief Obtains the uchar value of DHCP option.
  *
  * @param __IN__dhcpPkt Pointer to remote DHCP packet.
  * @param options DHCP option.
@@ -252,7 +252,7 @@ unsigned char *dhcp_get_options(struct DhcpPacket *dhcpPkt, unsigned int *len);
 unsigned char dhcp_get_option_uchar(struct DhcpPacket *dhcpPkt, unsigned char option);
 
 /**
- * @brief Obatins the value of DHCP option.
+ * @brief Obtains the value of DHCP option.
  *
  * @param __IN__dhcpPkt Pointer to remote DHCP packet.
  * @param options DHCP option.
@@ -260,7 +260,7 @@ unsigned char dhcp_get_option_uchar(struct DhcpPacket *dhcpPkt, unsigned char op
  * @return On success this function returns an array with the value of the DHCP option, otherwise NULL is returned.
  * @warning The returned array doesn't contains the null terminator!
  */
-unsigned char *dhcp_get_option_value(struct DhcpPacket *dhcpPkt, unsigned char option, unsigned int *len);
+unsigned char *dhcp_get_option_value(struct DhcpPacket *dhcpPkt, unsigned char option, unsigned char *len);
 
 /**
  * @brief Obtains a random ID for DHCP message.

@@ -160,10 +160,11 @@ unsigned char dhcp_get_type(struct DhcpPacket *dhcp) {
     return dhcp_get_option_uchar(dhcp, DHCP_MESSAGE_TYPE);
 }
 
-unsigned char *dhcp_get_options(struct DhcpPacket *dhcpPkt, unsigned int *len) {
-    *len = 0;
+unsigned char *dhcp_get_options(struct DhcpPacket *dhcpPkt, unsigned char *len) {
     unsigned char *bufopt = dhcpPkt->options;
     unsigned char *olist = NULL;
+
+    *len = 0;
     for (unsigned int i = 0; i < DHCP_OPTLEN && bufopt[i] != 0xFF; i += bufopt[i + 1] + 2) {
         unsigned char *tmp = (unsigned char *) realloc(olist, ++(*len));
         if (tmp == NULL) {
@@ -184,16 +185,15 @@ unsigned char dhcp_get_option_uchar(struct DhcpPacket *dhcpPkt, unsigned char op
     return 0;
 }
 
-unsigned char *dhcp_get_option_value(struct DhcpPacket *dhcpPkt, unsigned char option, unsigned int *len) {
+unsigned char *dhcp_get_option_value(struct DhcpPacket *dhcpPkt, unsigned char option, unsigned char *len) {
     unsigned char *bufopt = dhcpPkt->options;
     unsigned char *data = NULL;
-    *len = 0;
+
     for (unsigned int i = 0; i < DHCP_OPTLEN && bufopt[i] != 0xFF; i += bufopt[i + 1] + 2) {
         if (bufopt[i] == option) {
             *len = bufopt[i + 1];
             if (*len > 0) {
-                data = (unsigned char *) malloc(bufopt[i + 1]);
-                if (data != NULL)
+                if ((data = (unsigned char *) malloc(bufopt[i + 1])) != NULL)
                     memcpy(data, (bufopt + i + 2), bufopt[i + 1]);
             }
             break;
