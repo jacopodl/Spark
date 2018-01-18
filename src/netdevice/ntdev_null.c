@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,19 +26,19 @@
 #include <spkerr.h>
 #include <netdevice.h>
 
-int netdev_burnedin_mac(char *iface_name, struct netaddr_mac *mac) {
+int netdev_burnedin_mac(const char *iface_name, struct netaddr_mac *mac) {
     return SPKERR_ENOSUPPORT;
 }
 
-int netdev_get_defgateway(char *iface_name, struct netaddr_ip *gateway) {
+int netdev_get_defgateway(const char *iface_name, struct netaddr_ip *gateway) {
     return SPKERR_ENOSUPPORT;
 }
 
-int netdev_get_mac(char *iface_name, struct netaddr_mac *mac) {
+int netdev_get_mac(const char *iface_name, struct netaddr_mac *mac) {
     return SPKERR_ENOSUPPORT;
 }
 
-int netdev_set_mac(char *iface_name, struct netaddr_mac *mac) {
+int netdev_set_mac(const char *iface_name, const struct netaddr_mac *mac) {
     return SPKERR_ENOSUPPORT;
 }
 

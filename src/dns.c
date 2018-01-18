@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@
 
 #include <dns.h>
 
-bool dns_qndn_equals(struct DnsHeader *dns, unsigned char *qname, const char *dname) {
+bool dns_qndn_equals(const struct DnsHeader *dns, const unsigned char *qname, const char *dname) {
     int dnlen;
 
     if (*qname == 0)
@@ -53,9 +53,9 @@ bool dns_qndn_equals(struct DnsHeader *dns, unsigned char *qname, const char *dn
     }
 }
 
-unsigned char *dns_jmpto_answers(struct DnsHeader *dns) {
+unsigned char *dns_jmpto_answers(const struct DnsHeader *dns) {
     int questions = ntohs(dns->total_questions);
-    unsigned char *aptr = dns->data;
+    unsigned char *aptr = (unsigned char *) dns->data;
 
     if (ntohs(dns->total_answers) == 0)
         return NULL;
@@ -67,10 +67,10 @@ unsigned char *dns_jmpto_answers(struct DnsHeader *dns) {
     return aptr;
 }
 
-unsigned char *dns_jmpto_queries(struct DnsHeader *dns) {
+unsigned char *dns_jmpto_queries(const struct DnsHeader *dns) {
     if (ntohs(dns->total_questions) == 0)
         return NULL;
-    return dns->data;
+    return (unsigned char *) dns->data;
 }
 
 unsigned char *dns_inject_qn(unsigned char *buf, const char *dname) {
@@ -109,7 +109,7 @@ unsigned char *dns_dntoqn(const char *dname, int *rlen) {
     return str;
 }
 
-struct DnsQuery *dns_getquery(unsigned char *buf) {
+struct DnsQuery *dns_getquery(const unsigned char *buf) {
     unsigned char jmp;
 
     jmp = *buf;
@@ -121,7 +121,7 @@ struct DnsQuery *dns_getquery(unsigned char *buf) {
     return (struct DnsQuery *) ++buf;
 }
 
-struct DnsResourceRecord *dns_getrr(unsigned char *buf) {
+struct DnsResourceRecord *dns_getrr(const unsigned char *buf) {
     unsigned char jmp = *buf;
 
     if (*buf == 0) // Label length zero (Root)
@@ -140,7 +140,7 @@ struct DnsResourceRecord *dns_getrr(unsigned char *buf) {
     return (struct DnsResourceRecord *) ++buf;
 }
 
-char *dns_qntodn(struct DnsHeader *dns, unsigned char *qname) {
+char *dns_qntodn(const struct DnsHeader *dns, const unsigned char *qname) {
     int len = 2;
     int alloc = -2;
     int lblsize;

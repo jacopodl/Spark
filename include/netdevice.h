@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -54,7 +54,7 @@ struct NetDevice {
  * @return The netdev_burnedin_mac and netdev_get_mac functions returns SPKERR_SUCCESS and fill mac with MAC address.
  * On error, SPKERR_ERROR is returned and errno is set appropriately. If function is not supported SPKERR_ENOSUPPORT is returned.
  */
-int netdev_burnedin_mac(char *iface_name, struct netaddr_mac *mac);
+int netdev_burnedin_mac(const char *iface_name, struct netaddr_mac *mac);
 
 /**
  * @brief Get the active flag word of the device.
@@ -63,7 +63,7 @@ int netdev_burnedin_mac(char *iface_name, struct netaddr_mac *mac);
  * @return On success the parameter `flag` will filled with active device flags and the function returns SPKERR_SUCCESS.
  * Otherwise, SPKERR_ERROR is returned.
  */
-int netdev_get_flags(char *iface_name, short *flags);
+int netdev_get_flags(const char *iface_name, short *flags);
 
 /**
  * @brief Obtains the address of default gateway.
@@ -72,7 +72,7 @@ int netdev_get_flags(char *iface_name, short *flags);
  * @return Function returns SPKERR_SUCCESS if the gateway address has been obtained, SPKERR_ERROR otherwise.
  * If function is not supported SPKERR_ENOSUPPORT is returned.
  */
-int netdev_get_defgateway(char *iface_name, struct netaddr_ip *gateway);
+int netdev_get_defgateway(const char *iface_name, struct netaddr_ip *gateway);
 
 /**
  * @brief Obtains the IPv4 address.
@@ -80,7 +80,7 @@ int netdev_get_defgateway(char *iface_name, struct netaddr_ip *gateway);
  * @param __OUT__ip Pointer to netaddr_ip structure.
  * @return Function returns SPKERR_SUCCESS if the address has been obtained, SPKERR_ERROR otherwise.
  */
-int netdev_get_ip(char *iface_name, struct netaddr_ip *ip);
+int netdev_get_ip(const char *iface_name, struct netaddr_ip *ip);
 
 /**
  * @brief Obtains current device mac address.
@@ -89,14 +89,14 @@ int netdev_get_ip(char *iface_name, struct netaddr_ip *ip);
  * @return The netdev_get_mac and netdev_burnedin_mac functions returns SPKERR_SUCCESS and fill mac with MAC address.
  * On error, SPKERR_ERROR is returned and errno is set appropriately.
  */
-int netdev_get_mac(char *iface_name, struct netaddr_mac *mac);
+int netdev_get_mac(const char *iface_name, struct netaddr_mac *mac);
 
 /**
  * @brief Obtains interface MTU.
  * @param iface_name Interface name.
  * @return if succeeded returns MTU, otherwise SPKERR_ERROR.
  */
-int netdev_get_mtu(char *iface_name);
+int netdev_get_mtu(const char *iface_name);
 
 /**
  * @brief Obtains the IPv4 netmask.
@@ -104,7 +104,7 @@ int netdev_get_mtu(char *iface_name);
  * @param __OUT__netmask Pointer to netaddr_ip structure.
  * @return Function returns SPKERR_SUCCESS if netmask has been obtained, SPKERR_ERROR otherwise.
  */
-int netdev_get_netmask(char *iface_name, struct netaddr_ip *netmask);
+int netdev_get_netmask(const char *iface_name, struct netaddr_ip *netmask);
 
 /**
  * @brief Set device flags.
@@ -113,7 +113,7 @@ int netdev_get_netmask(char *iface_name, struct netaddr_ip *netmask);
  * @return On success SPKERR_SUCCESS is returned.
  * Otherwise, SPKERR_ERROR is returned, and errno is set appropriately.
  */
-int netdev_set_flags(char *iface_name, short flags);
+int netdev_set_flags(const char *iface_name, short flags);
 
 /**
  * @brief Set new mac address.
@@ -122,7 +122,7 @@ int netdev_set_flags(char *iface_name, short flags);
  * @return On success SPKERR_SUCCESS is returned.
  * Otherwise, SPKERR_ERROR is returned, and errno is set appropriately.
  */
-int netdev_set_mac(char *iface_name, struct netaddr_mac *mac);
+int netdev_set_mac(const char *iface_name, const struct netaddr_mac *mac);
 
 /**
  * @brief Set interface MTU.
@@ -131,7 +131,7 @@ int netdev_set_mac(char *iface_name, struct netaddr_mac *mac);
  * @return On success SPKERR_SUCCESS is returned.
  * Otherwise, SPKERR_ERROR is returned, and errno is set appropriately.
  */
-int netdev_set_mtu(char *iface_name, int mtu);
+int netdev_set_mtu(const char *iface_name, int mtu);
 
 /**
  * @brief Enable disable interface.
@@ -140,7 +140,7 @@ int netdev_set_mtu(char *iface_name, int mtu);
  * @return On success SPKERR_SUCCESS is returned.
  * Otherwise, SPKERR_ERROR is returned, and errno is set appropriately.
  */
-int netdev_set_active(char *iface_name, bool enabled);
+int netdev_set_active(const char *iface_name, bool enabled);
 
 /**
  * @brief Builds and returns linked list with devices currently availlable on the system.

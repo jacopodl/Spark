@@ -122,7 +122,7 @@ struct DhcpPacket {
  * @param __IN__payload Option payload.
  * @return On success returns true, if there is not enough space at the end of the message, false is returned.
  */
-bool dhcp_append_option(struct DhcpPacket *dhcpPkt, unsigned char op, unsigned char len, unsigned char *payload);
+bool dhcp_append_option(struct DhcpPacket *dhcpPkt, unsigned char op, unsigned char len, const unsigned char *payload);
 
 /**
  * @brief Checks the type of the DHCP message.
@@ -131,7 +131,7 @@ bool dhcp_append_option(struct DhcpPacket *dhcpPkt, unsigned char op, unsigned c
  * @param type Requested type.
  * @return If the requested type corresponds with the type of the DHCP message, this function returns true, otherwise false is returned.
  */
-bool dhcp_type_equals(struct DhcpPacket *dhcpPkt, unsigned char type);
+bool dhcp_type_equals(const struct DhcpPacket *dhcpPkt, unsigned char type);
 
 /**
  * @brief Obtains the uint value of DHCP option.
@@ -140,7 +140,7 @@ bool dhcp_type_equals(struct DhcpPacket *dhcpPkt, unsigned char type);
  * @param options DHCP option.
  * @return On success this function returns the value of the DHCP option, otherwise 0 is returned.
  */
-unsigned int dhcp_get_option_uint(struct DhcpPacket *dhcpPkt, unsigned char option);
+unsigned int dhcp_get_option_uint(const struct DhcpPacket *dhcpPkt, unsigned char option);
 
 /**
  * @brief Built a new DHCP raw packet.
@@ -159,9 +159,9 @@ unsigned int dhcp_get_option_uint(struct DhcpPacket *dhcpPkt, unsigned char opti
  * @return On success returns the pointer to new DHCP packet, otherwise return NULL.
  */
 struct DhcpPacket *dhcp_build_raw(unsigned char op, unsigned char hops, unsigned int xid, unsigned short secs,
-                                  unsigned short flags, struct netaddr_ip *ciaddr, struct netaddr_ip *yiaddr,
-                                  struct netaddr_ip *siaddr, struct netaddr_ip *giaddr, struct netaddr_mac *chaddr,
-                                  char *sname);
+                                  unsigned short flags, const struct netaddr_ip *ciaddr,
+                                  const struct netaddr_ip *yiaddr, const struct netaddr_ip *siaddr,
+                                  const struct netaddr_ip *giaddr, const struct netaddr_mac *chaddr, const char *sname);
 
 /**
  * @brief Injects DHCP discover message into a bufer pointed by `buf`.
@@ -172,8 +172,9 @@ struct DhcpPacket *dhcp_build_raw(unsigned char op, unsigned char hops, unsigned
  * @param flags Flags.
  * @return The function returns the pointer to DHCP discover packet.
  */
-struct DhcpPacket *dhcp_inject_discovery(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
-                                         unsigned short flags);
+struct DhcpPacket *
+dhcp_inject_discovery(unsigned char *buf, const struct netaddr_mac *chaddr, const struct netaddr_ip *ipreq,
+                      unsigned short flags);
 
 /**
  * @brief Injects DHCP raw packet into a bufer pointed by `buf`.
@@ -193,9 +194,10 @@ struct DhcpPacket *dhcp_inject_discovery(unsigned char *buf, struct netaddr_mac 
  * @return The function returns the pointer to DHCP packet.
  */
 struct DhcpPacket *dhcp_inject_raw(unsigned char *buf, unsigned char op, unsigned char hops, unsigned int xid,
-                                   unsigned short secs, unsigned short flags, struct netaddr_ip *ciaddr,
-                                   struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr, struct netaddr_ip *giaddr,
-                                   struct netaddr_mac *chaddr, char *sname);
+                                   unsigned short secs, unsigned short flags, const struct netaddr_ip *ciaddr,
+                                   const struct netaddr_ip *yiaddr, const struct netaddr_ip *siaddr,
+                                   const struct netaddr_ip *giaddr, const struct netaddr_mac *chaddr,
+                                   const char *sname);
 
 /**
  * @brief Injects DHCP release message into a bufer pointed by `buf`.
@@ -207,8 +209,9 @@ struct DhcpPacket *dhcp_inject_raw(unsigned char *buf, unsigned char op, unsigne
  * @param flags Flags.
  * @return The function returns the pointer to DHCP release packet.
  */
-struct DhcpPacket *dhcp_inject_release(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ciaddr,
-                                       struct netaddr_ip *server, unsigned short flags);
+struct DhcpPacket *
+dhcp_inject_release(unsigned char *buf, const struct netaddr_mac *chaddr, const struct netaddr_ip *ciaddr,
+                    const struct netaddr_ip *server, unsigned short flags);
 
 /**
  * @brief Injects DHCP request message into a bufer pointed by `buf`.
@@ -221,8 +224,9 @@ struct DhcpPacket *dhcp_inject_release(unsigned char *buf, struct netaddr_mac *c
  * @param flags Flags.
  * @return The function returns the pointer to DHCP request packet.
  */
-struct DhcpPacket *dhcp_inject_request(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
-                                       unsigned int xid, struct netaddr_ip *siaddr, unsigned short flags);
+struct DhcpPacket *
+dhcp_inject_request(unsigned char *buf, const struct netaddr_mac *chaddr, const struct netaddr_ip *ipreq,
+                    unsigned int xid, const struct netaddr_ip *siaddr, unsigned short flags);
 
 /**
  * @brief Obtains DHCP message type.
@@ -230,7 +234,7 @@ struct DhcpPacket *dhcp_inject_request(unsigned char *buf, struct netaddr_mac *c
  * @param __IN__dhcpPkt Pointer to remote DHCP packet.
  * @return DHCP message type.
  */
-unsigned char dhcp_get_type(struct DhcpPacket *dhcp);
+unsigned char dhcp_get_type(const struct DhcpPacket *dhcp);
 
 /**
  * @brief Obtains options list.
@@ -240,7 +244,7 @@ unsigned char dhcp_get_type(struct DhcpPacket *dhcp);
  * @return On success this function returns an array with all options contained in the DHCP message, otherwise NULL is returned.
  * @warning The returned array doesn't contains the null terminator!
  */
-unsigned char *dhcp_get_options(struct DhcpPacket *dhcpPkt, unsigned char *len);
+unsigned char *dhcp_get_options(const struct DhcpPacket *dhcpPkt, unsigned char *len);
 
 /**
  * @brief Obtains the uchar value of DHCP option.
@@ -249,7 +253,7 @@ unsigned char *dhcp_get_options(struct DhcpPacket *dhcpPkt, unsigned char *len);
  * @param options DHCP option.
  * @return On success this function returns the value of the DHCP option, otherwise 0 is returned.
  */
-unsigned char dhcp_get_option_uchar(struct DhcpPacket *dhcpPkt, unsigned char option);
+unsigned char dhcp_get_option_uchar(const struct DhcpPacket *dhcpPkt, unsigned char option);
 
 /**
  * @brief Obtains the value of DHCP option.
@@ -260,7 +264,7 @@ unsigned char dhcp_get_option_uchar(struct DhcpPacket *dhcpPkt, unsigned char op
  * @return On success this function returns an array with the value of the DHCP option, otherwise NULL is returned.
  * @warning The returned array doesn't contains the null terminator!
  */
-unsigned char *dhcp_get_option_value(struct DhcpPacket *dhcpPkt, unsigned char option, unsigned char *len);
+unsigned char *dhcp_get_option_value(const struct DhcpPacket *dhcpPkt, unsigned char option, unsigned char *len);
 
 /**
  * @brief Obtains a random ID for DHCP message.

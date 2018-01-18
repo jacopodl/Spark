@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -128,7 +128,7 @@ static int spksock_linux_setpromisc(struct SpkSock *ssock, bool promisc) {
     return SPKERR_SUCCESS;
 }
 
-static int spksock_linux_write(struct SpkSock *ssock, unsigned char *buf, unsigned int len) {
+static int spksock_linux_write(struct SpkSock *ssock, const unsigned char *buf, unsigned int len) {
     int byte;
 
     if ((byte = (int) write(ssock->sfd, buf, len)) > 0) {

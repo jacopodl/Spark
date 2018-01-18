@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,7 @@
 #include <udp.h>
 
 struct UdpHeader *udp_build_packet(unsigned short srcp, unsigned short dstp, unsigned short paysize,
-                                   unsigned char *payload) {
+                                   const unsigned char *payload) {
     unsigned long size = UDPHDRSIZE + paysize;
     struct UdpHeader *ret = (struct UdpHeader *) malloc(size);
     if (ret == NULL)
@@ -39,7 +39,7 @@ struct UdpHeader *udp_build_packet(unsigned short srcp, unsigned short dstp, uns
     return ret;
 }
 
-unsigned short udp_checksum(struct UdpHeader *udpHeader, struct Ipv4Header *ipv4Header) {
+unsigned short udp_checksum(struct UdpHeader *udpHeader, const struct Ipv4Header *ipv4Header) {
     unsigned short *buf = (unsigned short *) udpHeader;
     unsigned short udpl = ntohs(ipv4Header->len) - (unsigned short) (ipv4Header->ihl * 4);
     unsigned short length = udpl;

@@ -123,8 +123,7 @@ struct TcpHeader {
  */
 struct TcpHeader *tcp_build_packet(unsigned short src, unsigned short dst, unsigned int seqn, unsigned int ackn,
                                    unsigned char flags, unsigned short window, unsigned short urgp,
-                                   unsigned short paysize,
-                                   unsigned char *payload);
+                                   unsigned short paysize, const unsigned char *payload);
 
 /**
  * @brief Injects TCP packet into a buffer pointed by `buf`.
@@ -148,6 +147,6 @@ struct TcpHeader *tcp_inject_header(unsigned char *buf, unsigned short src, unsi
  * @param __IN__ipv4Header Pointer to ipv4 header.
  * @return The function returns the checksum.
  */
-unsigned short tcp_checksum(struct TcpHeader *TcpHeader, struct Ipv4Header *ipv4Header);
+unsigned short tcp_checksum(struct TcpHeader *TcpHeader, const struct Ipv4Header *ipv4Header);
 
 #endif

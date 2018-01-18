@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,13 +26,13 @@
 #include <spksock.h>
 #include "spksock_common.h"
 
-int spark_getltype(struct SpkSock *ssock) {
+int spark_getltype(const struct SpkSock *ssock) {
     if (ssock == NULL)
         return SPKERR_ENINIT;
     return ssock->lktype;
 }
 
-int spark_opensock(char *device, unsigned int buflen, struct SpkSock **ssock) {
+int spark_opensock(const char *device, unsigned int buflen, struct SpkSock **ssock) {
     int errcode;
 
     if (device == NULL || ssock == NULL)
@@ -93,7 +93,7 @@ int spark_settsprc(struct SpkSock *ssock, enum SpkTimesPrc prc) {
     return ssock->op.setprc(ssock, prc);
 }
 
-int spark_write(struct SpkSock *ssock, unsigned char *buf, unsigned int len) {
+int spark_write(struct SpkSock *ssock, const unsigned char *buf, unsigned int len) {
     if (ssock == NULL)
         return SPKERR_ENINIT;
     return ssock->op.write(ssock, buf, len);

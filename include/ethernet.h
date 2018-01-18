@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -66,21 +66,21 @@ struct EthHeader {
  * @param mac2 Pointer to netaddr_mac structure contains seconds mac address.
  * @return Function returns true if mac1 is equals to mac2, false otherwise.
  */
-bool eth_equals(struct netaddr_mac *mac1, struct netaddr_mac *mac2);
+bool eth_equals(const struct netaddr_mac *mac1, const struct netaddr_mac *mac2);
 
 /**
  * @brief Checks if is a broadcast mac address.
  * @param mac Pointer to netaddr_mac structure contains mac address.
  * @return Function returns true if is a broadcast mac address, false otherwise.
  */
-bool eth_isbcast(struct netaddr_mac *mac);
+bool eth_isbcast(const struct netaddr_mac *mac);
 
 /**
  * @brief Checks if is a empty mac address (All byte are zero!).
  * @param mac Pointer to netaddr_mac structure contains mac address.
  * @return Function returns true if is a empty mac address, false otherwise.
  */
-bool eth_isempty(struct netaddr_mac *mac);
+bool eth_isempty(const struct netaddr_mac *mac);
 
 /**
  * @brief Parse string contains a mac address in the form `XX:XX:XX:XX:XX:XX`.
@@ -89,7 +89,7 @@ bool eth_isempty(struct netaddr_mac *mac);
  * @param bcast Allow broadcast addresses.
  * @return Function returns true if the address has been converted, false otherwise.
  */
-bool eth_parse_addr(char *hwstr, struct netaddr_mac *mac, bool bcast);
+bool eth_parse_addr(const char *hwstr, struct netaddr_mac *mac, bool bcast);
 
 /**
  * @brief Obtains mac address in the form `XX:XX:XX:XX:XX:XX`.
@@ -97,7 +97,7 @@ bool eth_parse_addr(char *hwstr, struct netaddr_mac *mac, bool bcast);
  * @param _static Not allocate new memory, the result will be saved in a static bufer.
  * @return Function returns string contains mac address.
  */
-char *eth_getstr(struct netaddr_mac *mac, bool _static);
+char *eth_getstr(const struct netaddr_mac *mac, bool _static);
 
 /**
  * @brief Obtains mac address in the form `XX:XX:XX:XX:XX:XX`.
@@ -105,7 +105,7 @@ char *eth_getstr(struct netaddr_mac *mac, bool _static);
  * @param __OUT__macstr Pointer to string of dimension ETHSTRLEN.
  * @return Function returns string contains mac address.
  */
-char *eth_getstr_r(struct netaddr_mac *mac, char *macstr);
+char *eth_getstr_r(const struct netaddr_mac *mac, char *macstr);
 
 /**
  * @brief Obtains mac address serial(S) `VV:VV:VV:SS:SS:SS`.
@@ -113,7 +113,7 @@ char *eth_getstr_r(struct netaddr_mac *mac, char *macstr);
  * @param _static Not allocate new memory, the result will be saved in a static bufer.
  * @return Function returns string contains serial.
  */
-char *eth_getstr_serial(struct netaddr_mac *mac, bool _static);
+char *eth_getstr_serial(const struct netaddr_mac *mac, bool _static);
 
 /**
  * @brief Obtains mac address serial(S) `VV:VV:VV:SS:SS:SS`.
@@ -121,7 +121,7 @@ char *eth_getstr_serial(struct netaddr_mac *mac, bool _static);
  * @param __OUT__sstr Pointer to string of dimension ETHSTRHLFLEN.
  * @return Function returns string contains serial.
  */
-char *eth_getstr_serial_r(struct netaddr_mac *mac, char *sstr);
+char *eth_getstr_serial_r(const struct netaddr_mac *mac, char *sstr);
 
 /**
  * @brief Obtains mac address vendor(V) `VV:VV:VV:SS:SS:SS`.
@@ -129,7 +129,7 @@ char *eth_getstr_serial_r(struct netaddr_mac *mac, char *sstr);
  * @param _static Not allocate new memory, the result will be saved in a static bufer.
  * @return Function returns string contains vendor.
  */
-char *eth_getstr_vendor(struct netaddr_mac *mac, bool _static);
+char *eth_getstr_vendor(const struct netaddr_mac *mac, bool _static);
 
 /**
  * @brief Obtains mac address vendor(V) `VV:VV:VV:SS:SS:SS`.
@@ -137,7 +137,7 @@ char *eth_getstr_vendor(struct netaddr_mac *mac, bool _static);
  * @param __OUT__vstr Pointer to string of dimension ETHSTRHLFLEN.
  * @return Function returns string contains vendor.
  */
-char *eth_getstr_vendor_r(struct netaddr_mac *mac, char *vstr);
+char *eth_getstr_vendor_r(const struct netaddr_mac *mac, char *vstr);
 
 /**
  * @brief Built a new Ethernet frames.
@@ -150,8 +150,8 @@ char *eth_getstr_vendor_r(struct netaddr_mac *mac, char *vstr);
  * @param payload Ethernet payload.
  * @return On success returns the pointer to new Ethernet frame of size equal to paysize + ETHHDRSIZE, otherwise return NULL.
  */
-struct EthHeader *eth_build_packet(struct netaddr_mac *src, struct netaddr_mac *dst, unsigned short type,
-                                   unsigned short paysize, unsigned char *payload);
+struct EthHeader *eth_build_packet(const struct netaddr_mac *src, const struct netaddr_mac *dst, unsigned short type,
+                                   unsigned short paysize, const unsigned char *payload);
 
 /**
  * @brief Injects Ethernet header into a bufer pointed by `buf`.
@@ -161,7 +161,7 @@ struct EthHeader *eth_build_packet(struct netaddr_mac *src, struct netaddr_mac *
  * @param type Ethernet frame type.
  * @return The function returns the pointer to Ethernet frame.
  */
-struct EthHeader *eth_inject_header(unsigned char *buf, struct netaddr_mac *src, struct netaddr_mac *dst,
+struct EthHeader *eth_inject_header(unsigned char *buf, const struct netaddr_mac *src, const struct netaddr_mac *dst,
                                     unsigned short type);
 
 /**
@@ -175,7 +175,7 @@ void eth_bcast(struct netaddr_mac *mac);
  * @param __OUT__mac Pointer to netaddr_mac structure.
  * @param __IN__ip Pointer to netaddr_ip structure.
  */
-void eth_multi(struct netaddr_mac *mac, struct netaddr_ip *ip);
+void eth_multi(struct netaddr_mac *mac, const struct netaddr_ip *ip);
 
 /**
  * @brief Obtains a random mac address.

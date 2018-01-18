@@ -46,7 +46,7 @@ static int spksock_bpf_setprc(struct SpkSock *, enum SpkTimesPrc);
 
 static int spksock_bpf_setpromisc(struct SpkSock *, bool);
 
-static int spksock_bpf_write(struct SpkSock *, unsigned char *, unsigned int);
+static int spksock_bpf_write(struct SpkSock *, const unsigned char *, unsigned int);
 
 static int __bpf_get_hwaddr(struct SpkSock *ssock);
 

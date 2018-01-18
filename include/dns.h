@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -172,7 +172,7 @@ struct DnsResourceRecord {
  * @param __IN__dname Pointer to domain name string.
  * @return true if dname string is the same of qname string contains in DNS packet, false otherwise.
  */
-bool dns_qndn_equals(struct DnsHeader *dns, unsigned char *qname, const char *dname);
+bool dns_qndn_equals(const struct DnsHeader *dns, const unsigned char *qname, const char *dname);
 
 /**
  * @brief Returns pointer to DNS answers section (if present).
@@ -180,7 +180,7 @@ bool dns_qndn_equals(struct DnsHeader *dns, unsigned char *qname, const char *dn
  * @param __IN__dns Pointer to DnsHeader.
  * @return On success returns pointer to DNS answers section, otherwise returns NULL.
  */
-unsigned char *dns_jmpto_answers(struct DnsHeader *dns);
+unsigned char *dns_jmpto_answers(const struct DnsHeader *dns);
 
 /**
  * @brief Returns pointer to DNS queries section (if present).
@@ -188,7 +188,7 @@ unsigned char *dns_jmpto_answers(struct DnsHeader *dns);
  * @param __IN__dns Pointer to DnsHeader.
  * @return On success returns pointer to DNS queries section, otherwise returns NULL.
  */
-unsigned char *dns_jmpto_queries(struct DnsHeader *dns);
+unsigned char *dns_jmpto_queries(const struct DnsHeader *dns);
 
 /**
  * @brief Convert(to DNS format) and inject name into a pre-allocated buffer.
@@ -213,7 +213,7 @@ unsigned char *dns_dntoqn(const char *dname, int *rlen);
  * @param __IN__dns Pointer to DNS section contains qname.
  * @return Pointer to DNS query section.
  */
-struct DnsQuery *dns_getquery(unsigned char *buf);
+struct DnsQuery *dns_getquery(const unsigned char *buf);
 
 /**
  * @brief Returns pointer to DNS resource record.
@@ -221,7 +221,7 @@ struct DnsQuery *dns_getquery(unsigned char *buf);
  * @param __IN__dns Pointer to DNS section contains qname.
  * @return Pointer to DNS resource record.
  */
-struct DnsResourceRecord *dns_getrr(unsigned char *buf);
+struct DnsResourceRecord *dns_getrr(const unsigned char *buf);
 
 /**
  * @brief Returns new string that contains dname.
@@ -230,6 +230,6 @@ struct DnsResourceRecord *dns_getrr(unsigned char *buf);
  * @param __IN__qname Pointer to DNS section contains domain name in DNS format(Eg: 3www6google3com0).
  * @return On success returns new string that contains dname, otherwise returns NULL.
  */
-char *dns_qntodn(struct DnsHeader *dns, unsigned char *qname);
+char *dns_qntodn(const struct DnsHeader *dns, const unsigned char *qname);
 
 #endif //SPARK_DNS_H

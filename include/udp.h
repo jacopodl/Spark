@@ -59,7 +59,7 @@ struct UdpHeader {
  * @return On success returns the pointer to new UDP packet of size equal to paysize + UDPHDRSIZE, otherwise return NULL.
  */
 struct UdpHeader *udp_build_packet(unsigned short srcp, unsigned short dstp, unsigned short paysize,
-                                   unsigned char *payload);
+                                   const unsigned char *payload);
 
 /**
  * @brief Injects UDP header into a buffer pointed by `buf`.
@@ -77,6 +77,6 @@ struct UdpHeader *udp_inject_header(unsigned char *buf, unsigned short srcp, uns
  * @param __IN__ipv4Header Pointer to ipv4 header.
  * @return The function returns the checksum.
  */
-unsigned short udp_checksum(struct UdpHeader *udpHeader, struct Ipv4Header *ipv4Header);
+unsigned short udp_checksum(struct UdpHeader *udpHeader, const struct Ipv4Header *ipv4Header);
 
 #endif

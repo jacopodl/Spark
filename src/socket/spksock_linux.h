@@ -37,7 +37,7 @@ static int spksock_linux_setprc(struct SpkSock *, enum SpkTimesPrc);
 
 static int spksock_linux_setpromisc(struct SpkSock *, bool);
 
-static int spksock_linux_write(struct SpkSock *, unsigned char *, unsigned int);
+static int spksock_linux_write(struct SpkSock *, const unsigned char *, unsigned int);
 
 static int __linux_get_ifindex(struct SpkSock *);
 

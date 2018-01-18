@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,6 +43,6 @@
  * @param error Error number.
  * @return On success, pointer to the error message will returned, otherwise returns NULL.
  */
-char *spark_strerror(int error);
+const char *spark_strerror(int error);
 
 #endif //SPARK_SPKERR_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -85,9 +85,9 @@ struct ArpPacket {
  * @return On success returns the pointer to new generic ARP packet, otherwise return NULL.
  */
 struct ArpPacket *arp_build_packet(unsigned short hw_type, unsigned short proto, unsigned char hwalen,
-                                   unsigned char pralen, unsigned short opcode, struct netaddr_generic *shwaddr,
-                                   struct netaddr_generic *spraddr, struct netaddr_generic *dhwaddr,
-                                   struct netaddr_generic *dpraddr);
+                                   unsigned char pralen, unsigned short opcode, const struct netaddr_generic *shwaddr,
+                                   const struct netaddr_generic *spraddr, const struct netaddr_generic *dhwaddr,
+                                   const struct netaddr_generic *dpraddr);
 
 /**
  * @brief Injects generic ARP packet into a buffer pointed by `buf`.
@@ -105,8 +105,8 @@ struct ArpPacket *arp_build_packet(unsigned short hw_type, unsigned short proto,
  */
 struct ArpPacket *arp_inject_packet(unsigned char *buf, unsigned short hw_type, unsigned short proto,
                                     unsigned char hwalen, unsigned char pralen, unsigned short opcode,
-                                    struct netaddr_generic *shwaddr, struct netaddr_generic *spraddr,
-                                    struct netaddr_generic *dhwaddr, struct netaddr_generic *dpraddr);
+                                    const struct netaddr_generic *shwaddr, const struct netaddr_generic *spraddr,
+                                    const struct netaddr_generic *dhwaddr, const struct netaddr_generic *dpraddr);
 
 /**
  * @brief Injects ARP replay packet into a buffer pointed by `buf`.
@@ -117,8 +117,9 @@ struct ArpPacket *arp_inject_packet(unsigned char *buf, unsigned short hw_type, 
  * @param __IN__dpraddr Target protocol address.
  * @return The function returns the pointer to ARP replay packet.
  */
-struct ArpPacket *arp_inject_reply(unsigned char *buf, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
-                                   struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr);
+struct ArpPacket *
+arp_inject_reply(unsigned char *buf, const struct netaddr_mac *shwaddr, const struct netaddr_ip *spraddr,
+                 const struct netaddr_mac *dhwaddr, const struct netaddr_ip *dpraddr);
 
 /**
  * @brief Injects ARP request packet into a buffer pointed by `buf`.
@@ -129,35 +130,36 @@ struct ArpPacket *arp_inject_reply(unsigned char *buf, struct netaddr_mac *shwad
  * @param __IN__dpraddr Target protocol address.
  * @return The function returns the pointer to ARP request packet.
  */
-struct ArpPacket *arp_inject_request(unsigned char *buf, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
-                                     struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr);
+struct ArpPacket *
+arp_inject_request(unsigned char *buf, const struct netaddr_mac *shwaddr, const struct netaddr_ip *spraddr,
+                   const struct netaddr_mac *dhwaddr, const struct netaddr_ip *dpraddr);
 
 /**
  * @brief Obtains dest IP address from ArpPacket.
  * @param __IN__ap Pointer to ArpPacket.
  * @return The function returns netaddr_ip.
  */
-struct netaddr_ip arp_getaddr_d(struct ArpPacket *ap);
+struct netaddr_ip arp_getaddr_d(const struct ArpPacket *ap);
 
 /**
  * @brief Obtains src IP address from ArpPacket.
  * @param __IN__ap Pointer to ArpPacket.
  * @return The function returns netaddr_ip.
  */
-struct netaddr_ip arp_getaddr_s(struct ArpPacket *ap);
+struct netaddr_ip arp_getaddr_s(const struct ArpPacket *ap);
 
 /**
  * @brief Obtains dest MAC address from ArpPacket.
  * @param __IN__ap Pointer to ArpPacket.
  * @return The function returns netaddr_mac.
  */
-struct netaddr_mac arp_gethwaddr_d(struct ArpPacket *ap);
+struct netaddr_mac arp_gethwaddr_d(const struct ArpPacket *ap);
 
 /**
  * @brief Obtains src MAC address from ArpPacket.
  * @param __IN__ap Pointer to ArpPacket.
  * @return The function returns netaddr_mac.
  */
-struct netaddr_mac arp_gethwaddr_s(struct ArpPacket *ap);
+struct netaddr_mac arp_gethwaddr_s(const struct ArpPacket *ap);
 
 #endif

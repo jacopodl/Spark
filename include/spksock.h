@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -90,7 +90,7 @@ struct SpkSock {
 
         int (*setpromisc)(struct SpkSock *, bool promisc);
 
-        int (*write)(struct SpkSock *, unsigned char *, unsigned int);
+        int (*write)(struct SpkSock *, const unsigned char *, unsigned int);
 
         int (*setnblk)(struct SpkSock *, bool nonblock);
 
@@ -103,7 +103,7 @@ struct SpkSock {
  * @param __IN__ssock Pointer to SpkSock structure which handles the active raw socket.
  * @return On success, returns DLT value, otherwise returns -1.
  */
-int spark_getltype(struct SpkSock *ssock);
+int spark_getltype(const struct SpkSock *ssock);
 
 /**
  * @brief Open raw socket on selected network device.
@@ -113,7 +113,7 @@ int spark_getltype(struct SpkSock *ssock);
  * @return Upon successful completion, spark_opensock() returns SPKERR_SUCCESS.
  * Otherwise, a value < 0 shall be returned, you can use spark_strerror to get error message.
  */
-int spark_opensock(char *device, unsigned int buflen, struct SpkSock **ssock);
+int spark_opensock(const char *device, unsigned int buflen, struct SpkSock **ssock);
 
 /**
  * @brief Receive data from the raw socket.
@@ -174,7 +174,7 @@ int spark_settsprc(struct SpkSock *ssock, enum SpkTimesPrc prc);
  * @return On success, the number of bytes written is returned.
  * Otherwise, a value < 0 shall be returned, you can use spark_strerror to get error message.
  */
-int spark_write(struct SpkSock *ssock, unsigned char *buf, unsigned int len);
+int spark_write(struct SpkSock *ssock, const unsigned char *buf, unsigned int len);
 
 /**
  * @brief Close raw socket.

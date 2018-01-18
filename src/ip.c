@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,47 +29,48 @@
 #include <datatype.h>
 #include <ip.h>
 
-inline bool ip_equals(struct netaddr_ip *ip1, struct netaddr_ip *ip2) {
+inline bool ip_equals(const struct netaddr_ip *ip1, const struct netaddr_ip *ip2) {
     return ip1->ip == ip2->ip;
 }
 
-inline bool ip_isbcast(struct netaddr_ip *ip) {
+inline bool ip_isbcast(const struct netaddr_ip *ip) {
     unsigned char *byte = (((unsigned char *) (&ip->ip)));
     return (byte[0] == 0xFF) && (byte[1] == 0xFF) && (byte[2] == 0xFF) && (byte[3] == 0xFF);
 }
 
-inline bool ip_isbcast2(struct netaddr_ip *ip, struct netaddr_ip *netmask) {
+inline bool ip_isbcast2(const struct netaddr_ip *ip, const struct netaddr_ip *netmask) {
     return ip->ip == ((~netmask->ip) | ip->ip);
 }
 
-inline bool ip_isempty(struct netaddr_ip *ip) {
+inline bool ip_isempty(const struct netaddr_ip *ip) {
     return ip->ip == 0x00;
 }
 
-bool ip_isgreater(struct netaddr_ip *ip1, struct netaddr_ip *ip2) {
+bool ip_isgreater(const struct netaddr_ip *ip1, const struct netaddr_ip *ip2) {
     return ((ip1->ip & 0xFF) << 24 | (ip1->ip >> 8 & 0xFF) << 16 | (ip1->ip >> 16 & 0xFF) << 8 |
             (ip1->ip >> 24 & 0xFF)) >
            ((ip2->ip & 0xFF) << 24 | (ip2->ip >> 8 & 0xFF) << 16 | (ip2->ip >> 16 & 0xFF) << 8 |
             (ip2->ip >> 24 & 0xFF));
 }
 
-bool ip_isless(struct netaddr_ip *ip1, struct netaddr_ip *ip2) {
+bool ip_isless(const struct netaddr_ip *ip1, const struct netaddr_ip *ip2) {
     return ((ip1->ip & 0xFF) << 24 | (ip1->ip >> 8 & 0xFF) << 16 | (ip1->ip >> 16 & 0xFF) << 8 |
             (ip1->ip >> 24 & 0xFF)) <
            ((ip2->ip & 0xFF) << 24 | (ip2->ip >> 8 & 0xFF) << 16 | (ip2->ip >> 16 & 0xFF) << 8 |
             (ip2->ip >> 24 & 0xFF));
 }
 
-inline bool ip_ismcast(struct netaddr_ip *ip) {
+inline bool ip_ismcast(const struct netaddr_ip *ip) {
     unsigned char fbyte = *(((unsigned char *) (&ip->ip)));
     return ((fbyte >= 0xE0) && (fbyte <= 0xEF));
 }
 
-inline bool ip_issame_subnet(struct netaddr_ip *addr1, struct netaddr_ip *addr2, struct netaddr_ip *netmask) {
+inline bool
+ip_issame_subnet(const struct netaddr_ip *addr1, const struct netaddr_ip *addr2, struct netaddr_ip *netmask) {
     return (addr1->ip & netmask->ip) == (addr2->ip & netmask->ip);
 }
 
-bool ip_parse_addr(char *ipstr, struct netaddr_ip *ip) {
+bool ip_parse_addr(const char *ipstr, struct netaddr_ip *ip) {
     unsigned int ipaddr[IPADDRSIZE];
     if (strlen(ipstr) >= IPSTRLEN)
         return false;
@@ -82,7 +83,7 @@ bool ip_parse_addr(char *ipstr, struct netaddr_ip *ip) {
     return true;
 }
 
-char *ip_getstr(struct netaddr_ip *ip, bool _static) {
+char *ip_getstr(const struct netaddr_ip *ip, bool _static) {
     static char static_buf[IPSTRLEN];
     char *ipstr = static_buf;
     if (!_static) {
@@ -92,14 +93,14 @@ char *ip_getstr(struct netaddr_ip *ip, bool _static) {
     return ip_getstr_r(ip, ipstr);
 }
 
-inline char *ip_getstr_r(struct netaddr_ip *ip, char *ipstr) {
+inline char *ip_getstr_r(const struct netaddr_ip *ip, char *ipstr) {
     sprintf(ipstr, "%u.%u.%u.%u", (ip->ip) & 0xFF, (ip->ip) >> 8 & 0xFF, (ip->ip) >> 16 & 0xFF, (ip->ip) >> 24 & 0xFF);
     return ipstr;
 }
 
-struct Ipv4Header *ip_build_packet(struct netaddr_ip *src, struct netaddr_ip *dst, unsigned char ihl,
+struct Ipv4Header *ip_build_packet(const struct netaddr_ip *src, const struct netaddr_ip *dst, unsigned char ihl,
                                    unsigned short id, unsigned char ttl, unsigned char proto, unsigned short paysize,
-                                   unsigned char *payload) {
+                                   const unsigned char *payload) {
     unsigned long size = IPHDRSIZE + paysize;
     struct Ipv4Header *ret = (struct Ipv4Header *) malloc(size);
     if (ret == NULL)
@@ -110,7 +111,7 @@ struct Ipv4Header *ip_build_packet(struct netaddr_ip *src, struct netaddr_ip *ds
     return ret;
 }
 
-struct Ipv4Header *ip_inject_header(unsigned char *buf, struct netaddr_ip *src, struct netaddr_ip *dst,
+struct Ipv4Header *ip_inject_header(unsigned char *buf, const struct netaddr_ip *src, const struct netaddr_ip *dst,
                                     unsigned char ihl, unsigned short id, unsigned short len, unsigned char ttl,
                                     unsigned char proto) {
     struct Ipv4Header *ipv4 = (struct Ipv4Header *) buf;
@@ -143,15 +144,15 @@ inline unsigned short ip_mkid() {
     return ((uint16_t) rand());
 }
 
-inline void ip_bcast(struct netaddr_ip *addr, struct netaddr_ip *netmask, struct netaddr_ip *broadcast) {
+inline void ip_bcast(const struct netaddr_ip *addr, const struct netaddr_ip *netmask, struct netaddr_ip *broadcast) {
     broadcast->ip = (~netmask->ip) | addr->ip;
 }
 
-inline void ip_netaddr(struct netaddr_ip *addr, struct netaddr_ip *netmask, struct netaddr_ip *net) {
+inline void ip_netaddr(const struct netaddr_ip *addr, const struct netaddr_ip *netmask, struct netaddr_ip *net) {
     net->ip = addr->ip & netmask->ip;
 }
 
-inline void ip_wildcard(struct netaddr_ip *netmask, struct netaddr_ip *ret_wildcard) {
+inline void ip_wildcard(const struct netaddr_ip *netmask, struct netaddr_ip *ret_wildcard) {
     ret_wildcard->ip = ~netmask->ip;
 }
 

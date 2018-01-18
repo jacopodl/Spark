@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -79,7 +79,7 @@ struct SpkPcap {
  * @return Upon successful completion, spark_pcapnew() returns SPKERR_SUCCESS.
  * Otherwise, a value < 0 shall be returned, you can use spark_strerror to get error message.
  */
-int spark_pnew(char *filename, unsigned int snaplen, unsigned int dlt, struct SpkPcap **spkpcap);
+int spark_pnew(const char *filename, unsigned int snaplen, unsigned int dlt, struct SpkPcap **spkpcap);
 
 /**
  * @brief Write on pcap file.
@@ -90,7 +90,8 @@ int spark_pnew(char *filename, unsigned int snaplen, unsigned int dlt, struct Sp
  * @return Upon successful completion, spark_pcapwrite() returns SPKERR_SUCCESS.
  * Otherwise, a value < 0 shall be returned, you can use spark_strerror to get error message.
  */
-int spark_pwrite(struct SpkPcap *spkpcap, unsigned char *buf, unsigned int buflen, struct SpkTimeStamp *ts);
+int spark_pwrite(const struct SpkPcap *spkpcap, const unsigned char *buf, unsigned int buflen,
+                 const struct SpkTimeStamp *ts);
 
 /**
  * @brief Close opened pcap file.

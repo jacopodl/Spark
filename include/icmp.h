@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -81,7 +81,7 @@ struct IcmpHeader {
  * @return On success returns the pointer to new ICMP packet of size equal to paysize + ICMP4HDRSIZE, otherwise return NULL.
  */
 struct IcmpHeader *icmp_build_packet(unsigned char type, unsigned char code, unsigned short paysize,
-                                     unsigned char *payload);
+                                     const unsigned char *payload);
 
 /**
  * @brief Injects ICMP echo reply into a buffer pointed by `buf`.

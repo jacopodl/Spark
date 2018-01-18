@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,9 +27,9 @@
 #include <arp.h>
 
 struct ArpPacket *arp_build_packet(unsigned short hw_type, unsigned short proto, unsigned char hwalen,
-                                   unsigned char pralen, unsigned short opcode, struct netaddr_generic *shwaddr,
-                                   struct netaddr_generic *spraddr, struct netaddr_generic *dhwaddr,
-                                   struct netaddr_generic *dpraddr) {
+                                   unsigned char pralen, unsigned short opcode, const struct netaddr_generic *shwaddr,
+                                   const struct netaddr_generic *spraddr, const struct netaddr_generic *dhwaddr,
+                                   const struct netaddr_generic *dpraddr) {
     unsigned int size = (unsigned int) ARPHDRSIZE + ((hwalen + pralen) * 2);
     struct ArpPacket *arp = (struct ArpPacket *) malloc(size);
 
@@ -51,8 +51,8 @@ struct ArpPacket *arp_build_packet(unsigned short hw_type, unsigned short proto,
 
 struct ArpPacket *arp_inject_packet(unsigned char *buf, unsigned short hw_type, unsigned short proto,
                                     unsigned char hwalen, unsigned char pralen, unsigned short opcode,
-                                    struct netaddr_generic *shwaddr, struct netaddr_generic *spraddr,
-                                    struct netaddr_generic *dhwaddr, struct netaddr_generic *dpraddr) {
+                                    const struct netaddr_generic *shwaddr, const struct netaddr_generic *spraddr,
+                                    const struct netaddr_generic *dhwaddr, const struct netaddr_generic *dpraddr) {
     struct ArpPacket *arp = (struct ArpPacket *) buf;
     unsigned char *data = (unsigned char *) arp->data;
     unsigned int tlen = (unsigned int) ARPHDRSIZE + ((hwalen + pralen) * 2);
@@ -76,8 +76,9 @@ struct ArpPacket *arp_inject_packet(unsigned char *buf, unsigned short hw_type, 
     return arp;
 }
 
-struct ArpPacket *arp_inject_reply(unsigned char *buf, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
-                                   struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr) {
+struct ArpPacket *
+arp_inject_reply(unsigned char *buf, const struct netaddr_mac *shwaddr, const struct netaddr_ip *spraddr,
+                 const struct netaddr_mac *dhwaddr, const struct netaddr_ip *dpraddr) {
     return arp_inject_packet(buf,
                              ARPHWT_ETH,
                              ETHTYPE_IP,
@@ -90,8 +91,9 @@ struct ArpPacket *arp_inject_reply(unsigned char *buf, struct netaddr_mac *shwad
                              (struct netaddr_generic *) dpraddr);
 }
 
-struct ArpPacket *arp_inject_request(unsigned char *buf, struct netaddr_mac *shwaddr, struct netaddr_ip *spraddr,
-                                     struct netaddr_mac *dhwaddr, struct netaddr_ip *dpraddr) {
+struct ArpPacket *
+arp_inject_request(unsigned char *buf, const struct netaddr_mac *shwaddr, const struct netaddr_ip *spraddr,
+                   const struct netaddr_mac *dhwaddr, const struct netaddr_ip *dpraddr) {
     return arp_inject_packet(buf,
                              ARPHWT_ETH,
                              ETHTYPE_IP,
@@ -104,25 +106,25 @@ struct ArpPacket *arp_inject_request(unsigned char *buf, struct netaddr_mac *shw
                              (struct netaddr_generic *) dpraddr);
 }
 
-struct netaddr_ip arp_getaddr_d(struct ArpPacket *ap) {
+struct netaddr_ip arp_getaddr_d(const struct ArpPacket *ap) {
     netaddr_ip(ip);
     ip.ip = *((unsigned int *) (ap->data + ETHHWASIZE + IPADDRSIZE + ETHHWASIZE));
     return ip;
 }
 
-struct netaddr_ip arp_getaddr_s(struct ArpPacket *ap) {
+struct netaddr_ip arp_getaddr_s(const struct ArpPacket *ap) {
     netaddr_ip(ip);
     ip.ip = *((unsigned int *) (ap->data + ETHHWASIZE));
     return ip;
 }
 
-struct netaddr_mac arp_gethwaddr_d(struct ArpPacket *ap) {
+struct netaddr_mac arp_gethwaddr_d(const struct ArpPacket *ap) {
     netaddr_mac(mac);
     memcpy(mac.mac, (ap->data + ETHHWASIZE + IPADDRSIZE), ETHHWASIZE);
     return mac;
 }
 
-struct netaddr_mac arp_gethwaddr_s(struct ArpPacket *ap) {
+struct netaddr_mac arp_gethwaddr_s(const struct ArpPacket *ap) {
     netaddr_mac(mac);
     memcpy(mac.mac, ap->data, ETHHWASIZE);
     return mac;

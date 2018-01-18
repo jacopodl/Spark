@@ -169,7 +169,7 @@ static int spksock_bpf_setpromisc(struct SpkSock *ssock, bool promisc) {
     return SPKERR_SUCCESS;
 }
 
-static int spksock_bpf_write(struct SpkSock *ssock, unsigned char *buf, unsigned int len) {
+static int spksock_bpf_write(struct SpkSock *ssock, const unsigned char *buf, unsigned int len) {
     int byte;
 
     if ((byte = (int) write(ssock->sfd, buf, len)) > 0) {

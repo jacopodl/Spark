@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,7 +30,7 @@
 #include <spkerr.h>
 #include <netdevice.h>
 
-int netdev_get_flags(char *iface_name, short *flags) {
+int netdev_get_flags(const char *iface_name, short *flags) {
     int ret;
     int ctl_sock;
     struct ifreq req;
@@ -49,7 +49,7 @@ int netdev_get_flags(char *iface_name, short *flags) {
     return ret;
 }
 
-int netdev_get_ip(char *iface_name, struct netaddr_ip *ip) {
+int netdev_get_ip(const char *iface_name, struct netaddr_ip *ip) {
     int ret = SPKERR_ERROR;
     int ctl_sock;
     struct ifreq req;
@@ -70,7 +70,7 @@ int netdev_get_ip(char *iface_name, struct netaddr_ip *ip) {
     return ret;
 }
 
-int netdev_get_mtu(char *iface_name) {
+int netdev_get_mtu(const char *iface_name) {
     int ret = SPKERR_ERROR;
     int ctl_sock;
     struct ifreq req;
@@ -87,7 +87,7 @@ int netdev_get_mtu(char *iface_name) {
     return ret;
 }
 
-int netdev_get_netmask(char *iface_name, struct netaddr_ip *netmask) {
+int netdev_get_netmask(const char *iface_name, struct netaddr_ip *netmask) {
     int ret = SPKERR_ERROR;
     int ctl_sock;
     struct ifreq req;
@@ -108,7 +108,7 @@ int netdev_get_netmask(char *iface_name, struct netaddr_ip *netmask) {
     return ret;
 }
 
-int netdev_set_flags(char *iface_name, short flags) {
+int netdev_set_flags(const char *iface_name, short flags) {
     int ret;
     int ctl_sock;
     struct ifreq req;
@@ -126,7 +126,7 @@ int netdev_set_flags(char *iface_name, short flags) {
     return ret;
 }
 
-int netdev_set_mtu(char *iface_name, int mtu) {
+int netdev_set_mtu(const char *iface_name, int mtu) {
     int ret;
     int ctl_sock;
     struct ifreq req;
@@ -144,7 +144,7 @@ int netdev_set_mtu(char *iface_name, int mtu) {
     return ret;
 }
 
-int netdev_set_active(char *iface_name, bool enabled) {
+int netdev_set_active(const char *iface_name, bool enabled) {
     int ret;
     int ctl_sock;
     struct ifreq req;

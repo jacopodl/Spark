@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,7 @@
 
 struct TcpHeader *tcp_build_packet(unsigned short src, unsigned short dst, unsigned int seqn, unsigned int ackn,
                                    unsigned char flags, unsigned short window, unsigned short urgp,
-                                   unsigned short paysize, unsigned char *payload) {
+                                   unsigned short paysize, const unsigned char *payload) {
     unsigned long size = TCPHDRSIZE + paysize;
     struct TcpHeader *ret = NULL;
     if ((ret = (struct TcpHeader *) malloc(size)) == NULL)
@@ -57,7 +57,7 @@ struct TcpHeader *tcp_inject_header(unsigned char *buf, unsigned short src, unsi
     return ret;
 }
 
-unsigned short tcp_checksum(struct TcpHeader *TcpHeader, struct Ipv4Header *ipv4Header) {
+unsigned short tcp_checksum(struct TcpHeader *TcpHeader, const struct Ipv4Header *ipv4Header) {
     unsigned short *buf = (unsigned short *) TcpHeader;
     unsigned short tcpl = ntohs(ipv4Header->len) - (unsigned short) (ipv4Header->ihl * 4);
     unsigned short length = tcpl;

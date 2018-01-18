@@ -92,7 +92,7 @@ int main()
 
     MIT License
 
-    Copyright (c) 2016 - 2017 Jacopo De Luca
+    Copyright (c) 2016 - 2018 Jacopo De Luca
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal

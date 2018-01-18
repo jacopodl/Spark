@@ -29,7 +29,7 @@
 #include <ip.h>
 #include <dhcp.h>
 
-bool dhcp_append_option(struct DhcpPacket *dhcpPkt, unsigned char op, unsigned char len, unsigned char *payload) {
+bool dhcp_append_option(struct DhcpPacket *dhcpPkt, unsigned char op, unsigned char len, const unsigned char *payload) {
     int i = 0;
     for (i; i < DHCP_OPTLEN && dhcpPkt->options[i] != 0xFF; i += dhcpPkt->options[i + 1] + 2);
     if (i == DHCP_OPTLEN || (DHCP_OPTLEN - i) < 2 + len)
@@ -42,12 +42,12 @@ bool dhcp_append_option(struct DhcpPacket *dhcpPkt, unsigned char op, unsigned c
     return true;
 }
 
-inline bool dhcp_type_equals(struct DhcpPacket *dhcpPkt, unsigned char type) {
+inline bool dhcp_type_equals(const struct DhcpPacket *dhcpPkt, unsigned char type) {
     return dhcp_get_type(dhcpPkt) == type;
 }
 
-unsigned int dhcp_get_option_uint(struct DhcpPacket *dhcpPkt, unsigned char option) {
-    unsigned char *bufopt = dhcpPkt->options;
+unsigned int dhcp_get_option_uint(const struct DhcpPacket *dhcpPkt, unsigned char option) {
+    unsigned char *bufopt = (unsigned char *) dhcpPkt->options;
     for (unsigned int i = 0; i < DHCP_OPTLEN && bufopt[i] != 0xFF; i += bufopt[i + 1] + 2)
         if (bufopt[i] == option)
             return *((unsigned int *) (bufopt + i + 2));
@@ -55,9 +55,10 @@ unsigned int dhcp_get_option_uint(struct DhcpPacket *dhcpPkt, unsigned char opti
 }
 
 struct DhcpPacket *dhcp_build_raw(unsigned char op, unsigned char hops, unsigned int xid, unsigned short secs,
-                                  unsigned short flags, struct netaddr_ip *ciaddr, struct netaddr_ip *yiaddr,
-                                  struct netaddr_ip *siaddr, struct netaddr_ip *giaddr, struct netaddr_mac *chaddr,
-                                  char *sname) {
+                                  unsigned short flags, const struct netaddr_ip *ciaddr,
+                                  const struct netaddr_ip *yiaddr, const struct netaddr_ip *siaddr,
+                                  const struct netaddr_ip *giaddr, const struct netaddr_mac *chaddr,
+                                  const char *sname) {
     struct DhcpPacket *dhcpPkt = (struct DhcpPacket *) malloc(DHCPPKTSIZE);
 
     if (dhcpPkt == NULL)
@@ -67,8 +68,8 @@ struct DhcpPacket *dhcp_build_raw(unsigned char op, unsigned char hops, unsigned
                            chaddr, sname);
 }
 
-struct DhcpPacket *dhcp_inject_discovery(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
-                                         unsigned short flags) {
+struct DhcpPacket *dhcp_inject_discovery(unsigned char *buf, const struct netaddr_mac *chaddr,
+                                         const struct netaddr_ip *ipreq, unsigned short flags) {
     static const unsigned char buf_parameter_request[] = {DHCP_REQ_SUBMASK, DHCP_REQ_ROUTERS, DHCP_REQ_DOMAIN_NAME,
                                                           DHCP_REQ_DNS};
     unsigned char buf_client_id[ETHHWASIZE + 1];
@@ -94,9 +95,10 @@ struct DhcpPacket *dhcp_inject_discovery(unsigned char *buf, struct netaddr_mac 
 }
 
 struct DhcpPacket *dhcp_inject_raw(unsigned char *buf, unsigned char op, unsigned char hops, unsigned int xid,
-                                   unsigned short secs, unsigned short flags, struct netaddr_ip *ciaddr,
-                                   struct netaddr_ip *yiaddr, struct netaddr_ip *siaddr, struct netaddr_ip *giaddr,
-                                   struct netaddr_mac *chaddr, char *sname) {
+                                   unsigned short secs, unsigned short flags, const struct netaddr_ip *ciaddr,
+                                   const struct netaddr_ip *yiaddr, const struct netaddr_ip *siaddr,
+                                   const struct netaddr_ip *giaddr, const struct netaddr_mac *chaddr,
+                                   const char *sname) {
     struct DhcpPacket *dhcpPkt = (struct DhcpPacket *) buf;
     memset(dhcpPkt, 0x00, DHCPPKTSIZE);
     dhcpPkt->op = op;
@@ -123,8 +125,9 @@ struct DhcpPacket *dhcp_inject_raw(unsigned char *buf, unsigned char op, unsigne
     return dhcpPkt;
 }
 
-struct DhcpPacket *dhcp_inject_release(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ciaddr,
-                                       struct netaddr_ip *server, unsigned short flags) {
+struct DhcpPacket *
+dhcp_inject_release(unsigned char *buf, const struct netaddr_mac *chaddr, const struct netaddr_ip *ciaddr,
+                    const struct netaddr_ip *server, unsigned short flags) {
     int optoff = 0;
     struct DhcpPacket *dhcpPkt = dhcp_inject_raw(buf, DHCP_OP_BOOT_REQUEST, 0, dhcp_mkxid(), 0, flags, ciaddr, NULL,
                                                  NULL, NULL,
@@ -139,9 +142,9 @@ struct DhcpPacket *dhcp_inject_release(unsigned char *buf, struct netaddr_mac *c
     return dhcpPkt;
 }
 
-struct DhcpPacket *dhcp_inject_request(unsigned char *buf, struct netaddr_mac *chaddr, struct netaddr_ip *ipreq,
-                                       unsigned int xid, struct netaddr_ip *siaddr,
-                                       unsigned short flags) {
+struct DhcpPacket *
+dhcp_inject_request(unsigned char *buf, const struct netaddr_mac *chaddr, const struct netaddr_ip *ipreq,
+                    unsigned int xid, const struct netaddr_ip *siaddr, unsigned short flags) {
     int optoff = 0;
     struct DhcpPacket *dhcpPkt = dhcp_inject_raw(buf, DHCP_OP_BOOT_REQUEST, 0, xid, 0, flags, NULL, NULL, siaddr, NULL,
                                                  chaddr, NULL);
@@ -156,12 +159,12 @@ struct DhcpPacket *dhcp_inject_request(unsigned char *buf, struct netaddr_mac *c
     return dhcpPkt;
 }
 
-unsigned char dhcp_get_type(struct DhcpPacket *dhcp) {
+unsigned char dhcp_get_type(const struct DhcpPacket *dhcp) {
     return dhcp_get_option_uchar(dhcp, DHCP_MESSAGE_TYPE);
 }
 
-unsigned char *dhcp_get_options(struct DhcpPacket *dhcpPkt, unsigned char *len) {
-    unsigned char *bufopt = dhcpPkt->options;
+unsigned char *dhcp_get_options(const struct DhcpPacket *dhcpPkt, unsigned char *len) {
+    unsigned char *bufopt = (unsigned char *) dhcpPkt->options;
     unsigned char *olist = NULL;
 
     *len = 0;
@@ -177,16 +180,16 @@ unsigned char *dhcp_get_options(struct DhcpPacket *dhcpPkt, unsigned char *len) 
     return olist;
 }
 
-unsigned char dhcp_get_option_uchar(struct DhcpPacket *dhcpPkt, unsigned char option) {
-    unsigned char *bufopt = dhcpPkt->options;
+unsigned char dhcp_get_option_uchar(const struct DhcpPacket *dhcpPkt, unsigned char option) {
+    unsigned char *bufopt = (unsigned char *) dhcpPkt->options;
     for (unsigned int i = 0; i < DHCP_OPTLEN && bufopt[i] != 0xFF; i += bufopt[i + 1] + 2)
         if (bufopt[i] == option)
             return bufopt[i + 2];
     return 0;
 }
 
-unsigned char *dhcp_get_option_value(struct DhcpPacket *dhcpPkt, unsigned char option, unsigned char *len) {
-    unsigned char *bufopt = dhcpPkt->options;
+unsigned char *dhcp_get_option_value(const struct DhcpPacket *dhcpPkt, unsigned char option, unsigned char *len) {
+    unsigned char *bufopt = (unsigned char *) dhcpPkt->options;
     unsigned char *data = NULL;
 
     for (unsigned int i = 0; i < DHCP_OPTLEN && bufopt[i] != 0xFF; i += bufopt[i + 1] + 2) {

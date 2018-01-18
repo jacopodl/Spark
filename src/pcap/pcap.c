@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,7 @@
 #include <spkerr.h>
 #include <pcap.h>
 
-int spark_pnew(char *filename, unsigned int snaplen, unsigned int dlt, struct SpkPcap **spkpcap) {
+int spark_pnew(const char *filename, unsigned int snaplen, unsigned int dlt, struct SpkPcap **spkpcap) {
     int err = SPKERR_SUCCESS;
 
     if (filename == NULL || spkpcap == NULL)
@@ -84,7 +84,8 @@ int spark_pnew(char *filename, unsigned int snaplen, unsigned int dlt, struct Sp
     return err;
 }
 
-int spark_pwrite(struct SpkPcap *spkpcap, unsigned char *buf, unsigned int buflen, struct SpkTimeStamp *ts) {
+int spark_pwrite(const struct SpkPcap *spkpcap, const unsigned char *buf, unsigned int buflen,
+                 const struct SpkTimeStamp *ts) {
     struct SpkPcapRecord *record;
     int err = SPKERR_SUCCESS;
 

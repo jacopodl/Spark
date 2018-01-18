@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Jacopo De Luca
+ * Copyright (c) 2016 - 2018 Jacopo De Luca
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -41,7 +41,7 @@ static const struct ErrorInfo __spk_error_table[] =
                 {SPKERR_ESIZE,      "Message too large"}
         };
 
-char *spark_strerror(int error) {
+const char *spark_strerror(int error) {
     char *ret = NULL;
 
     for (int i = 0; i < (sizeof(__spk_error_table) / sizeof(struct ErrorInfo)); i++)
