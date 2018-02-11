@@ -28,6 +28,7 @@
 #ifndef SPARK_UDP_H
 #define SPARK_UDP_H
 
+#include <stdbool.h>
 #include "ip.h"
 
 #define IPTYPE_UDP  0x11
@@ -70,6 +71,14 @@ struct UdpHeader *udp_build_packet(unsigned short srcp, unsigned short dstp, uns
  * @return The function returns the pointer to UDP packet.
  */
 struct UdpHeader *udp_inject_header(unsigned char *buf, unsigned short srcp, unsigned short dstp, unsigned short len);
+
+/**
+ * @brief Verify UDP checksum.
+ * @param __IN__udpHeader Pointer to remote UDP packet.
+ * @param __IN__ipv4Header Pointer to ipv4 header.
+ * @return The function returns true if checksum is correct, otherwise returns false.
+ */
+bool udp_checksum_vfy(const struct UdpHeader *udpHeader, const struct Ipv4Header *ipv4Header);
 
 /**
  * @brief Computes the UDP checksum.

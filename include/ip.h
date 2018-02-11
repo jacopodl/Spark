@@ -75,6 +75,13 @@ struct Ipv4Header {
 }__attribute__((packed));
 
 /**
+ * @brief Verify IPv4 checksum.
+ * @param __IN__ipv4Header Pointer to ipv4 header.
+ * @return The function returns true if checksum is correct, otherwise returns false.
+ */
+bool ip_checksum_vfy(const struct Ipv4Header *ipHeader);
+
+/**
  * @brief Compare two IPv4 address.
  * @param ip1 Pointer to netaddr_ip structure contains first ip address.
  * @param ip2 Pointer to netaddr_ip structure contains seconds ip address.

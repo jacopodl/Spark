@@ -29,6 +29,23 @@
 #include <datatype.h>
 #include <ip.h>
 
+static unsigned short __ip_cksum(struct Ipv4Header *ipHeader, bool verify) {
+    unsigned short *buf = (unsigned short *) ipHeader;
+    register unsigned int sum = 0;
+
+    if (!verify)
+        ipHeader->checksum = 0;
+
+    for (int i = 0; i < IPHDRSIZE; sum += *buf++, i += 2);
+    sum = (sum >> 16) + (sum & 0xffff);
+    sum += (sum >> 16);
+    return (unsigned short) ~sum;
+}
+
+bool ip_checksum_vfy(const struct Ipv4Header *ipHeader) {
+    return __ip_cksum((struct Ipv4Header *) ipHeader, true) == 0;
+}
+
 inline bool ip_equals(const struct netaddr_ip *ip1, const struct netaddr_ip *ip2) {
     return ip1->ip == ip2->ip;
 }
@@ -130,13 +147,7 @@ struct Ipv4Header *ip_inject_header(unsigned char *buf, const struct netaddr_ip 
 }
 
 unsigned short ip_checksum(struct Ipv4Header *ipHeader) {
-    unsigned short *buf = (unsigned short *) ipHeader;
-    register unsigned int sum = 0;
-    ipHeader->checksum = 0;
-    for (int i = 0; i < IPHDRSIZE; sum += *buf++, i += 2);
-    sum = (sum >> 16) + (sum & 0xffff);
-    sum += (sum >> 16);
-    return (unsigned short) ~sum;
+    return __ip_cksum(ipHeader, false);
 }
 
 inline unsigned short ip_mkid() {

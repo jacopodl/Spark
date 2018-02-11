@@ -27,6 +27,39 @@
 #include <ip.h>
 #include <tcp.h>
 
+static unsigned short __tcp_cksum(struct TcpHeader *tcpHeader, const struct Ipv4Header *ipv4Header, bool verify) {
+    unsigned short *buf = (unsigned short *) tcpHeader;
+    unsigned short tcpl = ntohs(ipv4Header->len) - (unsigned short) (ipv4Header->ihl * 4);
+    unsigned short length = tcpl;
+    register unsigned int sum = 0;
+
+    if (!verify)
+        tcpHeader->checksum = 0;
+
+    while (tcpl > 1) {
+        sum += *buf++;
+        if (sum & 0x80000000)
+            sum = (sum & 0xFFFF) + (sum >> 16);
+        tcpl -= 2;
+    }
+
+    if (tcpl & 1)
+        sum += *((unsigned char *) buf);
+
+    // Add the pseudo-header
+    sum += *(((unsigned short *) &ipv4Header->saddr));
+    sum += *(((unsigned short *) &ipv4Header->saddr) + 1);
+    sum += *(((unsigned short *) &ipv4Header->daddr));
+    sum += *(((unsigned short *) &ipv4Header->daddr) + 1);
+    sum += htons(0x06);
+    sum += htons(length);
+
+    while (sum >> 16)
+        sum = (sum & 0xFFFF) + (sum >> 16);
+
+    return (unsigned short) ~sum;
+}
+
 struct TcpHeader *tcp_build_packet(unsigned short src, unsigned short dst, unsigned int seqn, unsigned int ackn,
                                    unsigned char flags, unsigned short window, unsigned short urgp,
                                    unsigned short paysize, const unsigned char *payload) {
@@ -57,33 +90,10 @@ struct TcpHeader *tcp_inject_header(unsigned char *buf, unsigned short src, unsi
     return ret;
 }
 
-unsigned short tcp_checksum(struct TcpHeader *TcpHeader, const struct Ipv4Header *ipv4Header) {
-    unsigned short *buf = (unsigned short *) TcpHeader;
-    unsigned short tcpl = ntohs(ipv4Header->len) - (unsigned short) (ipv4Header->ihl * 4);
-    unsigned short length = tcpl;
-    register unsigned int sum = 0;
+bool tcp_checksum_vfy(const struct TcpHeader *tcpHeader, const struct Ipv4Header *ipv4Header) {
+    return __tcp_cksum((struct TcpHeader *) tcpHeader, ipv4Header, true) == 0;
+}
 
-    TcpHeader->checksum = 0;
-    while (tcpl > 1) {
-        sum += *buf++;
-        if (sum & 0x80000000)
-            sum = (sum & 0xFFFF) + (sum >> 16);
-        tcpl -= 2;
-    }
-
-    if (tcpl & 1)
-        sum += *((unsigned char *) buf);
-
-    // Add the pseudo-header
-    sum += *(((unsigned short *) &ipv4Header->saddr));
-    sum += *(((unsigned short *) &ipv4Header->saddr) + 1);
-    sum += *(((unsigned short *) &ipv4Header->daddr));
-    sum += *(((unsigned short *) &ipv4Header->daddr) + 1);
-    sum += htons(0x06);
-    sum += htons(length);
-
-    while (sum >> 16)
-        sum = (sum & 0xFFFF) + (sum >> 16);
-
-    return (unsigned short) ~sum;
+unsigned short tcp_checksum(struct TcpHeader *tcpHeader, const struct Ipv4Header *ipv4Header) {
+    return __tcp_cksum(tcpHeader, ipv4Header, false);
 }

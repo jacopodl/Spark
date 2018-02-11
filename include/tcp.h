@@ -28,6 +28,7 @@
 #ifndef SPARK_TCP_H
 #define SPARK_TCP_H
 
+#include <stdbool.h>
 #include "ip.h"
 
 #define IPTYPE_TCP  0x06
@@ -142,11 +143,19 @@ struct TcpHeader *tcp_inject_header(unsigned char *buf, unsigned short src, unsi
                                     unsigned short urgp);
 
 /**
+ * @brief Verify TCP checksum.
+ * @param __IN__tcpHeader Pointer to remote TCP packet.
+ * @param __IN__ipv4Header Pointer to ipv4 header.
+ * @return The function returns true if checksum is correct, otherwise returns false.
+ */
+bool tcp_checksum_vfy(const struct TcpHeader *tcpHeader, const struct Ipv4Header *ipv4Header);
+
+/**
  * @brief Computes the TCP checksum.
- * @param __IN__TcpHeader Pointer to remote TCP packet.
+ * @param __IN__tcpHeader Pointer to remote TCP packet.
  * @param __IN__ipv4Header Pointer to ipv4 header.
  * @return The function returns the checksum.
  */
-unsigned short tcp_checksum(struct TcpHeader *TcpHeader, const struct Ipv4Header *ipv4Header);
+unsigned short tcp_checksum(struct TcpHeader *tcpHeader, const struct Ipv4Header *ipv4Header);
 
 #endif

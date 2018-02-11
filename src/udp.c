@@ -27,25 +27,15 @@
 #include <ip.h>
 #include <udp.h>
 
-struct UdpHeader *udp_build_packet(unsigned short srcp, unsigned short dstp, unsigned short paysize,
-                                   const unsigned char *payload) {
-    unsigned long size = UDPHDRSIZE + paysize;
-    struct UdpHeader *ret = (struct UdpHeader *) malloc(size);
-    if (ret == NULL)
-        return NULL;
-    udp_inject_header((unsigned char *) ret, srcp, dstp, paysize);
-    if (payload != NULL)
-        memcpy(ret->data, payload, paysize);
-    return ret;
-}
-
-unsigned short udp_checksum(struct UdpHeader *udpHeader, const struct Ipv4Header *ipv4Header) {
+static unsigned short __udp_cksum(struct UdpHeader *udpHeader, const struct Ipv4Header *ipv4Header, bool verify) {
     unsigned short *buf = (unsigned short *) udpHeader;
     unsigned short udpl = ntohs(ipv4Header->len) - (unsigned short) (ipv4Header->ihl * 4);
     unsigned short length = udpl;
     register unsigned int sum = 0;
 
-    udpHeader->checksum = 0;
+    if (!verify)
+        udpHeader->checksum = 0;
+
     while (udpl > 1) {
         sum += *buf++;
         if (sum & 0x80000000)
@@ -70,6 +60,18 @@ unsigned short udp_checksum(struct UdpHeader *udpHeader, const struct Ipv4Header
     return (unsigned short) ~sum;
 }
 
+struct UdpHeader *udp_build_packet(unsigned short srcp, unsigned short dstp, unsigned short paysize,
+                                   const unsigned char *payload) {
+    unsigned long size = UDPHDRSIZE + paysize;
+    struct UdpHeader *ret = (struct UdpHeader *) malloc(size);
+    if (ret == NULL)
+        return NULL;
+    udp_inject_header((unsigned char *) ret, srcp, dstp, paysize);
+    if (payload != NULL)
+        memcpy(ret->data, payload, paysize);
+    return ret;
+}
+
 struct UdpHeader *udp_inject_header(unsigned char *buf, unsigned short srcp, unsigned short dstp,
                                     unsigned short len) {
     struct UdpHeader *ret = (struct UdpHeader *) buf;
@@ -78,4 +80,12 @@ struct UdpHeader *udp_inject_header(unsigned char *buf, unsigned short srcp, uns
     ret->dstport = htons(dstp);
     ret->len = htons(((unsigned short) UDPHDRSIZE) + len);
     return ret;
+}
+
+bool udp_checksum_vfy(const struct UdpHeader *udpHeader, const struct Ipv4Header *ipv4Header) {
+    return __udp_cksum((struct UdpHeader *) udpHeader, ipv4Header, true) == 0;
+}
+
+unsigned short udp_checksum(struct UdpHeader *udpHeader, const struct Ipv4Header *ipv4Header) {
+    return __udp_cksum(udpHeader, ipv4Header, false);
 }
