@@ -141,7 +141,7 @@ bool ip_ismcast(const struct netaddr_ip *ip);
  * @param netmask Pointer to netaddr_ip structure contains netmask.
  * @return Function returns true if the addr1 and addr2 are on the same subnet, false otherwise.
  */
-bool ip_issame_subnet(const struct netaddr_ip *addr1, const struct netaddr_ip *addr2, struct netaddr_ip *netmask);
+bool ip_issame_subnet(const struct netaddr_ip *addr1, const struct netaddr_ip *addr2, const struct netaddr_ip *netmask);
 
 /**
  * @brief Parse string contains a ipv4 address in the form `000.000.000.000`.

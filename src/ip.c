@@ -82,8 +82,8 @@ inline bool ip_ismcast(const struct netaddr_ip *ip) {
     return ((fbyte >= 0xE0) && (fbyte <= 0xEF));
 }
 
-inline bool
-ip_issame_subnet(const struct netaddr_ip *addr1, const struct netaddr_ip *addr2, struct netaddr_ip *netmask) {
+inline bool ip_issame_subnet(const struct netaddr_ip *addr1, const struct netaddr_ip *addr2,
+                             const struct netaddr_ip *netmask) {
     return (addr1->ip & netmask->ip) == (addr2->ip & netmask->ip);
 }
 
