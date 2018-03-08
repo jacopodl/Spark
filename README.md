@@ -4,7 +4,7 @@
 ![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)
 ![](https://img.shields.io/badge/Supported%20Os-Linux%2FMac%20Os-red.svg)
 
-# Spark #
+# :zap: Spark :zap: #
 Small and easy to use network library that support raw socket, pcap file and contains API to easily manipulate the main Internet protocols.  
 
 # How to use #
@@ -23,7 +23,7 @@ Now you can build library in this way:  \
     $ cmake .
     $ make
 
-If the build finishes without errors, the compiled library will be located in the bin directory and related headers file will be located in include directory.
+If the build finishes without errors :tada:, the compiled library will be located in the bin directory and related header files will be located in include directory.
 
 ## Quick tour ##
 
@@ -62,7 +62,7 @@ spark_pclose(mypcap);
 
 ```
 
-### Polymorphic type ###
+### Polymorphic types ###
 
 ```C
 void addr_printer(struct netaddr *addr)
