@@ -31,7 +31,7 @@
 #include <net/if_arp.h>
 #include <linux/if_packet.h>
 #include <linux/if_ether.h>
-
+#include <linux/sockios.h>
 #include <ethernet.h>
 #include "spksock_common.h"
 #include "spksock_linux.h"
